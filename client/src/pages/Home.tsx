@@ -12,10 +12,10 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen relative bg-white">
       <div className="relative z-10">
         <Header />
-        <main className="pt-20">
+        <main className="pt-20 bg-white/95">
           <HeroSlider />
           <ECGAnimation />
           <IntroSection />
