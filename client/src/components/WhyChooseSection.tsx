@@ -1,75 +1,141 @@
 import { Card } from "@/components/ui/card";
-import { User, Cpu, Heart, ArrowRight } from "lucide-react";
+import { Clock, Stethoscope, Wrench, Heart } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 
 const benefits = [
   {
-    icon: User,
-    title: "Personalized Care",
-    description: "Tailored treatment plans for each pet",
+    icon: Clock,
+    title: "24/7 Emergency Care",
+    description: "Round-the-clock emergency services for your pets",
   },
   {
-    icon: Cpu,
-    title: "Latest Technology",
-    description: "Cutting-edge equipment for accurate diagnosis",
+    icon: Stethoscope,
+    title: "Expert Veterinarians",
+    description: "Highly qualified and experienced veterinary professionals",
+  },
+  {
+    icon: Wrench,
+    title: "Modern Equipment",
+    description: "State-of-the-art diagnostic and treatment technology",
   },
   {
     icon: Heart,
-    title: "Compassionate Staff",
-    description: "A dedicated team that loves animals",
+    title: "Compassionate Care",
+    description: "A dedicated team that loves and cares for animals",
   },
 ];
+
+const statistics = [
+  {
+    number: 200000,
+    label: "Pet cases examined",
+  },
+  {
+    number: 1000,
+    label: "CT Scan cases",
+  },
+  {
+    number: 70000,
+    label: "Lab tests and X-ray cases",
+  },
+];
+
+function CountingNumber({ target, duration = 2 }: { target: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { amount: 0.5 });
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (isInView) {
+      hasAnimated.current = false;
+      setCount(0);
+      
+      const startTime = Date.now();
+      const endTime = startTime + duration * 1000;
+
+      const updateCount = () => {
+        const now = Date.now();
+        const progress = Math.min((now - startTime) / (duration * 1000), 1);
+        
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentCount = Math.floor(easeOutQuart * target);
+        
+        setCount(currentCount);
+
+        if (now < endTime) {
+          requestAnimationFrame(updateCount);
+        } else {
+          setCount(target);
+        }
+      };
+
+      requestAnimationFrame(updateCount);
+    }
+  }, [isInView, target, duration]);
+
+  return (
+    <div ref={ref} className="text-5xl lg:text-6xl font-bold font-heading text-primary">
+      {count.toLocaleString()}
+    </div>
+  );
+}
 
 export default function WhyChooseSection() {
   return (
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <h2
-            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-6"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-12"
             data-testid="text-why-title"
           >
             Why choose us?
           </h2>
-          <p className="text-lg text-muted-foreground mb-4">
-            As a trusted name in the Riyadh veterinary community since 2013, we've
-            helped more than
-          </p>
-          <div
-            className="text-5xl lg:text-6xl font-bold font-heading text-primary mb-8"
-            data-testid="text-pets-count"
-          >
-            200,000,000
+
+          <div className="mb-12">
+            <p className="text-lg text-muted-foreground mb-8 font-body">
+              As a trusted name in the Riyadh veterinary community since 2013, we've helped more than
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {statistics.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: false, amount: 0.5 }}
+                  className="text-center"
+                  data-testid={`stat-item-${index}`}
+                >
+                  <CountingNumber target={stat.number} duration={2.5} />
+                  <p className="text-base text-muted-foreground mt-3 font-body">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <p className="text-lg text-muted-foreground">pets through:</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           {benefits.map((benefit, index) => (
             <Card
               key={index}
-              className="p-8 text-center hover-elevate"
+              className="p-6 text-center hover-elevate"
               data-testid={`card-benefit-${index}`}
             >
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <benefit.icon className="w-8 h-8 text-primary" />
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <benefit.icon className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold font-heading text-foreground mb-3">
+              <h3 className="text-lg font-semibold font-heading text-foreground mb-2">
                 {benefit.title}
               </h3>
-              <p className="text-muted-foreground">{benefit.description}</p>
+              <p className="text-sm text-muted-foreground font-body">{benefit.description}</p>
             </Card>
           ))}
-        </div>
-
-        <div className="text-center">
-          <a
-            href="/about"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
-            data-testid="link-why-more"
-          >
-            Read More
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
       </div>
     </section>
