@@ -17,7 +17,7 @@ const PawPrint = ({ color, size, top, left, duration, delay }: {
         left,
         width: `${size}px`,
         height: `${size}px`,
-        opacity: 0.25,
+        opacity: 0.5,
       }}
       animate={{
         y: [0, -30, 0],
@@ -64,7 +64,7 @@ const Bone = ({ color, size, top, left, duration, delay }: {
         left,
         width: `${size}px`,
         height: `${size}px`,
-        opacity: 0.25,
+        opacity: 0.5,
       }}
       animate={{
         y: [0, 30, 0],
@@ -139,7 +139,7 @@ export default function AnimatedServicesBackground() {
   return (
     <div 
       className="fixed inset-0 pointer-events-none overflow-hidden" 
-      style={{ zIndex: 0 }}
+      style={{ zIndex: 1 }}
       data-testid="animated-background"
     >
       {elements.map((element) => (

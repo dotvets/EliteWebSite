@@ -13,9 +13,9 @@ import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <div className="min-h-screen relative bg-white">
-      <div className="relative z-10">
+      <div className="relative z-20">
         <Header />
-        <main className="pt-20 bg-white/95">
+        <main className="pt-20">
           <HeroSlider />
           <ECGAnimation />
           <IntroSection />
