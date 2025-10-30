@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -57,7 +58,13 @@ export default function ContactSection() {
   return (
     <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: false, amount: 0.3 }}
+        >
           <h2
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-contact-title"
@@ -68,10 +75,16 @@ export default function ContactSection() {
             Have a question or concern? Need to schedule an appointment? Contact us
             today! Our dedicated team is ready to assist you.
           </p>
-        </div>
+        </motion.div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: false, amount: 0.3 }}
+        >
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -168,6 +181,7 @@ export default function ContactSection() {
             </Button>
           </form>
         </Form>
+        </motion.div>
       </div>
     </section>
   );

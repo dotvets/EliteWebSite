@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
 
 export default function IntroSection() {
@@ -6,15 +7,25 @@ export default function IntroSection() {
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: false, amount: 0.3 }}
+          >
             <img
               src={introImage}
               alt="Veterinarian with dog"
               className="rounded-xl shadow-lg w-full h-auto"
               data-testid="img-intro"
             />
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: false, amount: 0.3 }}
+          >
             <h2
               className="text-3xl lg:text-4xl font-bold font-heading text-primary mb-4"
               data-testid="text-intro-title"
@@ -39,7 +50,7 @@ export default function IntroSection() {
               Read More
               <ArrowRight className="w-4 h-4" />
             </a>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

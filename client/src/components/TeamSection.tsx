@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 
 const teamMembers = [
   {
@@ -28,7 +29,13 @@ export default function TeamSection() {
   return (
     <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: false, amount: 0.3 }}
+        >
           <h2
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-team-title"
@@ -40,26 +47,33 @@ export default function TeamSection() {
             top-notch care for your furry companions. They're passionate about animal
             health & dedicated to providing the best possible medical services.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {teamMembers.map((member, index) => (
-            <Card
+            <motion.div
               key={index}
-              className="p-6 text-center hover-elevate"
-              data-testid={`card-team-${index}`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: false, amount: 0.3 }}
             >
-              <Avatar className="w-24 h-24 mx-auto mb-4">
-                <AvatarImage src="" alt={member.name} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                  {member.initials}
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="text-lg font-semibold font-heading text-foreground mb-1">
-                {member.name}
-              </h3>
-              <p className="text-sm text-muted-foreground">{member.role}</p>
-            </Card>
+              <Card
+                className="p-6 text-center hover-elevate h-full"
+                data-testid={`card-team-${index}`}
+              >
+                <Avatar className="w-24 h-24 mx-auto mb-4">
+                  <AvatarImage src="" alt={member.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                    {member.initials}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="text-lg font-semibold font-heading text-foreground mb-1">
+                  {member.name}
+                </h3>
+                <p className="text-sm text-muted-foreground">{member.role}</p>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </div>
