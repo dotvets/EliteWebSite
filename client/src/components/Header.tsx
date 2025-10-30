@@ -46,12 +46,12 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-8">
             {navItems.map((item) => (
               <Link key={item.href} href={item.href}>
-                <a
+                <span
                   data-testid={`link-nav-${item.label.toLowerCase()}`}
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                  className="text-foreground hover:text-primary transition-colors font-medium cursor-pointer"
                 >
                   {item.label}
-                </a>
+                </span>
               </Link>
             ))}
           </nav>
@@ -80,13 +80,13 @@ export default function Header() {
             <nav className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a
+                  <span
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}
-                    className="text-foreground hover:text-primary transition-colors font-medium py-2"
+                    className="text-foreground hover:text-primary transition-colors font-medium py-2 cursor-pointer block"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.label}
-                  </a>
+                  </span>
                 </Link>
               ))}
               <Button
