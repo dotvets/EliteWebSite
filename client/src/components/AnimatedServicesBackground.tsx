@@ -17,7 +17,7 @@ const PawPrint = ({ color, size, top, left, duration, delay }: {
         left,
         width: `${size}px`,
         height: `${size}px`,
-        opacity: 0.08,
+        opacity: 0.15,
       }}
       animate={{
         y: [0, -30, 0],
@@ -64,7 +64,7 @@ const Bone = ({ color, size, top, left, duration, delay }: {
         left,
         width: `${size}px`,
         height: `${size}px`,
-        opacity: 0.08,
+        opacity: 0.15,
       }}
       animate={{
         y: [0, 30, 0],
