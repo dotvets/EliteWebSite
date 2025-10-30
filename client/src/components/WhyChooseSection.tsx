@@ -25,7 +25,7 @@ export default function WhyChooseSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl lg:text-4xl font-semibold text-foreground mb-6"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-6"
             data-testid="text-why-title"
           >
             Why choose us?
@@ -35,7 +35,7 @@ export default function WhyChooseSection() {
             helped more than
           </p>
           <div
-            className="text-5xl lg:text-6xl font-bold text-[#f6c512] mb-8"
+            className="text-5xl lg:text-6xl font-bold font-heading text-primary mb-8"
             data-testid="text-pets-count"
           >
             200,000,000
@@ -53,7 +53,7 @@ export default function WhyChooseSection() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <benefit.icon className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">
+              <h3 className="text-xl font-semibold font-heading text-foreground mb-3">
                 {benefit.title}
               </h3>
               <p className="text-muted-foreground">{benefit.description}</p>
@@ -64,7 +64,7 @@ export default function WhyChooseSection() {
         <div className="text-center">
           <a
             href="/about"
-            className="inline-flex items-center gap-2 text-[#53a4d8] hover:text-[#53a4d8]/80 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
             data-testid="link-why-more"
           >
             Read More

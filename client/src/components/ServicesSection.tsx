@@ -26,11 +26,11 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section className="py-20 px-6 lg:px-8 bg-[#7dbfb8]/5">
+    <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl lg:text-4xl font-semibold text-foreground mb-4"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-services-title"
           >
             What we offer?
@@ -48,10 +48,10 @@ export default function ServicesSection() {
               className="p-6 hover-elevate transition-all duration-300 hover:scale-105"
               data-testid={`card-service-${index}`}
             >
-              <div className="w-12 h-12 rounded-full bg-[#53a4d8]/10 flex items-center justify-center mb-4">
-                <service.icon className="w-6 h-6 text-[#53a4d8]" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <service.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+              <h3 className="text-xl font-semibold font-heading text-foreground mb-2">
                 {service.title}
               </h3>
               <p className="text-muted-foreground text-sm">{service.description}</p>
@@ -62,7 +62,7 @@ export default function ServicesSection() {
         <div className="text-center">
           <a
             href="/services"
-            className="inline-flex items-center gap-2 text-[#53a4d8] hover:text-[#53a4d8]/80 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
             data-testid="link-services-more"
           >
             Read more

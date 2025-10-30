@@ -77,7 +77,7 @@ export default function HeroSlider() {
               <div className="absolute inset-0 z-20 flex items-center justify-center">
                 <div className="max-w-4xl mx-auto px-6 text-center">
                   <h1
-                    className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-6"
+                    className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-white mb-6"
                     data-testid={`text-hero-title-${index}`}
                   >
                     {slide.title}
@@ -125,7 +125,7 @@ export default function HeroSlider() {
             onClick={() => scrollTo(index)}
             className={`w-3 h-3 rounded-full transition-all ${
               index === selectedIndex
-                ? "bg-[#f6c512] w-8"
+                ? "bg-primary w-8"
                 : "bg-white/50 hover:bg-white/70"
             }`}
             data-testid={`button-indicator-${index}`}

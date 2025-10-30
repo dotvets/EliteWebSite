@@ -11,20 +11,24 @@
 ## Brand Integration
 
 ### Color System (Strictly Per Brand Guidelines)
-- **Primary:** Royal Purple (#7960a7) - Headers, primary CTAs, key accents
-- **Secondary:** Picton Blue (#53a4d8) - Interactive elements, links, secondary CTAs
-- **Accent 1:** Mikado Yellow (#f6c512) - Highlights, badges, important callouts
-- **Accent 2:** Verdigris (#7dbfb8) - Supporting elements, soft backgrounds
-- **Neutrals:** Use grays derived from desaturating primary purple for text and backgrounds
+- **Primary Purple:** #7760a8 (rgba(119, 96, 168) / hsl(259, 29%, 52%)) - Headers, primary CTAs, key accents, brand identity
+- **Neutral Gray:** #9d9ea0 (rgba(157, 158, 160) / hsl(220, 2%, 62%)) - Secondary text, supporting elements, borders
+- **Off-White:** #fbfbfb (rgba(251, 251, 251) / hsl(0, 0%, 98%)) - Light backgrounds, cards, clean surfaces
+- **Pure White:** #ffffff - Main background, maximum contrast
+- **Text Colors:** Dark gray for body text, muted gray for secondary text
 
 ### Typography
-- **Primary Font:** IBM Plex Sans Arabic (via Google Fonts CDN)
+- **Primary Font:** Rubik (via Google Fonts CDN) - Thin, Light, Regular, Bold, Black weights
+  - Used for: Headers, navigation, buttons, primary content
+- **Secondary Font:** Poppins (via Google Fonts CDN) - For body text and supporting content
+- **Decorative Font:** Daily Shine - For special highlights (if needed)
+- **Arabic Font:** FF Shamel Sans - For all Arabic content
 - **Hierarchy:**
-  - H1: 3xl/4xl (48-56px) - Semibold - Hero headlines
-  - H2: 2xl/3xl (36-48px) - Semibold - Section headers
-  - H3: xl/2xl (24-30px) - Medium - Subsection titles
-  - Body: base/lg (16-18px) - Regular - Content
-  - Small: sm (14px) - Regular - Captions, metadata
+  - H1: 3xl/4xl (48-56px) - Bold/Black - Hero headlines (Rubik)
+  - H2: 2xl/3xl (36-48px) - Bold - Section headers (Rubik)
+  - H3: xl/2xl (24-30px) - Regular/Bold - Subsection titles (Rubik)
+  - Body: base/lg (16-18px) - Regular - Content (Poppins)
+  - Small: sm (14px) - Regular - Captions, metadata (Poppins)
 
 ---
 

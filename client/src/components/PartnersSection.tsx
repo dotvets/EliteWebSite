@@ -6,7 +6,7 @@ export default function PartnersSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl lg:text-4xl font-semibold text-foreground mb-4"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-partners-title"
           >
             Our Partners

@@ -16,12 +16,12 @@ export default function IntroSection() {
           </div>
           <div>
             <h2
-              className="text-3xl lg:text-4xl font-semibold text-primary mb-4"
+              className="text-3xl lg:text-4xl font-bold font-heading text-primary mb-4"
               data-testid="text-intro-title"
             >
               Welcome to Elite Vet
             </h2>
-            <p className="text-xl text-muted-foreground mb-6">
+            <p className="text-xl text-muted-foreground mb-6 font-heading">
               Your trusted pet veterinary clinic
             </p>
             <p className="text-base text-foreground leading-relaxed mb-8">
@@ -33,7 +33,7 @@ export default function IntroSection() {
             </p>
             <a
               href="/about"
-              className="inline-flex items-center gap-2 text-[#53a4d8] hover:text-[#53a4d8]/80 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
               data-testid="link-read-more"
             >
               Read More

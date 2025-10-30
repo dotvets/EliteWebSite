@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { MapPin, Phone, Mail } from "lucide-react";
+import logoImage from "@assets/Elite final logo_1761818487960.jpg";
 
 export default function Footer() {
   const quickLinks = [
@@ -10,18 +11,16 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-b from-[#7960a7] to-[#6650a0] text-white">
+    <footer className="bg-gradient-to-b from-primary to-[#6650a0] text-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-3 gap-12">
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center">
-                <span className="text-primary font-bold text-xl">EV</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-semibold text-lg">Elite Vet</span>
-                <span className="text-sm text-white/80">Veterinary Clinic</span>
-              </div>
+            <div className="mb-6">
+              <img
+                src={logoImage}
+                alt="Elite Vet Logo"
+                className="h-20 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-white/90 text-sm leading-relaxed">
               Elite Veterinary Clinic: Your Trusted Partner in Pet Care. Discover a
@@ -32,7 +31,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-6">Quick Links</h3>
+            <h3 className="font-semibold font-heading text-lg mb-6">Quick Links</h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -50,7 +49,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-6">Contact Info</h3>
+            <h3 className="font-semibold font-heading text-lg mb-6">Contact Info</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />

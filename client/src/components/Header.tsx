@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import logoImage from "@assets/Elite final logo_1761818487960.jpg";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,14 +34,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link href="/" data-testid="link-home">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="w-12 h-12 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">EV</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-semibold text-lg text-foreground">Elite Vet</span>
-                <span className="text-xs text-muted-foreground">Veterinary Clinic</span>
-              </div>
+            <div className="flex items-center cursor-pointer">
+              <img
+                src={logoImage}
+                alt="Elite Vet Logo"
+                className="h-16 w-auto"
+              />
             </div>
           </Link>
 

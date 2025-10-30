@@ -55,11 +55,11 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="py-20 px-6 lg:px-8 bg-[#7dbfb8]/5">
+    <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl lg:text-4xl font-semibold text-foreground mb-4"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-contact-title"
           >
             Contact Us

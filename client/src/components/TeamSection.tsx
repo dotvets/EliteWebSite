@@ -26,11 +26,11 @@ const teamMembers = [
 
 export default function TeamSection() {
   return (
-    <section className="py-20 px-6 lg:px-8 bg-[#7dbfb8]/5">
+    <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl lg:text-4xl font-semibold text-foreground mb-4"
+            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-team-title"
           >
             Our Team
@@ -55,7 +55,7 @@ export default function TeamSection() {
                   {member.initials}
                 </AvatarFallback>
               </Avatar>
-              <h3 className="text-lg font-semibold text-foreground mb-1">
+              <h3 className="text-lg font-semibold font-heading text-foreground mb-1">
                 {member.name}
               </h3>
               <p className="text-sm text-muted-foreground">{member.role}</p>
