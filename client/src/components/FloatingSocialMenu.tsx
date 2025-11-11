@@ -137,13 +137,26 @@ export default function FloatingSocialMenu() {
             }}
             dragElastic={0.1}
             dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
-            className="absolute bottom-0 right-0 cursor-grab active:cursor-grabbing"
+            className="absolute bottom-0 right-0 pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             data-testid="container-draggable-icons"
           >
+            {/* Drag Handle */}
+            <motion.div
+              onPointerDown={(e) => dragControls.start(e)}
+              className="absolute bottom-0 left-[-40px] w-8 h-24 flex items-center justify-center cursor-grab active:cursor-grabbing pointer-events-auto"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 0.5 }}
+              exit={{ x: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              data-testid="drag-handle"
+            >
+              <div className="w-1 h-12 bg-primary/40 rounded-full" />
+            </motion.div>
+
             {socialLinks.map((social, index) => {
               const position = getIconPosition(index);
               const Icon = social.icon;
@@ -154,7 +167,7 @@ export default function FloatingSocialMenu() {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+                  className="absolute w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform pointer-events-auto"
                   style={{
                     bottom: 0,
                     right: 0,
