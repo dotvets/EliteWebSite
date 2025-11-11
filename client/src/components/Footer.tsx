@@ -57,7 +57,7 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Logo Section */}
             <div>
-              <div className="mb-6 bg-white/95 rounded-lg p-4 inline-block">
+              <div className="mb-6 bg-white rounded-lg p-4 inline-block">
                 <img
                   src={logoImage}
                   alt="Elite Vet Logo"
@@ -107,7 +107,7 @@ export default function Footer() {
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <a 
-                    href="https://www.google.com/maps/search/?api=1&query=Qurtubah+gate+Al+Thoumamah+Rd+Qurtubah+Riyadh+13248"
+                    href="https://maps.app.goo.gl/SPRXB5dCgho3d9qq9"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white/80 text-sm font-body hover:text-white transition-colors"
