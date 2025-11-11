@@ -21,8 +21,10 @@ export default function Header() {
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
-    { label: "Team", href: "/team" },
-    { label: "Contact", href: "/contact" },
+    { label: "Blog", href: "/blog" },
+    { label: "Book Now", href: "/book-now" },
+    { label: "Contact Us", href: "/contact-us" },
+    { label: "Elite Onyx", href: "/elite-onyx" },
   ];
 
   return (
@@ -57,9 +59,11 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:block">
-            <Button data-testid="button-book-appointment" size="default">
-              Book Appointment
-            </Button>
+            <Link href="/book-now">
+              <Button data-testid="button-book-appointment" size="default">
+                Book Appointment
+              </Button>
+            </Link>
           </div>
 
           <button
@@ -89,13 +93,15 @@ export default function Header() {
                   </span>
                 </Link>
               ))}
-              <Button
-                data-testid="button-mobile-book"
-                className="w-full mt-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Book Appointment
-              </Button>
+              <Link href="/book-now" className="block">
+                <Button
+                  data-testid="button-mobile-book"
+                  className="w-full mt-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Book Appointment
+                </Button>
+              </Link>
             </nav>
           </div>
         )}
