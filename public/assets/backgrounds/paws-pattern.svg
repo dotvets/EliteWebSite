@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <pattern id="pawPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+      <!-- First Row -->
+      <!-- Paw 1 -->
+      <g transform="translate(30, 25)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--primary, #7760a8)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--primary, #7760a8)"/>
+      </g>
+      
+      <!-- Paw 2 (heart) -->
+      <g transform="translate(100, 15) rotate(20)" opacity="0.2">
+        <path d="M 0 10 C 0 10, -5 5, -5 0 C -5 -2.5, -3 -4, -1 -4 C 0.5 -4, 1 -3, 1 -1 C 1 -3, 1.5 -4, 3 -4 C 5 -4, 7 -2.5, 7 0 C 7 5, 0 10, 0 10 Z" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="0" cy="-6" r="3" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-4" cy="-4" r="3" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="4" cy="-4" r="3" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-6.5" cy="0" r="2.5" fill="var(--secondary, #9d9ea0)"/>
+      </g>
+      
+      <!-- Paw 3 -->
+      <g transform="translate(170, 30) rotate(-15)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--accent, #8875b3)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--accent, #8875b3)"/>
+      </g>
+
+      <!-- Second Row -->
+      <!-- Paw 4 -->
+      <g transform="translate(60, 70) rotate(10)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="#6650a0"/>
+        <circle cx="0" cy="0" r="3.5" fill="#6650a0"/>
+        <circle cx="-5" cy="3" r="3.5" fill="#6650a0"/>
+        <circle cx="5" cy="3" r="3.5" fill="#6650a0"/>
+        <circle cx="-7" cy="8" r="3" fill="#6650a0"/>
+      </g>
+      
+      <!-- Paw 5 (heart) -->
+      <g transform="translate(140, 75)" opacity="0.2">
+        <path d="M 0 10 C 0 10, -5 5, -5 0 C -5 -2.5, -3 -4, -1 -4 C 0.5 -4, 1 -3, 1 -1 C 1 -3, 1.5 -4, 3 -4 C 5 -4, 7 -2.5, 7 0 C 7 5, 0 10, 0 10 Z" fill="var(--primary, #7760a8)"/>
+        <circle cx="0" cy="-6" r="3" fill="var(--primary, #7760a8)"/>
+        <circle cx="-4" cy="-4" r="3" fill="var(--primary, #7760a8)"/>
+        <circle cx="4" cy="-4" r="3" fill="var(--primary, #7760a8)"/>
+        <circle cx="-6.5" cy="0" r="2.5" fill="var(--primary, #7760a8)"/>
+      </g>
+
+      <!-- Third Row -->
+      <!-- Paw 6 -->
+      <g transform="translate(20, 115) rotate(-25)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--secondary, #9d9ea0)"/>
+      </g>
+      
+      <!-- Paw 7 -->
+      <g transform="translate(90, 125) rotate(5)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--accent, #8875b3)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--accent, #8875b3)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--accent, #8875b3)"/>
+      </g>
+      
+      <!-- Paw 8 (heart) -->
+      <g transform="translate(160, 120) rotate(-10)" opacity="0.2">
+        <path d="M 0 10 C 0 10, -5 5, -5 0 C -5 -2.5, -3 -4, -1 -4 C 0.5 -4, 1 -3, 1 -1 C 1 -3, 1.5 -4, 3 -4 C 5 -4, 7 -2.5, 7 0 C 7 5, 0 10, 0 10 Z" fill="#6650a0"/>
+        <circle cx="0" cy="-6" r="3" fill="#6650a0"/>
+        <circle cx="-4" cy="-4" r="3" fill="#6650a0"/>
+        <circle cx="4" cy="-4" r="3" fill="#6650a0"/>
+        <circle cx="-6.5" cy="0" r="2.5" fill="#6650a0"/>
+      </g>
+
+      <!-- Fourth Row -->
+      <!-- Paw 9 -->
+      <g transform="translate(45, 165)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--primary, #7760a8)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--primary, #7760a8)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--primary, #7760a8)"/>
+      </g>
+      
+      <!-- Paw 10 -->
+      <g transform="translate(120, 170) rotate(15)" opacity="0.2">
+        <ellipse cx="0" cy="12" rx="6" ry="8" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="0" cy="0" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-5" cy="3" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="5" cy="3" r="3.5" fill="var(--secondary, #9d9ea0)"/>
+        <circle cx="-7" cy="8" r="3" fill="var(--secondary, #9d9ea0)"/>
+      </g>
+    </pattern>
+  </defs>
+  
+  <rect width="200" height="200" fill="url(#pawPattern)"/>
+</svg>
