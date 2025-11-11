@@ -5,7 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
 import heroImage1 from "@assets/generated_images/Veterinarian_examining_golden_retriever_66fcde95.png";
-import heroImage2 from "@assets/generated_images/Modern_veterinary_clinic_interior_911b9623.png";
+import heroImage2 from "@assets/freepik__img1i-want-you-to-make-the-attached-image-more-bea__64912_1762857524224.png";
 import heroImage3 from "@assets/generated_images/Happy_pet_owner_with_cat_0ee67349.png";
 
 const slides = [
