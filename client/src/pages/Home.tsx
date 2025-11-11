@@ -9,6 +9,7 @@ import PartnersSection from "@/components/PartnersSection";
 import ContactSection from "@/components/ContactSection";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
 import Footer from "@/components/Footer";
+import FloatingSocialMenu from "@/components/FloatingSocialMenu";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
         </main>
         <Footer />
       </div>
+      <FloatingSocialMenu />
     </div>
   );
 }
