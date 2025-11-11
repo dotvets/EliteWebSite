@@ -6,12 +6,24 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AnimatedServicesBackground from "@/components/AnimatedServicesBackground";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import Home from "@/pages/Home";
+import About from "@/pages/About";
+import Services from "@/pages/Services";
+import Blog from "@/pages/Blog";
+import BookNow from "@/pages/BookNow";
+import ContactUs from "@/pages/ContactUs";
+import EliteOnyx from "@/pages/EliteOnyx";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
+      <Route path="/services" component={Services} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/book-now" component={BookNow} />
+      <Route path="/contact-us" component={ContactUs} />
+      <Route path="/elite-onyx" component={EliteOnyx} />
       <Route component={NotFound} />
     </Switch>
   );
