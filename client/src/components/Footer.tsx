@@ -57,11 +57,11 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Logo Section */}
             <div>
-              <div className="mb-6">
+              <div className="mb-6 bg-white/95 rounded-lg p-4 inline-block">
                 <img
                   src={logoImage}
                   alt="Elite Vet Logo"
-                  className="h-24 w-auto"
+                  className="h-20 w-auto"
                   data-testid="img-footer-logo"
                 />
               </div>
@@ -76,15 +76,23 @@ export default function Footer() {
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 flex-shrink-0" />
-                  <div className="text-sm font-body">
-                    <div className="text-white/80">Call: 920011626</div>
-                  </div>
+                  <a 
+                    href="tel:920011626"
+                    className="text-white/80 text-sm font-body hover:text-white transition-colors"
+                    data-testid="link-call"
+                  >
+                    Call: 920011626
+                  </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 flex-shrink-0" />
-                  <div className="text-sm font-body">
-                    <div className="text-white/80">Emergency: 920011626</div>
-                  </div>
+                  <a 
+                    href="tel:920011626"
+                    className="text-white/80 text-sm font-body hover:text-white transition-colors"
+                    data-testid="link-emergency"
+                  >
+                    Emergency: 920011626
+                  </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 flex-shrink-0" />
@@ -98,9 +106,15 @@ export default function Footer() {
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                  <span className="text-white/80 text-sm font-body">
+                  <a 
+                    href="https://www.google.com/maps/search/?api=1&query=Qurtubah+gate+Al+Thoumamah+Rd+Qurtubah+Riyadh+13248"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/80 text-sm font-body hover:text-white transition-colors"
+                    data-testid="link-address"
+                  >
                     Qurtubah gate, Al Thoumamah Rd, Qurtubah, Riyadh 13248
-                  </span>
+                  </a>
                 </li>
               </ul>
             </div>
