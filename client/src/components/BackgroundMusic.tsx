@@ -56,7 +56,7 @@ export default function BackgroundMusic() {
       
       <button
         onClick={toggleMute}
-        className="fixed right-6 bottom-28 z-[60] w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover-elevate active-elevate-2"
+        className="fixed left-6 bottom-6 z-50 w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover-elevate active-elevate-2"
         style={{
           boxShadow: "0 4px 20px rgba(119, 96, 168, 0.4)",
         }}
