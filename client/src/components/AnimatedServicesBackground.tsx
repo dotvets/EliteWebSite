@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
-const PawPrint = ({ color, size, top, left, duration, delay }: {
+const Cat = ({ color, size, top, left, duration, delay }: {
   color: string;
   size: number;
   top: string;
@@ -37,18 +37,20 @@ const PawPrint = ({ color, size, top, left, duration, delay }: {
         width="100%"
         height="100%"
       >
-        <path d="M 30 65 Q 30 45, 50 45 Q 70 45, 70 65 Q 72 80, 60 85 Q 50 90, 40 85 Q 28 80, 30 65 Z" />
-        <ellipse cx="50" cy="20" rx="8" ry="12" />
-        <ellipse cx="28" cy="32" rx="7" ry="11" transform="rotate(-25 28 32)" />
-        <ellipse cx="72" cy="32" rx="7" ry="11" transform="rotate(25 72 32)" />
-        <ellipse cx="18" cy="50" rx="6" ry="10" transform="rotate(-35 18 50)" />
-        <ellipse cx="82" cy="50" rx="6" ry="10" transform="rotate(35 82 50)" />
+        {/* Cat silhouette */}
+        <ellipse cx="50" cy="60" rx="25" ry="30" />
+        <circle cx="50" cy="35" r="20" />
+        <polygon points="30,15 25,5 35,25" />
+        <polygon points="70,15 75,5 65,25" />
+        <circle cx="42" cy="32" r="3" fill="#fff" opacity="0.8" />
+        <circle cx="58" cy="32" r="3" fill="#fff" opacity="0.8" />
+        <path d="M 35 65 Q 42 70, 50 68 Q 58 70, 65 65" stroke={color} strokeWidth="2" fill="none" opacity="0.6" />
       </svg>
     </motion.div>
   );
 };
 
-const Bone = ({ color, size, top, left, duration, delay }: {
+const Dog = ({ color, size, top, left, duration, delay }: {
   color: string;
   size: number;
   top: string;
@@ -79,16 +81,20 @@ const Bone = ({ color, size, top, left, duration, delay }: {
       }}
     >
       <svg
-        viewBox="0 0 100 50"
+        viewBox="0 0 100 100"
         fill={color}
         width="100%"
         height="100%"
       >
-        <circle cx="12" cy="18" r="8" />
-        <circle cx="12" cy="32" r="8" />
-        <circle cx="88" cy="18" r="8" />
-        <circle cx="88" cy="32" r="8" />
-        <rect x="16" y="20" width="68" height="10" rx="5" ry="5" />
+        {/* Dog silhouette */}
+        <ellipse cx="50" cy="65" rx="28" ry="25" />
+        <ellipse cx="52" cy="38" rx="22" ry="20" />
+        <ellipse cx="32" cy="28" rx="8" ry="14" transform="rotate(-30 32 28)" />
+        <ellipse cx="68" cy="28" rx="8" ry="14" transform="rotate(30 68 28)" />
+        <circle cx="43" cy="35" r="3" fill="#fff" opacity="0.8" />
+        <circle cx="57" cy="35" r="3" fill="#fff" opacity="0.8" />
+        <ellipse cx="50" cy="45" rx="4" ry="6" fill="#333" opacity="0.6" />
+        <path d="M 50 50 Q 45 55, 42 53 M 50 50 Q 55 55, 58 53" stroke={color} strokeWidth="2" fill="none" opacity="0.6" />
       </svg>
     </motion.div>
   );
@@ -107,8 +113,8 @@ export default function AnimatedServicesBackground() {
     
     for (let i = 0; i < 12; i++) {
       items.push({
-        id: `paw-${i}`,
-        type: 'paw',
+        id: `cat-${i}`,
+        type: 'cat',
         color: brandColors[Math.floor(Math.random() * brandColors.length)],
         size: Math.random() * 40 + 60,
         top: `${Math.random() * 100}%`,
@@ -120,8 +126,8 @@ export default function AnimatedServicesBackground() {
     
     for (let i = 0; i < 6; i++) {
       items.push({
-        id: `bone-${i}`,
-        type: 'bone',
+        id: `dog-${i}`,
+        type: 'dog',
         color: brandColors[Math.floor(Math.random() * brandColors.length)],
         size: Math.random() * 40 + 60,
         top: `${Math.random() * 100}%`,
@@ -143,8 +149,8 @@ export default function AnimatedServicesBackground() {
       data-testid="animated-background"
     >
       {elements.map((element) => (
-        element.type === 'paw' ? (
-          <PawPrint
+        element.type === 'cat' ? (
+          <Cat
             key={element.id}
             color={element.color}
             size={element.size}
@@ -154,7 +160,7 @@ export default function AnimatedServicesBackground() {
             delay={element.delay}
           />
         ) : (
-          <Bone
+          <Dog
             key={element.id}
             color={element.color}
             size={element.size}
