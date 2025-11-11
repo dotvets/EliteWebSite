@@ -53,7 +53,7 @@ export default function FloatingSocialMenu() {
     oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
     oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
 
-    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
 
     oscillator.start(audioContext.currentTime);
@@ -73,7 +73,7 @@ export default function FloatingSocialMenu() {
     oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
     oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.12);
 
-    gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.18, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.12);
 
     oscillator.start(audioContext.currentTime);
