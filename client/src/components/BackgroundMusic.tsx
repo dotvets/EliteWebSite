@@ -4,8 +4,9 @@ import backgroundMusicFile from "@assets/Elite Nabd ElHayah_[cut_215sec]_1762864
 
 export default function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -13,6 +14,7 @@ export default function BackgroundMusic() {
 
     audio.volume = 0.15;
     audio.loop = true;
+    audio.muted = true;
 
     const playAudio = async () => {
       try {
@@ -26,13 +28,18 @@ export default function BackgroundMusic() {
     playAudio();
 
     const handleInteraction = async () => {
-      if (!isPlaying) {
-        try {
-          await audio.play();
-          setIsPlaying(true);
-        } catch (error) {
-          console.error("Failed to play audio:", error);
+      if (!hasInteracted) {
+        setHasInteracted(true);
+        if (audio.paused) {
+          try {
+            await audio.play();
+            setIsPlaying(true);
+          } catch (error) {
+            console.error("Failed to play audio:", error);
+          }
         }
+        audio.muted = false;
+        setIsMuted(false);
       }
     };
 
@@ -41,7 +48,7 @@ export default function BackgroundMusic() {
     return () => {
       document.removeEventListener("click", handleInteraction);
     };
-  }, [isPlaying]);
+  }, [hasInteracted]);
 
   const toggleMute = () => {
     if (audioRef.current) {
