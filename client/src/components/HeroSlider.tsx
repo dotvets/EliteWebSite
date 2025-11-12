@@ -17,9 +17,13 @@ export default function HeroSlider() {
   const { language } = useLanguage();
   const t = translations[language].hero;
   
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 5000, stopOnInteraction: false }),
-  ]);
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { 
+      loop: true,
+      direction: language === 'ar' ? 'rtl' : 'ltr'
+    }, 
+    [Autoplay({ delay: 5000, stopOnInteraction: false })]
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const scrollPrev = useCallback(() => {
@@ -53,7 +57,7 @@ export default function HeroSlider() {
   }, [emblaApi]);
 
   return (
-    <div className="relative h-[600px] lg:h-[700px] w-full overflow-hidden">
+    <div className="relative h-[600px] lg:h-[700px] w-full overflow-hidden" key={language}>
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
           {t.slides.map((slide, index) => (
