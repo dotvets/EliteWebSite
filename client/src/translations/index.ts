@@ -126,7 +126,7 @@ export const translations = {
     },
     about: {
       hero: {
-        title: "Dedicated to Your Pet's Well-being",
+        title: "Dedicated to Your Pet's Wellbeing",
       },
       whoWeAre: {
         title: "Who We Are",
@@ -141,7 +141,7 @@ export const translations = {
         description: "To provide exceptional veterinary care, utilizing advanced technology and skilled professionals, to create a healthier future for pets.",
       },
       whyChoose: {
-        title: "Why choose Elite Vet?",
+        title: "Why Choose Elite Vet?",
         subtitle: "Your Pet's Well-being, Our Priority",
         description: "Elite Veterinary Clinic provides:",
         points: [

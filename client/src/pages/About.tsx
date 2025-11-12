@@ -243,10 +243,10 @@ export default function About() {
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-xl font-heading mb-2 break-words" data-testid={`text-why-choose-point-title-${index}`}>
+                        <CardTitle className="text-xl font-heading mb-2" data-testid={`text-why-choose-point-title-${index}`}>
                           {point.title}
                         </CardTitle>
-                        <p className="text-foreground/70 break-words" data-testid={`text-why-choose-point-description-${index}`}>
+                        <p className="text-foreground/70" data-testid={`text-why-choose-point-description-${index}`}>
                           {point.description}
                         </p>
                       </div>
