@@ -126,7 +126,7 @@ export const translations = {
     },
     about: {
       hero: {
-        title: "Dedicated to Your Pet's Wellbeing",
+        title: "Dedicated to Your Pet's Well\u00A0being",
       },
       whoWeAre: {
         title: "Who We Are",

@@ -237,16 +237,16 @@ export default function About() {
             className="grid md:grid-cols-3 gap-6"
           >
             {t.whyChoose.points.map((point, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card className="hover-elevate h-full" data-testid={`card-why-choose-${index}`}>
-                  <CardHeader>
-                    <div className="flex items-start gap-3">
+              <motion.div key={index} variants={fadeInUp} className="h-full">
+                <Card className="hover-elevate h-full flex flex-col" data-testid={`card-why-choose-${index}`}>
+                  <CardHeader className="flex-1">
+                    <div className="flex items-start gap-3 h-full">
                       <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-xl font-heading mb-2" data-testid={`text-why-choose-point-title-${index}`}>
+                      <div className="flex-1 overflow-hidden">
+                        <CardTitle className="text-lg font-heading mb-2 leading-tight" data-testid={`text-why-choose-point-title-${index}`}>
                           {point.title}
                         </CardTitle>
-                        <p className="text-foreground/70" data-testid={`text-why-choose-point-description-${index}`}>
+                        <p className="text-sm text-foreground/70 leading-relaxed" data-testid={`text-why-choose-point-description-${index}`}>
                           {point.description}
                         </p>
                       </div>
