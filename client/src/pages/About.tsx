@@ -210,53 +210,25 @@ export default function About() {
       imageAlt: "Elite Vet professional team",
       imageTestId: "img-vet-team",
       reverse: false,
-      className: "bg-background",
+      className: "bg-background pb-8",
       content: (
-        <div className="space-y-8 text-center lg:text-left">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            variants={fadeInUp}
-            viewport={{ once: false, amount: 0.3 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
-              {t.whyChoose.title}
-            </h2>
-            <p className="text-xl font-semibold text-foreground mb-6" data-testid="text-why-choose-subtitle">
-              {t.whyChoose.subtitle}
-            </p>
-            <p className="text-lg text-foreground/80 mb-8" data-testid="text-why-choose-description">
-              {t.whyChoose.description}
-            </p>
-          </motion.div>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: false, amount: 0.2 }}
-            className="grid md:grid-cols-3 gap-6"
-          >
-            {t.whyChoose.points.map((point, index) => (
-              <motion.div key={index} variants={fadeInUp} className="h-full">
-                <Card className="hover-elevate h-full flex flex-col" data-testid={`card-why-choose-${index}`}>
-                  <CardHeader className="flex-1">
-                    <div className="flex items-start gap-3 h-full">
-                      <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                      <div className="flex-1 overflow-hidden">
-                        <CardTitle className="text-lg font-heading mb-2 leading-tight" data-testid={`text-why-choose-point-title-${index}`}>
-                          {point.title}
-                        </CardTitle>
-                        <p className="text-sm text-foreground/70 leading-relaxed" data-testid={`text-why-choose-point-description-${index}`}>
-                          {point.description}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="text-center lg:text-left"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
+            {t.whyChoose.title}
+          </h2>
+          <p className="text-xl font-semibold text-foreground mb-6" data-testid="text-why-choose-subtitle">
+            {t.whyChoose.subtitle}
+          </p>
+          <p className="text-lg text-foreground/80" data-testid="text-why-choose-description">
+            {t.whyChoose.description}
+          </p>
+        </motion.div>
       ),
     },
     {
@@ -585,6 +557,39 @@ export default function About() {
           {content}
         </ContentWithMediaSection>
       ))}
+
+      {/* Why Choose Elite Vet Cards - Centered Below */}
+      <section className="bg-background pt-0 pb-20 px-6 lg:px-8">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2 }}
+          className="max-w-6xl mx-auto"
+        >
+          <div className="grid md:grid-cols-3 gap-6">
+            {t.whyChoose.points.map((point, index) => (
+              <motion.div key={index} variants={fadeInUp} className="h-full">
+                <Card className="hover-elevate h-full flex flex-col" data-testid={`card-why-choose-${index}`}>
+                  <CardHeader className="flex-1">
+                    <div className="flex items-start gap-3 h-full">
+                      <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                      <div className="flex-1 overflow-hidden">
+                        <CardTitle className="text-lg font-heading mb-2 leading-tight" data-testid={`text-why-choose-point-title-${index}`}>
+                          {point.title}
+                        </CardTitle>
+                        <p className="text-sm text-foreground/70 leading-relaxed" data-testid={`text-why-choose-point-description-${index}`}>
+                          {point.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
       </main>
       <Footer />
     </div>
