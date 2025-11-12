@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import petCollar from "@assets/generated_images/Pet_collar_outline_transparent_49e574b4.png";
-import petBone from "@assets/generated_images/Dog_bone_outline_transparent_a4750870.png";
-import petPaws from "@assets/generated_images/Paw_prints_outline_transparent_00d42da9.png";
+import petCollar from "@assets/generated_images/Pet_collar_transparent_icon_d68ad5d1.png";
+import petBone from "@assets/generated_images/Dog_bone_transparent_icon_cc0c591e.png";
+import petPaws from "@assets/generated_images/Paw_print_transparent_icon_d0e5306b.png";
 
 export default function PetBackground() {
   const shapes = [petCollar, petBone, petPaws];
@@ -13,7 +13,7 @@ export default function PetBackground() {
     return { xMove, yMove, rotate };
   };
 
-  const elements = Array.from({ length: 15 });
+  const elements = Array.from({ length: 8 });
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-[1]">
@@ -37,7 +37,7 @@ export default function PetBackground() {
               left,
               width: size,
               height: size,
-              opacity: 0.25,
+              opacity: 0.12,
             }}
             animate={{
               x: [0, xMove, -xMove, 0],
