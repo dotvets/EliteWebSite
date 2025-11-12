@@ -123,6 +123,114 @@ export const translations = {
     partners: {
       title: "Our Partners",
     },
+    about: {
+      hero: {
+        title: "Dedicated to Your Pet's Well-being",
+      },
+      whoWeAre: {
+        title: "Who We Are",
+        description: "At Elite Clinic, we're passionate about providing state-of-the-art veterinary care for your beloved pets. Since the establishment of our pet clinic in 2013, we've been dedicated to delivering exceptional medical services and compassionate care, helping more than 200 thousand pets through the years and earning the trust of pet owners across Saudi Arabia and the Gulf region. We're committed to ensuring your pet's well-being and happiness, every step of the way.",
+      },
+      vision: {
+        title: "Our Vision",
+        description: "To be the premier pet clinic in Saudi Arabia and the Gulf region.",
+      },
+      mission: {
+        title: "Our Mission",
+        description: "To provide exceptional veterinary care, utilizing advanced technology and skilled professionals, to create a healthier future for pets.",
+      },
+      whyChoose: {
+        title: "Why choose Elite Vet?",
+        subtitle: "Your Pet's Well-being, Our Priority",
+        description: "Elite Veterinary Clinic provides:",
+        points: [
+          {
+            title: "Personalized Care",
+            description: "Tailored treatment plans for each pet.",
+          },
+          {
+            title: "Latest Technology",
+            description: "Cutting-edge equipment for accurate diagnosis.",
+          },
+          {
+            title: "Compassionate Staff",
+            description: "A dedicated team that loves animals.",
+          },
+        ],
+      },
+      csr: {
+        title: "Corporate Social Responsibility",
+        description: "As a leading pet clinic specializing in veterinary medicine, we recognize our responsibility to the community. We actively contribute to the well-being of animals through various initiatives:",
+        initiatives: [
+          {
+            title: "Awareness Campaigns",
+            description: "We use our social media platforms to educate pet owners about responsible pet care, health issues, and preventive measures.",
+          },
+          {
+            title: "Pro Bono Services",
+            description: "We provide free veterinary care to animals in need, particularly those belonging to underprivileged families or abandoned animals. To date, we've successfully treated hundreds of cases.",
+          },
+          {
+            title: "Animal Adoption",
+            description: "We're committed to finding loving homes for abandoned animals. We provide necessary veterinary care and rehabilitation before placing them up for adoption.",
+          },
+        ],
+        closing: "By prioritizing these initiatives, we strive to make a positive impact on the lives of animals and their owners.",
+      },
+      ourDoctors: {
+        title: "Our Doctors",
+        description: "Our pet clinic has a team of highly skilled veterinarians committed to providing top-notch care for your furry companions. Our consultants hold advanced degrees from renowned international universities and bring years of experience to the table. They're passionate about animal health and dedicated to providing the best possible medical services.",
+        surgeons: "Our expert surgeons are skilled in handling a wide range of cases, ensuring that your pet receives the highest quality care.",
+      },
+      careers: {
+        title: "Careers",
+        subtitle: "Join Our Team",
+        description: "As a leading pet clinic, we're always seeking compassionate and skilled individuals to join our dedicated team.",
+        form: {
+          personalInfo: "Personal Information",
+          fullName: "Full Name",
+          fullNamePlaceholder: "Enter your full name",
+          email: "Email Address",
+          emailPlaceholder: "Enter your email address",
+          phone: "Phone Number",
+          phonePlaceholder: "Enter your phone number",
+          professionalInfo: "Professional Information",
+          resume: "Resume/CV Upload",
+          coverLetter: "Cover Letter (Optional)",
+          coverLetterPlaceholder: "Enter your cover letter",
+          position: "Desired Position",
+          positionPlaceholder: "e.g., Veterinary Technician",
+          startDate: "Available Start Date",
+          experience: "Relevant Experience",
+          experiencePlaceholder: "e.g., veterinary technician, veterinary assistant, receptionist",
+          certifications: "Veterinary Certifications",
+          certificationsPlaceholder: "If applicable",
+          education: "Education Level and Institution",
+          educationPlaceholder: "e.g., Bachelor's in Veterinary Science - University Name",
+          interests: "Areas of Interest",
+          interestsPlaceholder: "e.g., surgery, internal medicine, emergency care",
+          submit: "Submit Application",
+          submitting: "Submitting...",
+        },
+        validation: {
+          nameRequired: "Full name is required",
+          nameMin: "Name must be at least 2 characters",
+          emailRequired: "Email is required",
+          emailInvalid: "Please enter a valid email address",
+          phoneRequired: "Phone number is required",
+          phoneMin: "Please enter a valid phone number",
+          resumeRequired: "Resume/CV is required",
+          positionRequired: "Desired position is required",
+          startDateRequired: "Start date is required",
+          experienceRequired: "Relevant experience is required",
+          educationRequired: "Education information is required",
+        },
+        toast: {
+          title: "Application Submitted!",
+          description: "Thank you for your interest. We'll review your application and get back to you soon.",
+        },
+      },
+    },
     contact: {
       title: "Contact Us",
       description: "Have a question or concern? Need to schedule an appointment? Contact us today! Our dedicated team is ready to assist you.",
@@ -285,6 +393,114 @@ export const translations = {
     },
     partners: {
       title: "شركاؤنا",
+    },
+    about: {
+      hero: {
+        title: "[Arabic translation needed]",
+      },
+      whoWeAre: {
+        title: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+      },
+      vision: {
+        title: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+      },
+      mission: {
+        title: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+      },
+      whyChoose: {
+        title: "[Arabic translation needed]",
+        subtitle: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+        points: [
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+        ],
+      },
+      csr: {
+        title: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+        initiatives: [
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+          {
+            title: "[Arabic translation needed]",
+            description: "[Arabic translation needed]",
+          },
+        ],
+        closing: "[Arabic translation needed]",
+      },
+      ourDoctors: {
+        title: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+        surgeons: "[Arabic translation needed]",
+      },
+      careers: {
+        title: "[Arabic translation needed]",
+        subtitle: "[Arabic translation needed]",
+        description: "[Arabic translation needed]",
+        form: {
+          personalInfo: "[Arabic translation needed]",
+          fullName: "[Arabic translation needed]",
+          fullNamePlaceholder: "[Arabic translation needed]",
+          email: "[Arabic translation needed]",
+          emailPlaceholder: "[Arabic translation needed]",
+          phone: "[Arabic translation needed]",
+          phonePlaceholder: "[Arabic translation needed]",
+          professionalInfo: "[Arabic translation needed]",
+          resume: "[Arabic translation needed]",
+          coverLetter: "[Arabic translation needed]",
+          coverLetterPlaceholder: "[Arabic translation needed]",
+          position: "[Arabic translation needed]",
+          positionPlaceholder: "[Arabic translation needed]",
+          startDate: "[Arabic translation needed]",
+          experience: "[Arabic translation needed]",
+          experiencePlaceholder: "[Arabic translation needed]",
+          certifications: "[Arabic translation needed]",
+          certificationsPlaceholder: "[Arabic translation needed]",
+          education: "[Arabic translation needed]",
+          educationPlaceholder: "[Arabic translation needed]",
+          interests: "[Arabic translation needed]",
+          interestsPlaceholder: "[Arabic translation needed]",
+          submit: "[Arabic translation needed]",
+          submitting: "[Arabic translation needed]",
+        },
+        validation: {
+          nameRequired: "[Arabic translation needed]",
+          nameMin: "[Arabic translation needed]",
+          emailRequired: "[Arabic translation needed]",
+          emailInvalid: "[Arabic translation needed]",
+          phoneRequired: "[Arabic translation needed]",
+          phoneMin: "[Arabic translation needed]",
+          resumeRequired: "[Arabic translation needed]",
+          positionRequired: "[Arabic translation needed]",
+          startDateRequired: "[Arabic translation needed]",
+          experienceRequired: "[Arabic translation needed]",
+          educationRequired: "[Arabic translation needed]",
+        },
+        toast: {
+          title: "[Arabic translation needed]",
+          description: "[Arabic translation needed]",
+        },
+      },
     },
     contact: {
       title: "تواصلوا معنا",
