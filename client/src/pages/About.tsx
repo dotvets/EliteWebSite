@@ -410,10 +410,6 @@ export default function About() {
     },
     {
       key: "careers-form",
-      image: "",
-      imageAlt: "",
-      imageTestId: "",
-      reverse: false,
       className: "bg-background",
       content: (
         <div className="space-y-6 max-w-4xl mx-auto">

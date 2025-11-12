@@ -3,8 +3,8 @@ import { useRef } from "react";
 import { useInView } from "framer-motion";
 
 interface ContentWithMediaSectionProps {
-  image: string;
-  imageAlt: string;
+  image?: string;
+  imageAlt?: string;
   children: React.ReactNode;
   reverse?: boolean;
   className?: string;
@@ -13,7 +13,7 @@ interface ContentWithMediaSectionProps {
 
 export default function ContentWithMediaSection({
   image,
-  imageAlt,
+  imageAlt = "",
   children,
   reverse = false,
   className = "",
@@ -21,6 +21,8 @@ export default function ContentWithMediaSection({
 }: ContentWithMediaSectionProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.2 });
+
+  const hasImage = Boolean(image);
 
   return (
     <section className={`py-20 px-6 lg:px-8 ${className}`}>
@@ -31,28 +33,30 @@ export default function ContentWithMediaSection({
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Image Column - First on mobile, alternates on desktop */}
-          <motion.div
-            initial={{ opacity: 0, x: reverse ? 50 : -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: reverse ? 50 : -50 }}
-            transition={{ duration: 0.6 }}
-            className={reverse ? 'lg:order-2' : 'lg:order-1'}
-          >
-            <img
-              src={image}
-              alt={imageAlt}
-              className="rounded-xl shadow-lg w-full h-auto"
-              data-testid={imageTestId}
-            />
-          </motion.div>
+        <div className={`grid gap-12 items-center ${hasImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+          {/* Image Column - Only render if image is provided */}
+          {hasImage && (
+            <motion.div
+              initial={{ opacity: 0, x: reverse ? 50 : -50 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: reverse ? 50 : -50 }}
+              transition={{ duration: 0.6 }}
+              className={reverse ? 'lg:order-2' : 'lg:order-1'}
+            >
+              <img
+                src={image}
+                alt={imageAlt}
+                className="rounded-xl shadow-lg w-full h-auto"
+                data-testid={imageTestId}
+              />
+            </motion.div>
+          )}
 
           {/* Content Column */}
           <motion.div
-            initial={{ opacity: 0, x: reverse ? -50 : 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: reverse ? -50 : 50 }}
+            initial={{ opacity: 0, x: hasImage ? (reverse ? -50 : 50) : 0 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: hasImage ? (reverse ? -50 : 50) : 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className={reverse ? 'lg:order-1' : 'lg:order-2'}
+            className={hasImage ? (reverse ? 'lg:order-1' : 'lg:order-2') : ''}
           >
             {children}
           </motion.div>
