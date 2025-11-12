@@ -9,10 +9,12 @@ import PartnersSection from "@/components/PartnersSection";
 import ContactSection from "@/components/ContactSection";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
 import Footer from "@/components/Footer";
+import PetBackground from "@/components/PetBackground";
 
 export default function Home() {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
+      <PetBackground />
       <Header />
       <main className="pt-20">
         <HeroSlider />
