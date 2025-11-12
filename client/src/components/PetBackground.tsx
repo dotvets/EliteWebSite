@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import petCollar from "@assets/1_1762951684781.png";
-import petBone from "@assets/2_1762951684782.png";
-import petPaws from "@assets/3_1762951684783.png";
+import petCollar from "@assets/generated_images/Pet_collar_outline_transparent_49e574b4.png";
+import petBone from "@assets/generated_images/Dog_bone_outline_transparent_a4750870.png";
+import petPaws from "@assets/generated_images/Paw_prints_outline_transparent_00d42da9.png";
 
 export default function PetBackground() {
   const shapes = [petCollar, petBone, petPaws];
