@@ -79,23 +79,26 @@ export default function Header() {
             </Button>
             <a href="tel:920011626">
               <Button data-testid="button-book-appointment" size="default" className="font-mono text-lg">
-                {Array.from('920011626').map((digit, index) => (
-                  <motion.span
-                    key={index}
-                    animate={{
-                      scale: [1, 1.3, 1],
-                    }}
-                    transition={{
-                      duration: 0.6,
-                      repeat: Infinity,
-                      delay: index * 0.15,
-                      repeatDelay: 1.5,
-                    }}
-                    className="inline-block"
-                  >
-                    {digit}
-                  </motion.span>
-                ))}
+                <span dir="ltr">
+                  {Array.from('920011626').map((digit, index) => (
+                    <motion.span
+                      key={index}
+                      animate={{
+                        scale: [1, 1.8, 1],
+                      }}
+                      transition={{
+                        duration: 0.9,
+                        repeat: Infinity,
+                        delay: index * 0.15,
+                        repeatDelay: 1.5,
+                        ease: "easeInOut",
+                      }}
+                      className="inline-block"
+                    >
+                      {digit}
+                    </motion.span>
+                  ))}
+                </span>
               </Button>
             </a>
           </div>
@@ -142,23 +145,26 @@ export default function Header() {
                   className="w-full font-mono text-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {Array.from('920011626').map((digit, index) => (
-                    <motion.span
-                      key={index}
-                      animate={{
-                        scale: [1, 1.3, 1],
-                      }}
-                      transition={{
-                        duration: 0.6,
-                        repeat: Infinity,
-                        delay: index * 0.15,
-                        repeatDelay: 1.5,
-                      }}
-                      className="inline-block"
-                    >
-                      {digit}
-                    </motion.span>
-                  ))}
+                  <span dir="ltr">
+                    {Array.from('920011626').map((digit, index) => (
+                      <motion.span
+                        key={index}
+                        animate={{
+                          scale: [1, 1.8, 1],
+                        }}
+                        transition={{
+                          duration: 0.9,
+                          repeat: Infinity,
+                          delay: index * 0.15,
+                          repeatDelay: 1.5,
+                          ease: "easeInOut",
+                        }}
+                        className="inline-block"
+                      >
+                        {digit}
+                      </motion.span>
+                    ))}
+                  </span>
                 </Button>
               </a>
             </nav>
