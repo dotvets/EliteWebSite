@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -49,19 +49,35 @@ export default function ContactSection() {
     },
   });
 
+  // Update resolver when schema changes
+  useEffect(() => {
+    form.clearErrors();
+  }, [contactSchema, form]);
+
   const onSubmit = async (data: ContactFormData) => {
-    setIsSubmitting(true);
-    console.log("Contact form submitted:", data);
-    
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast({
-      title: t.toast.title,
-      description: t.toast.description,
-    });
-    
-    form.reset();
-    setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      console.log("Contact form submitted:", data);
+      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      console.log("About to show toast with title:", t.toast.title);
+      const toastResult = toast({
+        title: t.toast.title,
+        description: t.toast.description,
+      });
+      console.log("Toast created with ID:", toastResult.id);
+      
+      console.log("Resetting form...");
+      form.reset();
+      console.log("Form reset complete");
+      
+      setIsSubmitting(false);
+      console.log("Submission complete");
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      setIsSubmitting(false);
+    }
   };
 
   return (
