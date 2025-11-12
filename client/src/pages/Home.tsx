@@ -9,27 +9,23 @@ import PartnersSection from "@/components/PartnersSection";
 import ContactSection from "@/components/ContactSection";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
 import Footer from "@/components/Footer";
-import FloatingSocialMenu from "@/components/FloatingSocialMenu";
 
 export default function Home() {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
-      <div className="relative z-20">
-        <Header />
-        <main className="pt-20">
-          <HeroSlider />
-          <ECGAnimation />
-          <IntroSection />
-          <ServicesSection />
-          <WhyChooseSection />
-          <TeamSection />
-          <PartnersSection />
-          <ContactSection />
-          <HeartbeatDivider />
-        </main>
-        <Footer />
-      </div>
-      <FloatingSocialMenu />
+      <Header />
+      <main className="pt-20 pb-[450px]">
+        <HeroSlider />
+        <ECGAnimation />
+        <IntroSection />
+        <ServicesSection />
+        <WhyChooseSection />
+        <TeamSection />
+        <PartnersSection />
+        <ContactSection />
+        <HeartbeatDivider />
+      </main>
+      <Footer />
     </div>
   );
 }

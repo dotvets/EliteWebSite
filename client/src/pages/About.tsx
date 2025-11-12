@@ -21,6 +21,12 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Users, Target, Heart, Upload, Handshake } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import pawPrintPattern from "@assets/Paw Print Background Pattern_1762871879512.jpg";
+import freepikPaw from "@assets/freepik__img1i-want-you-to-make-the-attached-image-more-bea__64912_1762857524224.png";
+import petImage from "@assets/SL-011023-55240-04_1762871665658.jpg";
+import clinicImage from "@assets/77afe717-52e7-4cfd-b4e7-6abfd4ad9720_1762874109941.jpg";
 
 // Animation variants for scroll animations
 const fadeInUp = {
@@ -118,6 +124,8 @@ export default function About() {
 
   return (
     <div className="min-h-screen" data-testid="page-about">
+      <Header />
+      <main className="pt-20 pb-[450px]">
       {/* Hero Section */}
       <AnimatedSection className="relative bg-primary text-white py-20 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
@@ -126,6 +134,11 @@ export default function About() {
           </h1>
         </div>
       </AnimatedSection>
+
+      {/* Decorative Divider - Paw Pattern */}
+      <figure className="w-full my-12 lg:my-20 opacity-20" data-testid="image-divider-hero">
+        <img src={pawPrintPattern} alt="" aria-hidden="true" className="w-full h-32 object-cover" />
+      </figure>
 
       {/* Who We Are Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
@@ -138,6 +151,16 @@ export default function About() {
           </p>
         </div>
       </AnimatedSection>
+
+      {/* Decorative Divider - Paw Right */}
+      <figure className="flex justify-center lg:justify-end my-12 lg:my-20 px-6" data-testid="image-divider-who-we-are">
+        <img 
+          src={freepikPaw} 
+          alt="" 
+          aria-hidden="true" 
+          className="w-40 sm:w-48 lg:max-w-sm h-40 lg:h-56 object-contain rounded-xl shadow-sm"
+        />
+      </figure>
 
       {/* Vision & Mission Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
@@ -188,6 +211,16 @@ export default function About() {
         </div>
       </AnimatedSection>
 
+      {/* Decorative Divider - Paw Left */}
+      <figure className="flex justify-center lg:justify-start my-12 lg:my-20 px-6" data-testid="image-divider-vision-mission">
+        <img 
+          src={freepikPaw} 
+          alt="" 
+          aria-hidden="true" 
+          className="w-40 sm:w-48 lg:max-w-sm h-40 lg:h-56 object-contain rounded-xl shadow-sm"
+        />
+      </figure>
+
       {/* Why Choose Us Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
         <div className="max-w-6xl mx-auto">
@@ -230,6 +263,15 @@ export default function About() {
           </motion.div>
         </div>
       </AnimatedSection>
+
+      {/* Decorative Divider - Pet Image Centered */}
+      <figure className="flex justify-center my-12 lg:my-20 px-6" data-testid="image-divider-why-choose">
+        <img 
+          src={petImage} 
+          alt="Elite Vet professional care" 
+          className="w-full max-w-[320px] sm:max-w-[420px] lg:max-w-lg h-48 lg:h-64 object-cover rounded-xl shadow-sm"
+        />
+      </figure>
 
       {/* Corporate Social Responsibility Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
@@ -275,6 +317,15 @@ export default function About() {
         </div>
       </AnimatedSection>
 
+      {/* Decorative Divider - Pet Image Centered */}
+      <figure className="flex justify-center my-12 lg:my-20 px-6" data-testid="image-divider-csr">
+        <img 
+          src={petImage} 
+          alt="Elite Vet community care" 
+          className="w-full max-w-[320px] sm:max-w-[420px] lg:max-w-lg h-48 lg:h-64 object-cover rounded-xl shadow-sm"
+        />
+      </figure>
+
       {/* Our Partners Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
         <div className="max-w-6xl mx-auto">
@@ -308,6 +359,15 @@ export default function About() {
         </div>
       </AnimatedSection>
 
+      {/* Decorative Divider - Clinic Image */}
+      <figure className="flex justify-center my-12 lg:my-20 px-6" data-testid="image-divider-partners">
+        <img 
+          src={clinicImage} 
+          alt="Elite Vet clinic facility" 
+          className="w-full max-w-md h-40 lg:h-56 object-cover rounded-xl shadow-sm"
+        />
+      </figure>
+
       {/* Our Doctors Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
         <div className="max-w-6xl mx-auto">
@@ -330,6 +390,15 @@ export default function About() {
           </div>
         </div>
       </AnimatedSection>
+
+      {/* Decorative Divider - Clinic Image */}
+      <figure className="flex justify-center my-12 lg:my-20 px-6" data-testid="image-divider-doctors">
+        <img 
+          src={clinicImage} 
+          alt="Elite Vet team" 
+          className="w-full max-w-md h-40 lg:h-56 object-cover rounded-xl shadow-sm"
+        />
+      </figure>
 
       {/* Careers Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
@@ -589,6 +658,8 @@ export default function About() {
           </Card>
         </div>
       </AnimatedSection>
+      </main>
+      <Footer />
     </div>
   );
 }
