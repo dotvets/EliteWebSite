@@ -238,15 +238,15 @@ export default function About() {
           >
             {t.whyChoose.points.map((point, index) => (
               <motion.div key={index} variants={fadeInUp}>
-                <Card className="hover-elevate" data-testid={`card-why-choose-${index}`}>
+                <Card className="hover-elevate h-full" data-testid={`card-why-choose-${index}`}>
                   <CardHeader>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                      <div>
-                        <CardTitle className="text-xl font-heading mb-2" data-testid={`text-why-choose-point-title-${index}`}>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl font-heading mb-2 break-words" data-testid={`text-why-choose-point-title-${index}`}>
                           {point.title}
                         </CardTitle>
-                        <p className="text-foreground/70" data-testid={`text-why-choose-point-description-${index}`}>
+                        <p className="text-foreground/70 break-words" data-testid={`text-why-choose-point-description-${index}`}>
                           {point.description}
                         </p>
                       </div>
@@ -382,29 +382,53 @@ export default function About() {
       ),
     },
     {
-      key: "careers",
+      key: "careers-intro",
       image: careerDevelopment,
       imageAlt: "Elite Vet career opportunities",
       imageTestId: "img-career-development",
-      reverse: false,
+      reverse: true,
       className: "bg-muted/30",
       content: (
-        <div className="space-y-6">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-left"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
+            Careers
+          </h2>
+          <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
+            Join Our Team
+          </h3>
+          <p className="text-lg text-foreground/80" data-testid="text-careers-description">
+            As a leading pet clinic, we're always seeking compassionate and skilled individuals to join our dedicated team.
+          </p>
+        </motion.div>
+      ),
+    },
+    {
+      key: "careers-form",
+      image: "",
+      imageAlt: "",
+      imageTestId: "",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <div className="space-y-6 max-w-4xl mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
             variants={fadeInUp}
             viewport={{ once: false, amount: 0.3 }}
-            className="text-center lg:text-left"
+            className="text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
-              {t.careers.title}
-            </h2>
-            <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
-              {t.careers.subtitle}
+            <h3 className="text-2xl font-bold font-heading text-primary mb-4">
+              Apply Now
             </h3>
-            <p className="text-lg text-foreground/80 mb-12" data-testid="text-careers-description">
-              {t.careers.description}
+            <p className="text-foreground/80 mb-8">
+              Fill out the form below to submit your application
             </p>
           </motion.div>
           <Card>
@@ -551,9 +575,9 @@ export default function About() {
       <Header />
       <main className="pt-20">
       {/* Hero Section */}
-      <AnimatedSection className="relative bg-primary text-white py-20 px-6 lg:px-8">
+      <AnimatedSection className="relative py-20 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6" data-testid="text-about-hero-title">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 text-primary" data-testid="text-about-hero-title">
             {t.hero.title}
           </h1>
         </div>
