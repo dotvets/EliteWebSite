@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Users, Target, Heart, Upload } from "lucide-react";
+import { CheckCircle2, Users, Target, Heart, Upload, Handshake } from "lucide-react";
 
 // Animation variants for scroll animations
 const fadeInUp = {
@@ -59,6 +59,7 @@ function AnimatedSection({ children, className = "" }: { children: React.ReactNo
 export default function About() {
   const { language } = useLanguage();
   const t = translations[language].about;
+  const partners = translations[language].partners;
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -274,8 +275,41 @@ export default function About() {
         </div>
       </AnimatedSection>
 
-      {/* Our Doctors Section */}
+      {/* Our Partners Section */}
       <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-12 text-center" data-testid="text-partners-title">
+            {partners.title}
+          </h2>
+          
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
+            className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto"
+          >
+            {partners.items.map((partner, index) => (
+              <motion.div key={index} variants={fadeInUp}>
+                <Card className="hover-elevate" data-testid={`card-partner-${index}`}>
+                  <CardContent className="pt-12 pb-12">
+                    <div className="flex flex-col items-center gap-4">
+                      <Handshake className="w-16 h-16 text-primary" />
+                      <h3 className="text-2xl font-bold font-heading text-center" data-testid={`text-partner-name-${index}`}>
+                        {partner}
+                      </h3>
+                      <p className="text-sm text-foreground/60 text-center italic">Logo coming soon</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      {/* Our Doctors Section */}
+      <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6 text-center" data-testid="text-doctors-title">
             {t.ourDoctors.title}

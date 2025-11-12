@@ -122,6 +122,7 @@ export const translations = {
     },
     partners: {
       title: "Our Partners",
+      items: ["Vest Van", "Elite Falcons"],
     },
     about: {
       hero: {
@@ -393,6 +394,7 @@ export const translations = {
     },
     partners: {
       title: "شركاؤنا",
+      items: ["Vest Van", "Elite Falcons"],
     },
     about: {
       hero: {
