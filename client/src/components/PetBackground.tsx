@@ -16,7 +16,7 @@ export default function PetBackground() {
   const elements = Array.from({ length: 35 });
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
       {elements.map((_, i) => {
         const src = shapes[Math.floor(Math.random() * shapes.length)];
         const size = 40 + Math.random() * 90;
