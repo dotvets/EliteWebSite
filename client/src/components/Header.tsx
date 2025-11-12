@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Languages } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
 import logoImage from "@assets/Elite final logo_1761818487960.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { motion } from "framer-motion";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,19 +70,34 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-4">
             <Button
               variant="ghost"
-              size="icon"
               onClick={toggleLanguage}
               data-testid="button-language-toggle"
-              className="rounded-full"
+              className="gap-2"
             >
-              <Languages className="w-5 h-5" />
-              <span className="sr-only">Toggle Language</span>
+              <Globe className="w-5 h-5" />
+              <span>{language === 'en' ? 'العربية' : 'English'}</span>
             </Button>
-            <Link href="/book-now">
-              <Button data-testid="button-book-appointment" size="default">
-                {t.bookAppointment}
+            <a href="tel:920011626">
+              <Button data-testid="button-book-appointment" size="default" className="font-mono text-lg">
+                {Array.from('920011626').map((digit, index) => (
+                  <motion.span
+                    key={index}
+                    animate={{
+                      scale: [1, 1.3, 1],
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: Infinity,
+                      delay: index * 0.15,
+                      repeatDelay: 1.5,
+                    }}
+                    className="inline-block"
+                  >
+                    {digit}
+                  </motion.span>
+                ))}
               </Button>
-            </Link>
+            </a>
           </div>
 
           <button
@@ -117,18 +133,34 @@ export default function Header() {
                 onClick={toggleLanguage}
                 data-testid="button-mobile-language-toggle"
               >
-                <Languages className="w-4 h-4 mr-2" />
+                <Globe className="w-4 h-4 mr-2" />
                 {language === 'en' ? 'العربية' : 'English'}
               </Button>
-              <Link href="/book-now" className="block">
+              <a href="tel:920011626" className="block">
                 <Button
                   data-testid="button-mobile-book"
-                  className="w-full"
+                  className="w-full font-mono text-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {t.bookAppointment}
+                  {Array.from('920011626').map((digit, index) => (
+                    <motion.span
+                      key={index}
+                      animate={{
+                        scale: [1, 1.3, 1],
+                      }}
+                      transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        delay: index * 0.15,
+                        repeatDelay: 1.5,
+                      }}
+                      className="inline-block"
+                    >
+                      {digit}
+                    </motion.span>
+                  ))}
                 </Button>
-              </Link>
+              </a>
             </nav>
           </div>
         )}

@@ -90,16 +90,6 @@ export default function Footer() {
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 flex-shrink-0" />
-                  <a 
-                    href="tel:920011626"
-                    className="text-white/80 text-sm font-body hover:text-white transition-colors"
-                    data-testid="link-emergency"
-                  >
-                    {t.emergency}
-                  </a>
-                </li>
-                <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 flex-shrink-0" />
                   <a 
                     href="mailto:info@ellitevetksa.com"
