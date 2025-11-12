@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import AnimatedServicesBackground from "@/components/AnimatedServicesBackground";
 import BackgroundMusic from "@/components/BackgroundMusic";
+import FloatingSocialMenu from "@/components/FloatingSocialMenu";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
@@ -37,6 +38,7 @@ function App() {
         <TooltipProvider>
           <AnimatedServicesBackground />
           <BackgroundMusic />
+          <FloatingSocialMenu />
           <Toaster />
           <Router />
         </TooltipProvider>
