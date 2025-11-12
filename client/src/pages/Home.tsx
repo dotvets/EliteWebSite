@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
       <Header />
-      <main className="pt-20 pb-[450px]">
+      <main className="pt-20">
         <HeroSlider />
         <ECGAnimation />
         <IntroSection />

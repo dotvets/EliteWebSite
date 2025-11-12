@@ -49,7 +49,7 @@ export default function Footer() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40">
+    <div>
       {/* Gray border - 10px thick */}
       <div className="w-full h-[10px] bg-[#9d9ea0]" data-testid="footer-top-border"></div>
       
