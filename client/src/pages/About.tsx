@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Users, Target, Heart, Upload, Handshake } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ContentWithMediaSection from "@/components/ContentWithMediaSection";
 import clinicReception from "@assets/generated_images/Modern_veterinary_clinic_reception_f5464596.png";
 import vetWithDog from "@assets/generated_images/Veterinarian_examining_happy_dog_46285143.png";
 import vetTeam from "@assets/generated_images/Veterinary_team_collaboration_79d0e035.png";
@@ -125,147 +126,109 @@ export default function About() {
     }
   };
 
-  return (
-    <div className="min-h-screen" data-testid="page-about">
-      <Header />
-      <main className="pt-20">
-      {/* Hero Section */}
-      <AnimatedSection className="relative bg-primary text-white py-20 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6" data-testid="text-about-hero-title">
-            {t.hero.title}
-          </h1>
-        </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Clinic Reception */}
-      <div className="py-12 px-6 lg:px-8">
+  // Sections configuration array for side-by-side layout
+  const sections = [
+    {
+      key: "who-we-are",
+      image: clinicReception,
+      imageAlt: "Elite Vet modern clinic reception",
+      imageTestId: "img-clinic-reception",
+      reverse: false,
+      className: "bg-background",
+      content: (
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
           viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
+          className="space-y-6 text-center lg:text-left"
         >
-          <img
-            src={clinicReception}
-            alt="Elite Vet modern clinic reception"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-clinic-reception"
-          />
-        </motion.div>
-      </div>
-
-      {/* Who We Are Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-8 text-center" data-testid="text-who-we-are-title">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
             {t.whoWeAre.title}
           </h2>
-          <p className="text-lg text-foreground/80 leading-relaxed text-center max-w-4xl mx-auto" data-testid="text-who-we-are-description">
+          <p className="text-lg text-foreground/80 leading-relaxed" data-testid="text-who-we-are-description">
             {t.whoWeAre.description}
           </p>
-        </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Veterinarian with Dog */}
-      <div className="py-12 px-6 lg:px-8 bg-background">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={vetWithDog}
-            alt="Elite Vet caring for pets"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-vet-with-dog"
-          />
         </motion.div>
-      </div>
-
-      {/* Vision & Mission Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-6xl mx-auto">
+      ),
+    },
+    {
+      key: "vision-mission",
+      image: vetWithDog,
+      imageAlt: "Elite Vet caring for pets",
+      imageTestId: "img-vet-with-dog",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2 }}
+          className="grid md:grid-cols-2 gap-8"
+        >
+          <motion.div variants={fadeInUp}>
+            <Card className="h-full hover-elevate" data-testid="card-vision">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <Target className="w-8 h-8 text-primary" />
+                  <CardTitle className="text-2xl font-heading text-primary" data-testid="text-vision-title">
+                    {t.vision.title}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-foreground/80 leading-relaxed" data-testid="text-vision-description">
+                  {t.vision.description}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+          <motion.div variants={fadeInUp}>
+            <Card className="h-full hover-elevate" data-testid="card-mission">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <Heart className="w-8 h-8 text-primary" />
+                  <CardTitle className="text-2xl font-heading text-primary" data-testid="text-mission-title">
+                    {t.mission.title}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-foreground/80 leading-relaxed" data-testid="text-mission-description">
+                  {t.mission.description}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      ),
+    },
+    {
+      key: "why-choose",
+      image: vetTeam,
+      imageAlt: "Elite Vet professional team",
+      imageTestId: "img-vet-team",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <div className="space-y-8 text-center lg:text-left">
           <motion.div
-            variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, amount: 0.2 }}
-            className="grid md:grid-cols-2 gap-8"
+            variants={fadeInUp}
+            viewport={{ once: false, amount: 0.3 }}
           >
-            <motion.div variants={fadeInUp}>
-              <Card className="h-full hover-elevate" data-testid="card-vision">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Target className="w-8 h-8 text-primary" />
-                    <CardTitle className="text-2xl font-heading text-primary" data-testid="text-vision-title">
-                      {t.vision.title}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground/80 leading-relaxed" data-testid="text-vision-description">
-                    {t.vision.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Card className="h-full hover-elevate" data-testid="card-mission">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Heart className="w-8 h-8 text-primary" />
-                    <CardTitle className="text-2xl font-heading text-primary" data-testid="text-mission-title">
-                      {t.mission.title}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground/80 leading-relaxed" data-testid="text-mission-description">
-                    {t.mission.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
+              {t.whyChoose.title}
+            </h2>
+            <p className="text-xl font-semibold text-foreground mb-6" data-testid="text-why-choose-subtitle">
+              {t.whyChoose.subtitle}
+            </p>
+            <p className="text-lg text-foreground/80 mb-8" data-testid="text-why-choose-description">
+              {t.whyChoose.description}
+            </p>
           </motion.div>
-        </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Veterinary Team */}
-      <div className="py-12 px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={vetTeam}
-            alt="Elite Vet professional team"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-vet-team"
-          />
-        </motion.div>
-      </div>
-
-      {/* Why Choose Us Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4 text-center" data-testid="text-why-choose-title">
-            {t.whyChoose.title}
-          </h2>
-          <p className="text-xl font-semibold text-foreground mb-6 text-center" data-testid="text-why-choose-subtitle">
-            {t.whyChoose.subtitle}
-          </p>
-          <p className="text-lg text-foreground/80 mb-8 text-center" data-testid="text-why-choose-description">
-            {t.whyChoose.description}
-          </p>
-
           <motion.div
             variants={staggerContainer}
             initial="hidden"
@@ -294,36 +257,30 @@ export default function About() {
             ))}
           </motion.div>
         </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Community Service */}
-      <div className="py-12 px-6 lg:px-8 bg-background">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={communityService}
-            alt="Elite Vet community service"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-community-service"
-          />
-        </motion.div>
-      </div>
-
-      {/* Corporate Social Responsibility Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6 text-center" data-testid="text-csr-title">
-            {t.csr.title}
-          </h2>
-          <p className="text-lg text-foreground/80 mb-8 text-center max-w-4xl mx-auto" data-testid="text-csr-description">
-            {t.csr.description}
-          </p>
-
+      ),
+    },
+    {
+      key: "csr",
+      image: communityService,
+      imageAlt: "Elite Vet community service",
+      imageTestId: "img-community-service",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <div className="space-y-8 text-center lg:text-left">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            variants={fadeInUp}
+            viewport={{ once: false, amount: 0.3 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6" data-testid="text-csr-title">
+              {t.csr.title}
+            </h2>
+            <p className="text-lg text-foreground/80 mb-8" data-testid="text-csr-description">
+              {t.csr.description}
+            </p>
+          </motion.div>
           <motion.div
             variants={staggerContainer}
             initial="hidden"
@@ -351,44 +308,30 @@ export default function About() {
               </motion.div>
             ))}
           </motion.div>
-
-          <p className="text-center text-foreground/80 italic" data-testid="text-csr-closing">
+          <p className="text-foreground/80 italic" data-testid="text-csr-closing">
             {t.csr.closing}
           </p>
         </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Partnership */}
-      <div className="py-12 px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={partnership}
-            alt="Elite Vet partnerships"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-partnership"
-          />
-        </motion.div>
-      </div>
-
-      {/* Our Partners Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-background">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-12 text-center" data-testid="text-partners-title">
+      ),
+    },
+    {
+      key: "partners",
+      image: partnership,
+      imageAlt: "Elite Vet partnerships",
+      imageTestId: "img-partnership",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <div className="space-y-12 text-center lg:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-partners-title">
             {partners.title}
           </h2>
-          
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: false, amount: 0.2 }}
-            className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto"
+            className="grid md:grid-cols-2 gap-12"
           >
             {partners.items.map((partner, index) => (
               <motion.div key={index} variants={fadeInUp}>
@@ -407,30 +350,18 @@ export default function About() {
             ))}
           </motion.div>
         </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Surgical Team */}
-      <div className="py-12 px-6 lg:px-8 bg-background">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={surgicalTeam}
-            alt="Elite Vet surgical expertise"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-surgical-team"
-          />
-        </motion.div>
-      </div>
-
-      {/* Our Doctors Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6 text-center" data-testid="text-doctors-title">
+      ),
+    },
+    {
+      key: "doctors",
+      image: surgicalTeam,
+      imageAlt: "Elite Vet surgical expertise",
+      imageTestId: "img-surgical-team",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <div className="space-y-6 text-center lg:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
             {t.ourDoctors.title}
           </h2>
           <Card className="mb-6">
@@ -448,276 +379,162 @@ export default function About() {
             <p className="italic">Doctor profiles coming soon</p>
           </div>
         </div>
-      </AnimatedSection>
-
-      {/* Decorative Image - Career Development */}
-      <div className="py-12 px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-          className="max-w-5xl mx-auto"
-        >
-          <img
-            src={careerDevelopment}
-            alt="Elite Vet career opportunities"
-            className="rounded-xl shadow-lg w-full h-auto"
-            data-testid="img-career-development"
-          />
-        </motion.div>
-      </div>
-
-      {/* Careers Section */}
-      <AnimatedSection className="py-20 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4 text-center" data-testid="text-careers-title">
-            {t.careers.title}
-          </h2>
-          <h3 className="text-2xl font-semibold font-heading mb-6 text-center" data-testid="text-careers-subtitle">
-            {t.careers.subtitle}
-          </h3>
-          <p className="text-lg text-foreground/80 mb-12 text-center" data-testid="text-careers-description">
-            {t.careers.description}
-          </p>
-
+      ),
+    },
+    {
+      key: "careers",
+      image: careerDevelopment,
+      imageAlt: "Elite Vet career opportunities",
+      imageTestId: "img-career-development",
+      reverse: false,
+      className: "bg-muted/30",
+      content: (
+        <div className="space-y-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            variants={fadeInUp}
+            viewport={{ once: false, amount: 0.3 }}
+            className="text-center lg:text-left"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
+              {t.careers.title}
+            </h2>
+            <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
+              {t.careers.subtitle}
+            </h3>
+            <p className="text-lg text-foreground/80 mb-12" data-testid="text-careers-description">
+              {t.careers.description}
+            </p>
+          </motion.div>
           <Card>
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  {/* Personal Information */}
                   <div>
                     <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-personal-info">
                       {t.careers.form.personalInfo}
                     </h4>
                     <div className="grid md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.fullName}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder={t.careers.form.fullNamePlaceholder}
-                                data-testid="input-fullname"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.email}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="email"
-                                placeholder={t.careers.form.emailPlaceholder}
-                                data-testid="input-email"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.phone}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="tel"
-                                placeholder={t.careers.form.phonePlaceholder}
-                                data-testid="input-phone"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <FormField control={form.control} name="fullName" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.fullName}</FormLabel>
+                          <FormControl>
+                            <Input placeholder={t.careers.form.fullName} {...field} data-testid="input-full-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="email" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.email}</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder={t.careers.form.email} {...field} data-testid="input-email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="phone" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.phone}</FormLabel>
+                          <FormControl>
+                            <Input placeholder={t.careers.form.phone} {...field} data-testid="input-phone" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="resume" render={({ field: { value, onChange, ...fieldProps } }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.resume}</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input type="file" accept=".pdf,.doc,.docx" onChange={(e) => onChange(e.target.files)} {...fieldProps} data-testid="input-resume" />
+                              <Upload className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
                   </div>
-
-                  {/* Professional Information */}
                   <div>
-                    <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-professional-info">
+                    <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-position-info">
                       {t.careers.form.professionalInfo}
                     </h4>
-                    <div className="space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="resume"
-                        render={({ field: { value, onChange, ...field } }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.resume}</FormLabel>
-                            <FormControl>
-                              <div className="flex items-center gap-4">
-                                <Input
-                                  {...field}
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(e) => onChange(e.target.files)}
-                                  data-testid="input-resume"
-                                />
-                                <Upload className="w-5 h-5 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="coverLetter"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.coverLetter}</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                placeholder={t.careers.form.coverLetterPlaceholder}
-                                rows={4}
-                                data-testid="input-coverletter"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="position"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t.careers.form.position}</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder={t.careers.form.positionPlaceholder}
-                                  data-testid="input-position"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="startDate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t.careers.form.startDate}</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  type="date"
-                                  data-testid="input-startdate"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="experience"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.experience}</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                placeholder={t.careers.form.experiencePlaceholder}
-                                rows={3}
-                                data-testid="input-experience"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="certifications"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.certifications}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder={t.careers.form.certificationsPlaceholder}
-                                data-testid="input-certifications"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="education"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.education}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder={t.careers.form.educationPlaceholder}
-                                data-testid="input-education"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="interests"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.careers.form.interests}</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                placeholder={t.careers.form.interestsPlaceholder}
-                                rows={2}
-                                data-testid="input-interests"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="position" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.position}</FormLabel>
+                          <FormControl>
+                            <Input placeholder={t.careers.form.position} {...field} data-testid="input-position" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="startDate" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.startDate}</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} data-testid="input-start-date" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="experience" render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>{t.careers.form.experience}</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder={t.careers.form.experience} {...field} data-testid="textarea-experience" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
                   </div>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={isSubmitting}
-                    className="w-full"
-                    data-testid="button-submit-application"
-                  >
+                  <div>
+                    <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-qualifications">
+                      Qualifications
+                    </h4>
+                    <div className="space-y-6">
+                      <FormField control={form.control} name="education" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.education}</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder={t.careers.form.education} {...field} data-testid="textarea-education" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="certifications" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.certifications}</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder={t.careers.form.certifications} {...field} data-testid="textarea-certifications" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="interests" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.interests}</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder={t.careers.form.interests} {...field} data-testid="textarea-interests" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="coverLetter" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.careers.form.coverLetter}</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder={t.careers.form.coverLetter} rows={5} {...field} data-testid="textarea-cover-letter" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={isSubmitting} className="w-full" data-testid="button-submit-application">
                     {isSubmitting ? t.careers.form.submitting : t.careers.form.submit}
                   </Button>
                 </form>
@@ -725,7 +542,29 @@ export default function About() {
             </CardContent>
           </Card>
         </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="min-h-screen" data-testid="page-about">
+      <Header />
+      <main className="pt-20">
+      {/* Hero Section */}
+      <AnimatedSection className="relative bg-primary text-white py-20 px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6" data-testid="text-about-hero-title">
+            {t.hero.title}
+          </h1>
+        </div>
       </AnimatedSection>
+
+      {/* Mapped Sections with Side-by-Side Layout */}
+      {sections.map(({ key, content, ...sectionProps }) => (
+        <ContentWithMediaSection key={key} {...sectionProps}>
+          {content}
+        </ContentWithMediaSection>
+      ))}
       </main>
       <Footer />
     </div>
