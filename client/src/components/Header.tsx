@@ -79,7 +79,7 @@ export default function Header() {
             </Button>
             <a href="tel:920011626">
               <Button data-testid="button-book-appointment" size="default" className="font-mono text-lg">
-                <span dir="ltr">
+                <span dir="ltr" className="flex gap-1">
                   {Array.from('920011626').map((digit, index) => (
                     <motion.span
                       key={index}
@@ -145,7 +145,7 @@ export default function Header() {
                   className="w-full font-mono text-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <span dir="ltr">
+                  <span dir="ltr" className="flex gap-1">
                     {Array.from('920011626').map((digit, index) => (
                       <motion.span
                         key={index}
