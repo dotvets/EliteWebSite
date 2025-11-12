@@ -1,7 +1,6 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { Button } from "@/components/ui/button";
@@ -553,43 +552,46 @@ export default function About() {
 
       {/* Mapped Sections with Side-by-Side Layout */}
       {sections.map(({ key, content, ...sectionProps }) => (
-        <ContentWithMediaSection key={key} {...sectionProps}>
-          {content}
-        </ContentWithMediaSection>
-      ))}
-
-      {/* Why Choose Elite Vet Cards - Centered Below */}
-      <section className="bg-background pt-0 pb-20 px-6 lg:px-8">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2 }}
-          className="max-w-6xl mx-auto"
-        >
-          <div className="grid md:grid-cols-3 gap-6">
-            {t.whyChoose.points.map((point, index) => (
-              <motion.div key={index} variants={fadeInUp} className="h-full">
-                <Card className="hover-elevate h-full flex flex-col" data-testid={`card-why-choose-${index}`}>
-                  <CardHeader className="flex-1">
-                    <div className="flex items-start gap-3 h-full">
-                      <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                      <div className="flex-1 overflow-hidden">
-                        <CardTitle className="text-lg font-heading mb-2 leading-tight" data-testid={`text-why-choose-point-title-${index}`}>
-                          {point.title}
-                        </CardTitle>
-                        <p className="text-sm text-foreground/70 leading-relaxed" data-testid={`text-why-choose-point-description-${index}`}>
-                          {point.description}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
+        <React.Fragment key={key}>
+          <ContentWithMediaSection {...sectionProps}>
+            {content}
+          </ContentWithMediaSection>
+          {/* Why Choose Elite Vet Cards - Centered Below */}
+          {key === "why-choose" && (
+            <section className="bg-background pt-0 pb-20 px-6 lg:px-8">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.2 }}
+                className="max-w-6xl mx-auto"
+              >
+                <div className="grid md:grid-cols-3 gap-6">
+                  {t.whyChoose.points.map((point, index) => (
+                    <motion.div key={index} variants={fadeInUp} className="h-full">
+                      <Card className="hover-elevate h-full flex flex-col" data-testid={`card-why-choose-${index}`}>
+                        <CardHeader className="flex-1">
+                          <div className="flex items-start gap-3 h-full">
+                            <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                            <div className="flex-1 overflow-hidden">
+                              <CardTitle className="text-lg font-heading mb-2 leading-tight" data-testid={`text-why-choose-point-title-${index}`}>
+                                {point.title}
+                              </CardTitle>
+                              <p className="text-sm text-foreground/70 leading-relaxed" data-testid={`text-why-choose-point-description-${index}`}>
+                                {point.description}
+                              </p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+            </section>
+          )}
+        </React.Fragment>
+      ))}
       </main>
       <Footer />
     </div>
