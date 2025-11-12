@@ -2,8 +2,13 @@ import { Link } from "wouter";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaSnapchat, FaXTwitter } from "react-icons/fa6";
 import logoImage from "@assets/Elite final logo_1762859223489.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function Footer() {
+  const { language } = useLanguage();
+  const t = translations[language].footer;
+
   const socialLinks = [
     { 
       name: "WhatsApp", 
@@ -66,13 +71,13 @@ export default function Footer() {
                 />
               </div>
               <p className="text-white/90 text-sm leading-relaxed font-body">
-                Elite Veterinary Clinic: Your Trusted Partner in Pet Care. Providing exceptional service & ensuring your pet's well-being.
+                {t.about}
               </p>
             </div>
 
             {/* Contact Info */}
             <div>
-              <h3 className="font-semibold font-heading text-lg mb-6">Contact Info</h3>
+              <h3 className="font-semibold font-heading text-lg mb-6">{t.contactInfo}</h3>
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 flex-shrink-0" />
@@ -81,7 +86,7 @@ export default function Footer() {
                     className="text-white/80 text-sm font-body hover:text-white transition-colors"
                     data-testid="link-call"
                   >
-                    Call: 920011626
+                    {t.call}
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
@@ -91,7 +96,7 @@ export default function Footer() {
                     className="text-white/80 text-sm font-body hover:text-white transition-colors"
                     data-testid="link-emergency"
                   >
-                    Emergency: 920011626
+                    {t.emergency}
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
@@ -121,19 +126,19 @@ export default function Footer() {
 
             {/* Working Hours */}
             <div>
-              <h3 className="font-semibold font-heading text-lg mb-6">Working Hours</h3>
+              <h3 className="font-semibold font-heading text-lg mb-6">{t.workingHours}</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <div className="text-sm font-body">
-                    <div className="text-white/90 font-medium">09:00 AM - 10:00 PM</div>
-                    <div className="text-white/70 mt-1">Daily</div>
+                    <div className="text-white/90 font-medium">{t.hours}</div>
+                    <div className="text-white/70 mt-1">{t.daily}</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <div className="text-sm font-body">
-                    <div className="text-white/90 font-medium">24/7 Emergency Services</div>
+                    <div className="text-white/90 font-medium">{t.emergencyServices}</div>
                   </div>
                 </li>
               </ul>
@@ -141,7 +146,7 @@ export default function Footer() {
 
             {/* Stay In Touch */}
             <div>
-              <h3 className="font-semibold font-heading text-lg mb-6">Stay In Touch</h3>
+              <h3 className="font-semibold font-heading text-lg mb-6">{t.stayInTouch}</h3>
               <div className="flex flex-wrap gap-3">
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
@@ -167,7 +172,7 @@ export default function Footer() {
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
             <p className="text-center text-white/70 text-sm font-body">
-              © {new Date().getFullYear()} Elite Vet. All rights reserved.
+              © {new Date().getFullYear()} {t.copyright}
             </p>
           </div>
         </div>

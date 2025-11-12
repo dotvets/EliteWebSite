@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,19 +16,28 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Phone, Mail, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
-const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().min(8, "Please enter a valid phone number"),
-  email: z.string().email("Please enter a valid email address"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
-
-type ContactFormData = z.infer<typeof contactSchema>;
+type ContactFormData = {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+};
 
 export default function ContactSection() {
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const t = translations[language].contact;
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const contactSchema = useMemo(() => z.object({
+    name: z.string().min(2, t.validation.nameMin),
+    phone: z.string().min(8, t.validation.phoneMin),
+    email: z.string().email(t.validation.emailInvalid),
+    message: z.string().min(10, t.validation.messageMin),
+  }), [t.validation]);
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
@@ -47,8 +56,8 @@ export default function ContactSection() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
+      title: t.toast.title,
+      description: t.toast.description,
     });
     
     form.reset();
@@ -69,11 +78,10 @@ export default function ContactSection() {
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-contact-title"
           >
-            Contact Us
+            {t.title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Have a question or concern? Need to schedule an appointment? Contact us
-            today! Our dedicated team is ready to assist you.
+            {t.description}
           </p>
         </motion.div>
 
@@ -92,11 +100,11 @@ export default function ContactSection() {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    Name
+                    {t.form.name}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter your name"
+                      placeholder={t.form.namePlaceholder}
                       data-testid="input-name"
                       {...field}
                     />
@@ -113,11 +121,11 @@ export default function ContactSection() {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Phone className="w-4 h-4" />
-                    Phone Number
+                    {t.form.phone}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter your phone number"
+                      placeholder={t.form.phonePlaceholder}
                       data-testid="input-phone"
                       {...field}
                     />
@@ -134,12 +142,12 @@ export default function ContactSection() {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Mail className="w-4 h-4" />
-                    Email
+                    {t.form.email}
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t.form.emailPlaceholder}
                       data-testid="input-email"
                       {...field}
                     />
@@ -156,11 +164,11 @@ export default function ContactSection() {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    Message
+                    {t.form.message}
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter your message"
+                      placeholder={t.form.messagePlaceholder}
                       rows={5}
                       data-testid="input-message"
                       {...field}
@@ -177,7 +185,7 @@ export default function ContactSection() {
               disabled={isSubmitting}
               data-testid="button-submit"
             >
-              {isSubmitting ? "Sending..." : "Submit"}
+              {isSubmitting ? t.form.sending : t.form.submit}
             </Button>
           </form>
         </Form>

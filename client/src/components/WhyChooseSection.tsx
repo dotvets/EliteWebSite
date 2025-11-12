@@ -2,44 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Clock, Stethoscope, Wrench, Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
-const benefits = [
-  {
-    icon: Clock,
-    title: "24/7 Emergency Care",
-    description: "Round-the-clock emergency services for your pets",
-  },
-  {
-    icon: Stethoscope,
-    title: "Expert Veterinarians",
-    description: "Highly qualified and experienced veterinary professionals",
-  },
-  {
-    icon: Wrench,
-    title: "Modern Equipment",
-    description: "State-of-the-art diagnostic and treatment technology",
-  },
-  {
-    icon: Heart,
-    title: "Compassionate Care",
-    description: "A dedicated team that loves and cares for animals",
-  },
-];
-
-const statistics = [
-  {
-    number: 200000,
-    label: "Pet cases examined",
-  },
-  {
-    number: 1000,
-    label: "CT Scan cases",
-  },
-  {
-    number: 70000,
-    label: "Lab tests and X-ray cases",
-  },
-];
+const benefitIcons = [Clock, Stethoscope, Wrench, Heart];
 
 function CountingNumber({ target, duration = 3 }: { target: number; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -91,6 +57,9 @@ function CountingNumber({ target, duration = 3 }: { target: number; duration?: n
 }
 
 export default function WhyChooseSection() {
+  const { language } = useLanguage();
+  const t = translations[language].whyChoose;
+
   return (
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -99,16 +68,16 @@ export default function WhyChooseSection() {
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-12"
             data-testid="text-why-title"
           >
-            Why choose us?
+            {t.title}
           </h2>
 
           <div className="mb-12">
             <p className="text-lg text-muted-foreground mb-8 font-body">
-              As a trusted name in the Riyadh veterinary community since 2013, we've helped more than
+              {t.intro}
             </p>
 
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {statistics.map((stat, index) => (
+              {t.statistics.map((stat, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -129,21 +98,24 @@ export default function WhyChooseSection() {
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          {benefits.map((benefit, index) => (
-            <Card
-              key={index}
-              className="p-6 text-center hover-elevate"
-              data-testid={`card-benefit-${index}`}
-            >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <benefit.icon className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold font-heading text-foreground mb-2">
-                {benefit.title}
-              </h3>
-              <p className="text-sm text-muted-foreground font-body">{benefit.description}</p>
-            </Card>
-          ))}
+          {t.benefits.map((benefit, index) => {
+            const Icon = benefitIcons[index];
+            return (
+              <Card
+                key={index}
+                className="p-6 text-center hover-elevate"
+                data-testid={`card-benefit-${index}`}
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Icon className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold font-heading text-foreground mb-2">
+                  {benefit.title}
+                </h3>
+                <p className="text-sm text-muted-foreground font-body">{benefit.description}</p>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>

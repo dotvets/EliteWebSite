@@ -1,7 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function PartnersSection() {
+  const { language } = useLanguage();
+  const t = translations[language].partners;
+
   return (
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -16,7 +21,7 @@ export default function PartnersSection() {
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-partners-title"
           >
-            Our Partners
+            {t.title}
           </h2>
         </motion.div>
 

@@ -1,8 +1,13 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function IntroSection() {
+  const { language } = useLanguage();
+  const t = translations[language].intro;
+
   return (
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -30,24 +35,20 @@ export default function IntroSection() {
               className="text-3xl lg:text-4xl font-bold font-heading text-primary mb-4"
               data-testid="text-intro-title"
             >
-              Welcome to Elite Vet
+              {t.title}
             </h2>
             <p className="text-xl text-muted-foreground mb-6 font-heading">
-              Your trusted pet veterinary clinic
+              {t.subtitle}
             </p>
             <p className="text-base text-foreground leading-relaxed mb-8">
-              We are committed to providing top-quality care for your pets. Our
-              veterinary clinic offers a wide range of services, including routine
-              check-ups, vaccinations, surgeries, & dental care, using the latest
-              technology & under the care & expertise of the best veterinarians in
-              KSA.
+              {t.description}
             </p>
             <a
               href="/about"
               className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
               data-testid="link-read-more"
             >
-              Read More
+              {t.readMore}
               <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>

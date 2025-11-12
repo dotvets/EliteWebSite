@@ -1,31 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-
-const teamMembers = [
-  {
-    name: "Dr. Sarah Johnson",
-    role: "Chief Veterinarian",
-    initials: "SJ",
-  },
-  {
-    name: "Dr. Michael Chen",
-    role: "Surgical Specialist",
-    initials: "MC",
-  },
-  {
-    name: "Dr. Emily Rodriguez",
-    role: "Pet Dentist",
-    initials: "ER",
-  },
-  {
-    name: "Dr. Ahmed Al-Mansour",
-    role: "Emergency Care",
-    initials: "AA",
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function TeamSection() {
+  const { language } = useLanguage();
+  const t = translations[language].team;
+
   return (
     <section className="py-20 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
@@ -40,17 +22,15 @@ export default function TeamSection() {
             className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
             data-testid="text-team-title"
           >
-            Our Team
+            {t.title}
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Our team of highly skilled veterinarians is committed to providing
-            top-notch care for your furry companions. They're passionate about animal
-            health & dedicated to providing the best possible medical services.
+            {t.description}
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {teamMembers.map((member, index) => (
+          {t.members.map((member, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}

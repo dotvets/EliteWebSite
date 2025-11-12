@@ -3,30 +3,20 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 import heroImage1 from "@assets/generated_images/Veterinarian_examining_golden_retriever_66fcde95.png";
 import heroImage2 from "@assets/freepik__img1i-want-you-to-make-the-attached-image-more-bea__64912_1762857524224.png";
 import heroImage3 from "@assets/generated_images/Happy_pet_owner_with_cat_0ee67349.png";
 
-const slides = [
-  {
-    image: heroImage1,
-    title: "Expert Veterinary Care, Tailored to Your Pet's Needs",
-    subtitle: "A Pioneering Veterinary Clinic, Providing Exceptional Care Every Step of the Way",
-  },
-  {
-    image: heroImage2,
-    title: "State-of-the-Art Facilities",
-    subtitle: "Modern Equipment and Technology for Accurate Diagnosis and Treatment",
-  },
-  {
-    image: heroImage3,
-    title: "Happy Pets, Happy Owners",
-    subtitle: "Trusted by Pet Owners Across Riyadh Since 2013",
-  },
-];
+const images = [heroImage1, heroImage2, heroImage3];
 
 export default function HeroSlider() {
+  const { language } = useLanguage();
+  const t = translations[language].hero;
+  
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: 5000, stopOnInteraction: false }),
   ]);
@@ -66,11 +56,11 @@ export default function HeroSlider() {
     <div className="relative h-[600px] lg:h-[700px] w-full overflow-hidden">
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
-          {slides.map((slide, index) => (
+          {t.slides.map((slide, index) => (
             <div key={index} className="flex-[0_0_100%] min-w-0 relative">
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-10" />
               <img
-                src={slide.image}
+                src={images[index]}
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
@@ -88,13 +78,15 @@ export default function HeroSlider() {
                   >
                     {slide.subtitle}
                   </p>
-                  <Button
-                    size="lg"
-                    className="bg-primary/20 backdrop-blur-md border-2 border-white/30 text-white hover:bg-primary/30"
-                    data-testid="button-hero-cta"
-                  >
-                    Book an Appointment Now
-                  </Button>
+                  <Link href="/book-now">
+                    <Button
+                      size="lg"
+                      className="bg-primary/20 backdrop-blur-md border-2 border-white/30 text-white hover:bg-primary/30"
+                      data-testid="button-hero-cta"
+                    >
+                      {t.cta}
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -119,7 +111,7 @@ export default function HeroSlider() {
       </button>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
-        {slides.map((_, index) => (
+        {t.slides.map((_, index) => (
           <button
             key={index}
             onClick={() => scrollTo(index)}
