@@ -13,10 +13,10 @@ export default function PetBackground() {
     return { xMove, yMove, rotate };
   };
 
-  const elements = Array.from({ length: 35 });
+  const elements = Array.from({ length: 15 });
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
+    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
       {elements.map((_, i) => {
         const src = shapes[Math.floor(Math.random() * shapes.length)];
         const size = 40 + Math.random() * 90;

@@ -13,7 +13,7 @@ import PetBackground from "@/components/PetBackground";
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
       <PetBackground />
       <Header />
       <main className="pt-20">
