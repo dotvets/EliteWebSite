@@ -42,20 +42,37 @@ Preferred communication style: Simple, everyday language.
 - Example components (`/components/examples`) - Component documentation/showcase
 - **PageLayout** (`/components/PageLayout.tsx`) - Shared layout wrapper for all pages
 
-**CRITICAL: Page Layout Pattern**
+**CRITICAL: Page Layout Pattern & Fixed Positioning**
 - All page components MUST use the `PageLayout` component wrapper
-- PageLayout ensures proper z-index stacking for fixed-position elements (Header, FloatingSocialMenu, BackgroundMusic)
-- NEVER wrap Header inside a div with explicit z-index values - it must remain at root level
-- PageLayout structure:
-  1. PetBackground (z-[1]) at root level - animated background layer
-  2. Header (z-[200]) at root level - ensures visibility above all floating controls
-  3. Content wrapper with z-10 containing:
+- **ALL fixed-position elements (Header, FloatingSocialMenu, BackgroundMusic) MUST be rendered at the TRUE root level in App.tsx**
+- NEVER nest fixed-position elements inside page containers - this breaks mobile browser positioning
+- 
+**App.tsx Root Structure:**
+  1. AnimatedServicesBackground (global background)
+  2. Header (fixed, z-[200]) - rendered at root, not in PageLayout
+  3. BackgroundMusic (fixed, z-150) - rendered at root
+  4. FloatingSocialMenu (fixed, z-[150]) - rendered at root
+  5. Router (page content using PageLayout)
+
+**PageLayout Structure (for page content only):**
+  1. PetBackground (z-[1]) - animated background layer
+  2. Content wrapper (z-10) containing:
      - Main content inside `<main className="relative pt-20">`
      - Footer component
-  4. This wrapper elevates content above PetBackground while keeping Header at root stacking context
-- FloatingSocialMenu (z-[150]) and BackgroundMusic (z-150) are rendered at app root in App.tsx
-- Z-index hierarchy: Header (200) > Floating controls (150) > Content wrapper (10) > Background (1)
-- This pattern prevents header disappearing and icon shifting issues on mobile devices
+  3. This wrapper elevates content above PetBackground
+
+**Z-Index Hierarchy (all at root stacking context):**
+- Header: z-[200] - Always on top
+- FloatingSocialMenu: z-[150] - Below header, above content
+- BackgroundMusic: z-150 - Below header, above content
+- Page content wrapper: z-10 - Above background
+- PetBackground: z-[1] - Bottom layer
+
+**Why This Architecture:**
+- Fixed elements at root level prevent mobile browser bugs (Samsung, iOS Safari)
+- No parent transforms/positions can affect fixed positioning
+- Consistent behavior across all devices and browsers
+- Header/icons stay visible during scroll on all mobile devices
 
 ### Backend Architecture
 
