@@ -57,7 +57,7 @@ export default function HeroSlider() {
   }, [emblaApi]);
 
   return (
-    <div className="relative h-[600px] lg:h-[700px] w-full overflow-hidden" key={language}>
+    <div className="relative min-h-[450px] h-[60vh] sm:h-[500px] md:h-[550px] lg:h-[700px] w-full overflow-hidden" key={language}>
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
           {t.slides.map((slide, index) => (
@@ -69,23 +69,23 @@ export default function HeroSlider() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 z-20 flex items-center justify-center">
-                <div className="max-w-4xl mx-auto px-6 text-center">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
                   <h1
-                    className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white mb-6"
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white mb-4 sm:mb-6"
                     data-testid={`text-hero-title-${index}`}
                   >
                     {slide.title}
                   </h1>
                   <p
-                    className="text-lg md:text-xl text-white/95 mb-8"
+                    className="text-base sm:text-lg md:text-xl text-white/95 mb-6 sm:mb-8"
                     data-testid={`text-hero-subtitle-${index}`}
                   >
                     {slide.subtitle}
                   </p>
                   <Link href="/book-now">
                     <Button
-                      size="lg"
-                      className="bg-primary/20 backdrop-blur-md border-2 border-white/30 text-white hover:bg-primary/30"
+                      size="default"
+                      className="bg-primary/20 backdrop-blur-md border-2 border-white/30 text-white hover:bg-primary/30 sm:min-h-10"
                       data-testid="button-hero-cta"
                     >
                       {t.cta}
@@ -100,21 +100,21 @@ export default function HeroSlider() {
 
       <button
         onClick={scrollPrev}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
         data-testid="button-slider-prev"
       >
-        <ChevronLeft className="w-6 h-6 text-white" />
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
       </button>
 
       <button
         onClick={scrollNext}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
         data-testid="button-slider-next"
       >
-        <ChevronRight className="w-6 h-6 text-white" />
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
       </button>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+      <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
         {t.slides.map((_, index) => (
           <button
             key={index}

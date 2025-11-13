@@ -11,7 +11,7 @@ export default function ServicesSection() {
   const t = translations[language].services;
 
   return (
-    <section className="py-20 px-6 lg:px-8 bg-muted/30">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -21,7 +21,7 @@ export default function ServicesSection() {
           viewport={{ once: false, amount: 0.3 }}
         >
           <h2
-            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
+            className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
             data-testid="text-services-title"
           >
             {t.title}
@@ -31,7 +31,7 @@ export default function ServicesSection() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {t.items.map((service, index) => {
             const Icon = serviceIcons[index];
             return (

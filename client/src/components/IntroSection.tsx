@@ -9,7 +9,7 @@ export default function IntroSection() {
   const t = translations[language].intro;
 
   return (
-    <section className="py-20 px-6 lg:px-8">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -32,12 +32,12 @@ export default function IntroSection() {
             viewport={{ once: false, amount: 0.3 }}
           >
             <h2
-              className="text-2xl lg:text-3xl font-bold font-heading text-primary mb-4"
+              className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-primary mb-4"
               data-testid="text-intro-title"
             >
               {t.title}
             </h2>
-            <p className="text-xl text-muted-foreground mb-6 font-heading">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-6 font-heading">
               {t.subtitle}
             </p>
             <p className="text-base text-foreground leading-relaxed mb-8">

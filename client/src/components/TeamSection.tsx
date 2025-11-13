@@ -9,7 +9,7 @@ export default function TeamSection() {
   const t = translations[language].team;
 
   return (
-    <section className="py-20 px-6 lg:px-8 bg-muted/30">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -19,7 +19,7 @@ export default function TeamSection() {
           viewport={{ once: false, amount: 0.3 }}
         >
           <h2
-            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
+            className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
             data-testid="text-team-title"
           >
             {t.title}
@@ -29,7 +29,7 @@ export default function TeamSection() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {t.members.map((member, index) => (
             <motion.div
               key={index}

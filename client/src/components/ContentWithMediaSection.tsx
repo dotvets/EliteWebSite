@@ -35,7 +35,7 @@ export default function ContentWithMediaSection({
   const hasImage = Boolean(image);
 
   return (
-    <section className={`py-20 px-6 lg:px-8 ${className}`}>
+    <section className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${className}`}>
       <motion.div
         ref={ref}
         initial={{ opacity: 0 }}
@@ -43,7 +43,7 @@ export default function ContentWithMediaSection({
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <div className={`grid gap-12 items-center ${hasImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+        <div className={`grid gap-6 sm:gap-8 md:gap-12 items-center ${hasImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
           {/* Image Column - Only render if image is provided */}
           {hasImage && (
             <motion.div
@@ -52,11 +52,11 @@ export default function ContentWithMediaSection({
               transition={{ duration: 0.6 }}
               className={reverse ? 'lg:order-2' : 'lg:order-1'}
             >
-              <div ref={imageRef} className="overflow-hidden rounded-xl shadow-lg">
+              <div ref={imageRef} className="overflow-hidden rounded-lg sm:rounded-xl shadow-lg">
                 <motion.img
                   src={image}
                   alt={imageAlt}
-                  className="w-full h-auto"
+                  className="w-full h-auto object-cover aspect-[4/3]"
                   data-testid={imageTestId}
                   initial={{ scale: 1 }}
                   animate={isMobile && isImageFullyVisible ? { scale: 1.05 } : { scale: 1 }}

@@ -8,7 +8,7 @@ export default function PartnersSection() {
   const t = translations[language].partners;
 
   return (
-    <section className="py-20 px-6 lg:px-8">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -18,14 +18,14 @@ export default function PartnersSection() {
           viewport={{ once: false, amount: 0.3 }}
         >
           <h2
-            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
+            className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
             data-testid="text-partners-title"
           >
             {t.title}
           </h2>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center items-center gap-8">
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}

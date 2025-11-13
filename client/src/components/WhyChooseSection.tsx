@@ -61,11 +61,11 @@ export default function WhyChooseSection() {
   const t = translations[language].whyChoose;
 
   return (
-    <section className="py-20 px-6 lg:px-8">
+    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2
-            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-12"
+            className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-8 sm:mb-12"
             data-testid="text-why-title"
           >
             {t.title}
@@ -76,7 +76,7 @@ export default function WhyChooseSection() {
               {t.intro}
             </p>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
               {t.statistics.map((stat, index) => (
                 <motion.div
                   key={index}
@@ -97,7 +97,7 @@ export default function WhyChooseSection() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {t.benefits.map((benefit, index) => {
             const Icon = benefitIcons[index];
             return (
