@@ -141,7 +141,7 @@ export default function About() {
           whileInView="visible"
           variants={fadeInUp}
           viewport={{ once: false, amount: 0.3 }}
-          className="space-y-6 text-center lg:text-left"
+          className="space-y-6 text-center lg:text-start"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
             {t.whoWeAre.title}
@@ -217,7 +217,7 @@ export default function About() {
           whileInView="visible"
           variants={fadeInUp}
           viewport={{ once: false, amount: 0.3 }}
-          className="text-center lg:text-left"
+          className="text-center lg:text-start"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
             {t.whyChoose.title}
@@ -239,7 +239,7 @@ export default function About() {
       reverse: true,
       className: "bg-muted/30",
       content: (
-        <div className="space-y-8 text-center lg:text-left">
+        <div className="space-y-8 text-center lg:text-start">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -294,7 +294,7 @@ export default function About() {
       reverse: false,
       className: "bg-background",
       content: (
-        <div className="space-y-12 text-center lg:text-left">
+        <div className="space-y-12 text-center lg:text-start">
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-partners-title">
             {partners.title}
           </h2>
@@ -332,7 +332,7 @@ export default function About() {
       reverse: true,
       className: "bg-muted/30",
       content: (
-        <div className="space-y-6 text-center lg:text-left">
+        <div className="space-y-6 text-center lg:text-start">
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
             {t.ourDoctors.title}
           </h2>
@@ -366,7 +366,7 @@ export default function About() {
           whileInView="visible"
           variants={fadeInUp}
           viewport={{ once: false, amount: 0.3 }}
-          className="space-y-6 text-center lg:text-left"
+          className="space-y-6 text-center lg:text-start"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
             {t.careers.title}
