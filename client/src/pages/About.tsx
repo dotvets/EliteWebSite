@@ -143,7 +143,7 @@ export default function About() {
           viewport={{ once: false, amount: 0.3 }}
           className="space-y-6 text-center lg:text-start"
         >
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
             {t.whoWeAre.title}
           </h2>
           <p className="text-lg text-foreground/80 leading-relaxed" data-testid="text-who-we-are-description">
@@ -219,7 +219,7 @@ export default function About() {
           viewport={{ once: false, amount: 0.3 }}
           className="text-center lg:text-start"
         >
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
             {t.whyChoose.title}
           </h2>
           <p className="text-xl font-semibold text-foreground mb-6" data-testid="text-why-choose-subtitle">
@@ -246,7 +246,7 @@ export default function About() {
             variants={fadeInUp}
             viewport={{ once: false, amount: 0.3 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6" data-testid="text-csr-title">
+            <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-csr-title">
               {t.csr.title}
             </h2>
             <p className="text-lg text-foreground/80 mb-8" data-testid="text-csr-description">
@@ -295,7 +295,7 @@ export default function About() {
       className: "bg-background",
       content: (
         <div className="space-y-12 text-center lg:text-start">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary" data-testid="text-partners-title">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-partners-title">
             {partners.title}
           </h2>
           <motion.div
@@ -333,7 +333,7 @@ export default function About() {
       className: "bg-muted/30",
       content: (
         <div className="space-y-6 text-center lg:text-start">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
             {t.ourDoctors.title}
           </h2>
           <Card className="mb-6">
@@ -368,7 +368,7 @@ export default function About() {
           viewport={{ once: false, amount: 0.3 }}
           className="space-y-6 text-center lg:text-start"
         >
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
             {t.careers.title}
           </h2>
           <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
@@ -551,7 +551,7 @@ export default function About() {
           {/* Hero Section */}
           <AnimatedSection className="relative py-20 px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 text-primary" data-testid="text-about-hero-title">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading mb-6 text-primary" data-testid="text-about-hero-title">
                 {t.hero.title}
               </h1>
             </div>

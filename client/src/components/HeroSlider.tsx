@@ -71,7 +71,7 @@ export default function HeroSlider() {
               <div className="absolute inset-0 z-20 flex items-center justify-center">
                 <div className="max-w-4xl mx-auto px-6 text-center">
                   <h1
-                    className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-white mb-6"
+                    className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white mb-6"
                     data-testid={`text-hero-title-${index}`}
                   >
                     {slide.title}

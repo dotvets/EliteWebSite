@@ -19,7 +19,7 @@ export default function TeamSection() {
           viewport={{ once: false, amount: 0.3 }}
         >
           <h2
-            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-4"
+            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
             data-testid="text-team-title"
           >
             {t.title}

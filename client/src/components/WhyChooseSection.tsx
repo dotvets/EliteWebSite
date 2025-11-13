@@ -50,7 +50,7 @@ function CountingNumber({ target, duration = 3 }: { target: number; duration?: n
   }, [isInView, target, duration]);
 
   return (
-    <div ref={ref} className="text-5xl lg:text-6xl font-bold font-heading text-primary">
+    <div ref={ref} className="text-4xl lg:text-5xl font-bold font-heading text-primary">
       {count.toLocaleString()}
     </div>
   );
@@ -65,7 +65,7 @@ export default function WhyChooseSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2
-            className="text-3xl lg:text-4xl font-bold font-heading text-foreground mb-12"
+            className="text-2xl lg:text-3xl font-bold font-heading text-foreground mb-12"
             data-testid="text-why-title"
           >
             {t.title}
