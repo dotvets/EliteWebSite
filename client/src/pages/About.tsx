@@ -20,10 +20,8 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Users, Target, Heart, Upload, Handshake } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import ContentWithMediaSection from "@/components/ContentWithMediaSection";
-import PetBackground from "@/components/PetBackground";
+import PageLayout from "@/components/PageLayout";
 import clinicReception from "@assets/freepik__clarify-attachment-photo-img1-increase-clarity-and__22061_1763027414442.png";
 import vetWithDog from "@assets/Mission Section_1763032965994.png";
 import vetTeam from "@assets/Why Choose Elite Vet Section_1763032965996.png";
@@ -543,11 +541,7 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]" data-testid="page-about">
-      <PetBackground />
-      <div className="relative z-10">
-        <Header />
-        <main className="pt-20">
+    <PageLayout dataTestId="page-about">
           {/* Hero Section */}
           <AnimatedSection className="relative py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center">
@@ -599,9 +593,6 @@ export default function About() {
               )}
             </React.Fragment>
           ))}
-        </main>
-        <Footer />
-      </div>
-    </div>
+    </PageLayout>
   );
 }

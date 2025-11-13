@@ -99,7 +99,7 @@ export default function FloatingSocialMenu() {
   };
 
   return (
-    <div className="fixed right-6 bottom-6 z-50" data-testid="container-floating-social">
+    <div className="fixed right-4 sm:right-6 bottom-4 sm:bottom-6 z-[150]" data-testid="container-floating-social">
       {/* Toggle Button */}
       <motion.button
         onClick={toggleMenu}

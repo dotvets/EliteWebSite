@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import HeroSlider from "@/components/HeroSlider";
 import ECGAnimation from "@/components/ECGAnimation";
 import IntroSection from "@/components/IntroSection";
@@ -8,28 +7,20 @@ import TeamSection from "@/components/TeamSection";
 import PartnersSection from "@/components/PartnersSection";
 import ContactSection from "@/components/ContactSection";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
-import Footer from "@/components/Footer";
-import PetBackground from "@/components/PetBackground";
+import PageLayout from "@/components/PageLayout";
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#fbfbfb] via-[#f5f3f8] to-[#eae7f0]">
-      <PetBackground />
-      <div className="relative z-10">
-        <Header />
-        <main className="pt-20">
-          <HeroSlider />
-          <ECGAnimation />
-          <IntroSection />
-          <ServicesSection />
-          <WhyChooseSection />
-          <TeamSection />
-          <PartnersSection />
-          <ContactSection />
-          <HeartbeatDivider />
-        </main>
-        <Footer />
-      </div>
-    </div>
+    <PageLayout>
+      <HeroSlider />
+      <ECGAnimation />
+      <IntroSection />
+      <ServicesSection />
+      <WhyChooseSection />
+      <TeamSection />
+      <PartnersSection />
+      <ContactSection />
+      <HeartbeatDivider />
+    </PageLayout>
   );
 }

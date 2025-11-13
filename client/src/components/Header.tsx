@@ -38,18 +38,18 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[200] transition-all duration-300 ${
         isScrolled ? "bg-white shadow-md" : "bg-white/95 backdrop-blur-sm"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20 gap-2 sm:gap-4">
           <Link href="/" data-testid="link-home">
             <div className="flex items-center cursor-pointer">
               <img
                 src={logoImage}
                 alt="Elite Vet Logo"
-                className="h-16 w-auto"
+                className="h-12 sm:h-14 md:h-16 w-auto"
               />
             </div>
           </Link>
@@ -104,14 +104,15 @@ export default function Header() {
           </div>
 
           <button
-            className="lg:hidden"
+            className="lg:hidden p-2 -mr-2 hover-elevate active-elevate-2 rounded-md flex-shrink-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             data-testid="button-mobile-menu"
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6 text-foreground" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6 text-foreground" />
             )}
           </button>
         </div>

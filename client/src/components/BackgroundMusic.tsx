@@ -66,9 +66,9 @@ export default function BackgroundMusic() {
         className="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover-elevate active-elevate-2"
         style={{
           position: "fixed",
-          left: "24px",
-          bottom: "24px",
-          zIndex: 100,
+          left: "16px",
+          bottom: "16px",
+          zIndex: 150,
           boxShadow: "0 4px 20px rgba(119, 96, 168, 0.4)",
         }}
         aria-label={isMuted ? "Unmute background music" : "Mute background music"}

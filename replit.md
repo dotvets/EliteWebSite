@@ -40,6 +40,22 @@ Preferred communication style: Simple, everyday language.
 - UI components (`/components/ui`) - Reusable shadcn/ui primitives
 - Feature components (`/components`) - Business logic components (Header, Footer, sections)
 - Example components (`/components/examples`) - Component documentation/showcase
+- **PageLayout** (`/components/PageLayout.tsx`) - Shared layout wrapper for all pages
+
+**CRITICAL: Page Layout Pattern**
+- All page components MUST use the `PageLayout` component wrapper
+- PageLayout ensures proper z-index stacking for fixed-position elements (Header, FloatingSocialMenu, BackgroundMusic)
+- NEVER wrap Header inside a div with explicit z-index values - it must remain at root level
+- PageLayout structure:
+  1. PetBackground (z-[1]) at root level - animated background layer
+  2. Header (z-[200]) at root level - ensures visibility above all floating controls
+  3. Content wrapper with z-10 containing:
+     - Main content inside `<main className="relative pt-20">`
+     - Footer component
+  4. This wrapper elevates content above PetBackground while keeping Header at root stacking context
+- FloatingSocialMenu (z-[150]) and BackgroundMusic (z-150) are rendered at app root in App.tsx
+- Z-index hierarchy: Header (200) > Floating controls (150) > Content wrapper (10) > Background (1)
+- This pattern prevents header disappearing and icon shifting issues on mobile devices
 
 ### Backend Architecture
 
