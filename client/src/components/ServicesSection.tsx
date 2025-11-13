@@ -12,7 +12,7 @@ export default function ServicesSection() {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto overflow-x-hidden">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
@@ -43,7 +43,7 @@ export default function ServicesSection() {
                 viewport={{ once: false, amount: 0.3 }}
               >
                 <Card
-                  className="p-6 hover-elevate transition-all duration-300 hover:scale-105 h-full"
+                  className="p-6 hover-elevate transition-all duration-300 h-full"
                   data-testid={`card-service-${index}`}
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">

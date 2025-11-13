@@ -62,7 +62,7 @@ export default function WhyChooseSection() {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto overflow-x-hidden">
         <div className="text-center mb-16">
           <h2
             className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-8 sm:mb-12"

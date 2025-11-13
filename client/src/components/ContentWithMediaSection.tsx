@@ -41,7 +41,7 @@ export default function ContentWithMediaSection({
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto"
+        className="max-w-7xl mx-auto overflow-x-hidden"
       >
         <div className={`grid gap-6 sm:gap-8 md:gap-12 items-center ${hasImage ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
           {/* Image Column - Only render if image is provided */}

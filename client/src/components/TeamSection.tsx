@@ -10,7 +10,7 @@ export default function TeamSection() {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto overflow-x-hidden">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
