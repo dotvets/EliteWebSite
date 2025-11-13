@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useInView } from "framer-motion";
 
 interface ContentWithMediaSectionProps {
@@ -20,7 +20,17 @@ export default function ContentWithMediaSection({
   imageTestId = "img-section",
 }: ContentWithMediaSectionProps) {
   const ref = useRef(null);
+  const imageRef = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.2 });
+  const isImageFullyVisible = useInView(imageRef, { once: false, amount: 0.9 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const hasImage = Boolean(image);
 
@@ -42,12 +52,18 @@ export default function ContentWithMediaSection({
               transition={{ duration: 0.6 }}
               className={reverse ? 'lg:order-2' : 'lg:order-1'}
             >
-              <img
-                src={image}
-                alt={imageAlt}
-                className="rounded-xl shadow-lg w-full h-auto"
-                data-testid={imageTestId}
-              />
+              <div ref={imageRef} className="overflow-hidden rounded-xl shadow-lg">
+                <motion.img
+                  src={image}
+                  alt={imageAlt}
+                  className="w-full h-auto"
+                  data-testid={imageTestId}
+                  initial={{ scale: 1 }}
+                  animate={isMobile && isImageFullyVisible ? { scale: 1.05 } : { scale: 1 }}
+                  whileHover={!isMobile ? { scale: 1.08 } : undefined}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </div>
             </motion.div>
           )}
 
