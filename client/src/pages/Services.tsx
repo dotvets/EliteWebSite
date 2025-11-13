@@ -3,7 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
 import { 
   Stethoscope, 
@@ -63,23 +63,6 @@ const categoryIcons: Record<string, React.ComponentType<any>> = {
   "home-care": Phone,
 };
 
-function AnimatedSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, amount: 0.2 });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={fadeInUp}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 export default function Services() {
   const { language } = useLanguage();
   const t = translations[language].servicesPage;
@@ -98,6 +81,384 @@ export default function Services() {
       });
     }
   };
+
+  // Helper function to render service list
+  const renderServiceList = (services: Array<{ title: string; description: string }>) => (
+    <div className="space-y-4">
+      {services.map((service, index) => (
+        <div key={index} className="border-l-4 border-l-primary pl-4">
+          <h4 className="font-semibold text-foreground mb-2 font-heading">
+            {service.title}
+          </h4>
+          <p className="text-sm text-muted-foreground font-body">
+            {service.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Helper function to render why choose bullet points
+  const renderWhyChoose = (whyChoose: { title: string; points: Array<{ title: string; description: string }> }) => (
+    <div className="mb-6">
+      <h4 className="font-semibold text-foreground mb-4 font-heading">
+        {whyChoose.title}
+      </h4>
+      <ul className="space-y-3">
+        {whyChoose.points.map((point, index) => (
+          <li key={index} className="flex items-start gap-2">
+            <span className="text-primary mt-1">●</span>
+            <div>
+              <span className="font-semibold text-foreground">{point.title}:</span>{" "}
+              <span className="text-muted-foreground font-body">{point.description}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  // Sections configuration array
+  const sections = [
+    {
+      key: "medical-specialties",
+      image: medicalSpecialtiesImg,
+      imageAlt: "Medical specialties examination",
+      imageTestId: "img-medical-specialties",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-medical-specialties-title">
+            {t.medicalSpecialties.title}
+          </h2>
+          <h3 className="text-lg sm:text-xl font-semibold font-heading text-foreground" data-testid="text-medical-specialties-subtitle">
+            {t.medicalSpecialties.subtitle}
+          </h3>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.medicalSpecialties.intro}
+          </p>
+          {renderServiceList(t.medicalSpecialties.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-medical-specialties-cta">
+              {t.medicalSpecialties.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "hygiene-care",
+      image: hygieneImg,
+      imageAlt: "Pet grooming and hygiene care",
+      imageTestId: "img-hygiene-care",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-hygiene-care-title">
+            {t.hygieneCare.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.hygieneCare.intro}
+          </p>
+          {renderWhyChoose(t.hygieneCare.whyChoose)}
+          {renderServiceList(t.hygieneCare.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-hygiene-care-cta">
+              {t.hygieneCare.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "diagnostic-tests",
+      image: diagnosticImg,
+      imageAlt: "Veterinary diagnostic testing",
+      imageTestId: "img-diagnostic-tests",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-diagnostic-tests-title">
+            {t.diagnosticTests.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.diagnosticTests.intro}
+          </p>
+          {renderWhyChoose(t.diagnosticTests.whyChoose)}
+          {renderServiceList(t.diagnosticTests.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-diagnostic-tests-cta">
+              {t.diagnosticTests.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "medical-surgeries",
+      image: surgeryImg,
+      imageAlt: "Veterinary surgical procedures",
+      imageTestId: "img-medical-surgeries",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-medical-surgeries-title">
+            {t.medicalSurgeries.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.medicalSurgeries.intro}
+          </p>
+          {renderWhyChoose(t.medicalSurgeries.whyChoose)}
+          {renderServiceList(t.medicalSurgeries.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-medical-surgeries-cta">
+              {t.medicalSurgeries.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "dental-services",
+      image: dentalImg,
+      imageAlt: "Pet dental care services",
+      imageTestId: "img-dental-services",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-dental-services-title">
+            {t.dentalServices.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.dentalServices.intro}
+          </p>
+          {renderWhyChoose(t.dentalServices.whyChoose)}
+          {renderServiceList(t.dentalServices.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-dental-services-cta">
+              {t.dentalServices.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "vaccinations",
+      image: vaccinationImg,
+      imageAlt: "Pet vaccination services",
+      imageTestId: "img-vaccinations",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-vaccinations-title">
+            {t.vaccinations.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.vaccinations.intro}
+          </p>
+          <p className="text-base text-muted-foreground font-body">
+            {t.vaccinations.whyVaccinate}
+          </p>
+          {renderServiceList(t.vaccinations.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-vaccinations-cta">
+              {t.vaccinations.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "pet-travel",
+      image: travelImg,
+      imageAlt: "Pet travel procedures",
+      imageTestId: "img-pet-travel",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-pet-travel-title">
+            {t.petTravel.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.petTravel.intro}
+          </p>
+          {renderServiceList(t.petTravel.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-pet-travel-cta">
+              {t.petTravel.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "boarding",
+      image: boardingImg,
+      imageAlt: "Pet boarding services",
+      imageTestId: "img-boarding",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-boarding-title">
+            {t.boarding.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.boarding.intro}
+          </p>
+          {renderServiceList(t.boarding.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-boarding-cta">
+              {t.boarding.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "intensive-care",
+      image: intensiveCareImg,
+      imageAlt: "Intensive care services",
+      imageTestId: "img-intensive-care",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-intensive-care-title">
+            {t.intensiveCare.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.intensiveCare.intro}
+          </p>
+          {renderServiceList(t.intensiveCare.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-intensive-care-cta">
+              {t.intensiveCare.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+    {
+      key: "emergency",
+      image: emergencyImg,
+      imageAlt: "Emergency veterinary services",
+      imageTestId: "img-emergency",
+      reverse: true,
+      className: "bg-muted/30",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-emergency-title">
+            {t.emergency.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.emergency.intro}
+          </p>
+          {renderServiceList(t.emergency.services)}
+          <Button variant="destructive" className="mt-8" data-testid="button-emergency-cta">
+            {t.emergency.cta}
+          </Button>
+        </motion.div>
+      ),
+    },
+    {
+      key: "home-care",
+      image: homeCareImg,
+      imageAlt: "Home care veterinary services",
+      imageTestId: "img-home-care",
+      reverse: false,
+      className: "bg-background",
+      content: (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeInUp}
+          viewport={{ once: false, amount: 0.3 }}
+          className="space-y-6 text-center lg:text-start"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-home-care-title">
+            {t.homeCare.title}
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground font-body">
+            {t.homeCare.intro}
+          </p>
+          {renderServiceList(t.homeCare.services)}
+          <Link href="/contact">
+            <Button className="mt-8" data-testid="button-home-care-cta">
+              {t.homeCare.cta}
+            </Button>
+          </Link>
+        </motion.div>
+      ),
+    },
+  ];
 
   return (
     <PageLayout>
@@ -136,7 +497,7 @@ export default function Services() {
             viewport={{ once: false, amount: 0.2 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {t.categories.map((category, index) => {
+            {t.categories.map((category) => {
               const Icon = categoryIcons[category.id];
               return (
                 <motion.div key={category.id} variants={fadeInUp}>
@@ -163,414 +524,24 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Medical Specialties Section */}
-      <div id="medical-specialties">
-        <ContentWithMediaSection
-          title={t.medicalSpecialties.title}
-          subtitle={t.medicalSpecialties.subtitle}
-          image={medicalSpecialtiesImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.medicalSpecialties.intro}
-          </p>
-          <div className="space-y-4">
-            {t.medicalSpecialties.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-medical-specialties-cta">
-              {t.medicalSpecialties.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
+      {/* Service Detail Sections */}
+      {sections.map(({ key, image, imageAlt, imageTestId, reverse, className, content }) => {
+        const sectionProps = {
+          image,
+          imageAlt,
+          imageTestId,
+          reverse,
+          className,
+        };
 
-      {/* Hygiene & Appearance Care Section */}
-      <div id="hygiene-care">
-        <ContentWithMediaSection
-          title={t.hygieneCare.title}
-          image={hygieneImg}
-          imagePosition="left"
-          className="bg-muted/30"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.hygieneCare.intro}
-          </p>
-          
-          <div className="mb-6">
-            <h4 className="font-semibold text-foreground mb-4 font-heading">
-              {t.hygieneCare.whyChoose.title}
-            </h4>
-            <ul className="space-y-3">
-              {t.hygieneCare.whyChoose.points.map((point, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-1">●</span>
-                  <div>
-                    <span className="font-semibold text-foreground">{point.title}:</span>{" "}
-                    <span className="text-muted-foreground font-body">{point.description}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        return (
+          <div key={key} id={key}>
+            <ContentWithMediaSection {...sectionProps}>
+              {content}
+            </ContentWithMediaSection>
           </div>
-
-          <div className="space-y-4">
-            {t.hygieneCare.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-hygiene-care-cta">
-              {t.hygieneCare.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Diagnostic Tests Section */}
-      <div id="diagnostic-tests">
-        <ContentWithMediaSection
-          title={t.diagnosticTests.title}
-          image={diagnosticImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.diagnosticTests.intro}
-          </p>
-          
-          <div className="mb-6">
-            <h4 className="font-semibold text-foreground mb-4 font-heading">
-              {t.diagnosticTests.whyChoose.title}
-            </h4>
-            <ul className="space-y-3">
-              {t.diagnosticTests.whyChoose.points.map((point, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-1">●</span>
-                  <div>
-                    <span className="font-semibold text-foreground">{point.title}:</span>{" "}
-                    <span className="text-muted-foreground font-body">{point.description}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            {t.diagnosticTests.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-diagnostic-tests-cta">
-              {t.diagnosticTests.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Medical Surgeries Section */}
-      <div id="medical-surgeries">
-        <ContentWithMediaSection
-          title={t.medicalSurgeries.title}
-          image={surgeryImg}
-          imagePosition="left"
-          className="bg-muted/30"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.medicalSurgeries.intro}
-          </p>
-          
-          <div className="mb-6">
-            <h4 className="font-semibold text-foreground mb-4 font-heading">
-              {t.medicalSurgeries.whyChoose.title}
-            </h4>
-            <ul className="space-y-3">
-              {t.medicalSurgeries.whyChoose.points.map((point, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-1">●</span>
-                  <div>
-                    <span className="font-semibold text-foreground">{point.title}:</span>{" "}
-                    <span className="text-muted-foreground font-body">{point.description}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            {t.medicalSurgeries.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-medical-surgeries-cta">
-              {t.medicalSurgeries.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Dental Services Section */}
-      <div id="dental-services">
-        <ContentWithMediaSection
-          title={t.dentalServices.title}
-          image={dentalImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.dentalServices.intro}
-          </p>
-          
-          <div className="mb-6">
-            <h4 className="font-semibold text-foreground mb-4 font-heading">
-              {t.dentalServices.whyChoose.title}
-            </h4>
-            <ul className="space-y-3">
-              {t.dentalServices.whyChoose.points.map((point, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-1">●</span>
-                  <div>
-                    <span className="font-semibold text-foreground">{point.title}:</span>{" "}
-                    <span className="text-muted-foreground font-body">{point.description}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            {t.dentalServices.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-dental-services-cta">
-              {t.dentalServices.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Vaccinations Section */}
-      <div id="vaccinations">
-        <ContentWithMediaSection
-          title={t.vaccinations.title}
-          image={vaccinationImg}
-          imagePosition="left"
-          className="bg-muted/30"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.vaccinations.intro}
-          </p>
-          <p className="text-base text-muted-foreground mb-6 font-body">
-            {t.vaccinations.whyVaccinate}
-          </p>
-          <div className="space-y-4">
-            {t.vaccinations.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-vaccinations-cta">
-              {t.vaccinations.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Pet Travel Section */}
-      <div id="pet-travel">
-        <ContentWithMediaSection
-          title={t.petTravel.title}
-          image={travelImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.petTravel.intro}
-          </p>
-          <div className="space-y-4">
-            {t.petTravel.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-pet-travel-cta">
-              {t.petTravel.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Boarding Services Section */}
-      <div id="boarding">
-        <ContentWithMediaSection
-          title={t.boarding.title}
-          image={boardingImg}
-          imagePosition="left"
-          className="bg-muted/30"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.boarding.intro}
-          </p>
-          <div className="space-y-4">
-            {t.boarding.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-boarding-cta">
-              {t.boarding.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Intensive Care Section */}
-      <div id="intensive-care">
-        <ContentWithMediaSection
-          title={t.intensiveCare.title}
-          image={intensiveCareImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.intensiveCare.intro}
-          </p>
-          <div className="space-y-4">
-            {t.intensiveCare.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-intensive-care-cta">
-              {t.intensiveCare.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Emergency Services Section */}
-      <div id="emergency">
-        <ContentWithMediaSection
-          title={t.emergency.title}
-          image={emergencyImg}
-          imagePosition="left"
-          className="bg-muted/30"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.emergency.intro}
-          </p>
-          <div className="space-y-4">
-            {t.emergency.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Button variant="destructive" className="mt-8" data-testid="button-emergency-cta">
-            {t.emergency.cta}
-          </Button>
-        </ContentWithMediaSection>
-      </div>
-
-      {/* Home Care Services Section */}
-      <div id="home-care">
-        <ContentWithMediaSection
-          title={t.homeCare.title}
-          image={homeCareImg}
-          imagePosition="right"
-        >
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 font-body">
-            {t.homeCare.intro}
-          </p>
-          <div className="space-y-4">
-            {t.homeCare.services.map((service, index) => (
-              <div key={index} className="border-l-4 border-l-primary pl-4">
-                <h4 className="font-semibold text-foreground mb-2 font-heading">
-                  {service.title}
-                </h4>
-                <p className="text-sm text-muted-foreground font-body">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Link href="/contact">
-            <Button className="mt-8" data-testid="button-home-care-cta">
-              {t.homeCare.cta}
-            </Button>
-          </Link>
-        </ContentWithMediaSection>
-      </div>
+        );
+      })}
     </PageLayout>
   );
 }
