@@ -24,7 +24,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContentWithMediaSection from "@/components/ContentWithMediaSection";
 import PetBackground from "@/components/PetBackground";
-import clinicReception from "@assets/generated_images/Modern_veterinary_clinic_reception_f5464596.png";
+import clinicReception from "@assets/freepik__clarify-attachment-photo-img1-increase-clarity-and__22061_1763027414442.png";
 import vetWithDog from "@assets/generated_images/Veterinarian_examining_happy_dog_46285143.png";
 import vetTeam from "@assets/generated_images/Veterinary_team_collaboration_79d0e035.png";
 import communityService from "@assets/generated_images/Veterinarian_community_service_animals_52a0c7de.png";
@@ -369,13 +369,13 @@ export default function About() {
           className="space-y-6 text-center lg:text-left"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
-            Careers
+            {t.careers.title}
           </h2>
           <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
-            Join Our Team
+            {t.careers.subtitle}
           </h3>
           <p className="text-lg text-foreground/80" data-testid="text-careers-description">
-            As a leading pet clinic, we're always seeking compassionate and skilled individuals to join our dedicated team.
+            {t.careers.description}
           </p>
         </motion.div>
       ),
@@ -393,11 +393,13 @@ export default function About() {
             className="text-center"
           >
             <h3 className="text-2xl font-bold font-heading text-primary mb-4">
-              Apply Now
+              {t.careers.applyTitle}
             </h3>
-            <p className="text-foreground/80 mb-8">
-              Fill out the form below to submit your application
-            </p>
+            {t.careers.applyDescription && (
+              <p className="text-foreground/80 mb-8">
+                {t.careers.applyDescription}
+              </p>
+            )}
           </motion.div>
           <Card>
             <CardContent className="pt-6">
@@ -484,9 +486,11 @@ export default function About() {
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-qualifications">
-                      Qualifications
-                    </h4>
+                    {t.careers.qualificationsTitle && (
+                      <h4 className="text-xl font-semibold mb-4 text-primary" data-testid="text-form-qualifications">
+                        {t.careers.qualificationsTitle}
+                      </h4>
+                    )}
                     <div className="space-y-6">
                       <FormField control={form.control} name="education" render={({ field }) => (
                         <FormItem>

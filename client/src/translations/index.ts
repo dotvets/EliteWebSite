@@ -187,6 +187,9 @@ export const translations = {
         title: "Careers",
         subtitle: "Join Our Team",
         description: "As a leading pet clinic, we're always seeking compassionate and skilled individuals to join our dedicated team.",
+        applyTitle: "Apply Now",
+        applyDescription: "Fill out the form below to submit your application",
+        qualificationsTitle: "Qualifications",
         form: {
           personalInfo: "Personal Information",
           fullName: "Full Name",
@@ -459,6 +462,9 @@ export const translations = {
         title: "الوظائف",
         subtitle: "انضم إلى فريقنا",
         description: "انضم إلى النخبة، عيادة الحيوانات الأليفة الرائدة في المملكة، وكن جزءًا من فريق يساهم في تحسين صحة ورفاهية الحيوانات الأليفة في مجتمعنا. نبحث عن أفراد متفانين ومبدعين يساهمون في تحقيق رؤيتنا.",
+        applyTitle: "أنضم لفريقنا ألان",
+        applyDescription: "",
+        qualificationsTitle: "",
         form: {
           personalInfo: "المعلومات الشخصية",
           fullName: "الاسم الكامل",
