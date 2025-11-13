@@ -307,9 +307,6 @@ export default function Services() {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
-        
         <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -318,13 +315,13 @@ export default function Services() {
             className="text-center max-w-4xl mx-auto"
           >
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold font-heading text-white mb-6 drop-shadow-lg"
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold font-heading text-primary mb-6"
               data-testid="text-services-hero-title"
             >
               {t.hero.title}
             </h1>
             <p
-              className="text-lg sm:text-xl text-white/90 font-body drop-shadow-md"
+              className="text-lg sm:text-xl text-foreground/80 font-body"
               data-testid="text-services-hero-description"
             >
               {t.hero.description}
@@ -392,8 +389,8 @@ export default function Services() {
                               </motion.div>
                             )}
 
-                            {/* Action Buttons - pushed to bottom */}
-                            <div className="flex flex-wrap gap-3 mt-auto pt-4">
+                            {/* Action Buttons - centered and pushed to bottom */}
+                            <div className="flex flex-wrap gap-3 justify-center mt-auto pt-4">
                               <Button
                                 variant={service.isEmergency ? "destructive" : "default"}
                                 size="sm"
