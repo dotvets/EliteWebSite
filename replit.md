@@ -74,6 +74,34 @@ Preferred communication style: Simple, everyday language.
 - Consistent behavior across all devices and browsers
 - Header/icons stay visible during scroll on all mobile devices
 
+**CRITICAL: Horizontal Overflow Prevention Pattern**
+- NEVER apply `overflow-x: hidden` to `html` or `body` - this breaks iOS momentum scroll and masks root cause
+- Framer Motion animations with `translateX` (x: ±50) or `scale > 1` can push content beyond 100vw
+- ALWAYS wrap animated content in `overflow-x-hidden` containers at the section content level
+
+**Correct Pattern:**
+```tsx
+<section className="py-12...">  {/* No overflow constraint at section level */}
+  <div className="max-w-7xl mx-auto overflow-x-hidden">  {/* Clips child animations */}
+    <motion.div initial={{ x: -50 }} animate={{ x: 0 }}>  {/* Clipped by parent */}
+      ...
+    </motion.div>
+  </div>
+</section>
+```
+
+**Implementation:**
+- IntroSection: Content container clips x: ±50 animations
+- ServicesSection: Content container clips vertical animations (no hover:scale-105)
+- ContentWithMediaSection: Content container clips x: ±50 animations (propagates to About page)
+- WhyChooseSection, TeamSection, PartnersSection, ContactSection: Content containers clip vertical animations
+- Image scale animations: Wrapped in separate `overflow-hidden` containers
+
+**Mobile Browser Behavior:**
+- When body width exceeds 100vw, Android browsers reposition fixed elements off-screen
+- Symptom: Header toggle, social icons, music button disappear/shift during scroll
+- Solution: Prevent horizontal overflow at content level while keeping global scroll intact
+
 ### Backend Architecture
 
 **Technology Stack:**
