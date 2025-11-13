@@ -57,7 +57,7 @@ export default function HeroSlider() {
   }, [emblaApi]);
 
   return (
-    <div className="relative min-h-[450px] h-[60vh] sm:h-[500px] md:h-[550px] lg:h-[700px] w-full overflow-hidden" key={language}>
+    <div className="relative min-h-[450px] h-[60vh] sm:h-[500px] md:h-[550px] lg:h-[700px] w-full" key={language}>
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
           {t.slides.map((slide, index) => (
