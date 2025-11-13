@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import ContentWithMediaSection from "@/components/ContentWithMediaSection";
 import PageLayout from "@/components/PageLayout";
-import heroBackgroundImg from "@assets/freepik__img1-make-the-background-fully-white-remove-all-wa__83840_1763049774720.png";
+import heroBackgroundImg from "@assets/freepik__img1-make-background-fully-white-remove-shadows-re__83842_1763051566185.png";
 import medicalSpecialtiesImg from "@assets/stock_images/veterinarian_examini_bffcd340.jpg";
 import surgeryImg from "@assets/stock_images/veterinary_surgery_o_7559b1f2.jpg";
 import diagnosticImg from "@assets/stock_images/veterinary_diagnosti_473733b0.jpg";
@@ -390,7 +390,7 @@ export default function Services() {
                             )}
 
                             {/* Action Buttons - centered and pushed to bottom */}
-                            <div className="flex flex-wrap gap-3 justify-center mt-auto pt-4">
+                            <div className="flex flex-wrap gap-3 justify-center mt-auto pt-2">
                               <Button
                                 variant={service.isEmergency ? "destructive" : "default"}
                                 size="sm"
