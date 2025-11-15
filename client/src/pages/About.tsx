@@ -46,6 +46,10 @@ const staggerContainer = {
   },
 };
 
+// Reusable viewport configurations
+const VIEWPORT_CONFIG_DEFAULT = { once: false, amount: 0.3 };
+const VIEWPORT_CONFIG_STAGGER = { once: false, amount: 0.2 };
+
 // Reusable animated section component
 function AnimatedSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef(null);
@@ -138,7 +142,7 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           variants={fadeInUp}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={VIEWPORT_CONFIG_DEFAULT}
           className="space-y-6 text-center lg:text-start"
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
@@ -162,7 +166,7 @@ export default function About() {
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: false, amount: 0.2 }}
+          viewport={VIEWPORT_CONFIG_STAGGER}
           className="grid md:grid-cols-2 gap-8"
         >
           <motion.div variants={fadeInUp}>
@@ -214,7 +218,7 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           variants={fadeInUp}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={VIEWPORT_CONFIG_DEFAULT}
           className="text-center lg:text-start"
         >
           <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
@@ -242,7 +246,7 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             variants={fadeInUp}
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={VIEWPORT_CONFIG_DEFAULT}
           >
             <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-csr-title">
               {t.csr.title}
@@ -255,7 +259,7 @@ export default function About() {
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={VIEWPORT_CONFIG_STAGGER}
             className="space-y-6 mb-8"
           >
             {t.csr.initiatives.map((initiative, index) => (
@@ -300,7 +304,7 @@ export default function About() {
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={VIEWPORT_CONFIG_STAGGER}
             className="grid md:grid-cols-2 gap-12"
           >
             {partners.items.map((partner, index) => (
@@ -363,7 +367,7 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           variants={fadeInUp}
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={VIEWPORT_CONFIG_DEFAULT}
           className="space-y-6 text-center lg:text-start"
         >
           <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
@@ -387,7 +391,7 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             variants={fadeInUp}
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={VIEWPORT_CONFIG_DEFAULT}
             className="text-center"
           >
             <h3 className="text-2xl font-bold font-heading text-primary mb-4">
@@ -564,7 +568,7 @@ export default function About() {
                     variants={staggerContainer}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: false, amount: 0.2 }}
+                    viewport={VIEWPORT_CONFIG_STAGGER}
                     className="max-w-6xl mx-auto"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
