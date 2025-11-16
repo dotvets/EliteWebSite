@@ -23,18 +23,29 @@ export const VIEWPORT_CONFIG_STAGGER = { once: false, amount: 0.2 };
 interface AnimatedContentProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "fadeInUp" | "stagger";
-  viewport?: "default" | "stagger";
+  variant?: "fadeInUp" | "stagger" | "custom";
+  customVariants?: Variants;
+  viewport?: "default" | "stagger" | { once: boolean; amount: number };
 }
 
 export function AnimatedContent({ 
   children, 
   className = "", 
   variant = "fadeInUp",
+  customVariants,
   viewport = "default"
 }: AnimatedContentProps) {
-  const variants = variant === "stagger" ? staggerContainer : fadeInUp;
-  const viewportConfig = viewport === "stagger" ? VIEWPORT_CONFIG_STAGGER : VIEWPORT_CONFIG_DEFAULT;
+  const variants = variant === "custom" && customVariants 
+    ? customVariants 
+    : variant === "stagger" 
+      ? staggerContainer 
+      : fadeInUp;
+  
+  const viewportConfig = typeof viewport === "object" 
+    ? viewport 
+    : viewport === "stagger" 
+      ? VIEWPORT_CONFIG_STAGGER 
+      : VIEWPORT_CONFIG_DEFAULT;
 
   return (
     <motion.div
