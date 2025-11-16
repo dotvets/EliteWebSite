@@ -423,6 +423,25 @@ export const translations = {
         ],
         cta: "Schedule a home visit",
       },
+      imageSections: {
+        medical: {
+          title: "Advanced Medical Care",
+          description: "Our state-of-the-art facilities and experienced veterinary team provide comprehensive medical care for all your pet's needs. From routine check-ups to specialized treatments, we're here to ensure your pet's health and happiness.",
+        },
+        surgery: {
+          title: "Expert Surgical Services",
+          description: "With cutting-edge surgical equipment and highly trained surgeons, we perform a wide range of procedures with precision and care. Your pet's safety and comfort are our top priorities throughout the entire surgical process.",
+        },
+        emergency: {
+          title: "24/7 Emergency & Care",
+          description: "Emergencies don't wait for business hours. Our round-the-clock emergency services ensure your pet receives immediate care when they need it most. Whether at our clinic or in the comfort of your home, we're always ready to help.",
+        },
+      },
+      ui: {
+        bookNow: "Book Now",
+        readMore: "Read More",
+        showLess: "Show Less",
+      },
     },
     contact: {
       title: "Contact Us",
@@ -912,6 +931,25 @@ export const translations = {
           { title: "رعاية الحيوانات الأليفة المسنة", description: "رعاية متخصصة للحيوانات الأليفة الكبيرة التي تعاني من مشاكل في الحركة." },
         ],
         cta: "حدد زيارة منزلية",
+      },
+      imageSections: {
+        medical: {
+          title: "رعاية طبية متقدمة",
+          description: "تقدم مرافقنا الحديثة وفريقنا البيطري ذو الخبرة رعاية طبية شاملة لجميع احتياجات حيوانك الأليف. من الفحوصات الروتينية إلى العلاجات المتخصصة، نحن هنا لضمان صحة وسعادة حيوانك الأليف.",
+        },
+        surgery: {
+          title: "خدمات جراحية خبيرة",
+          description: "مع معدات جراحية متطورة وجراحين مدربين تدريباً عالياً، نجري مجموعة واسعة من الإجراءات بدقة وعناية. سلامة وراحة حيوانك الأليف هي أولويتنا القصوى طوال عملية الجراحة بأكملها.",
+        },
+        emergency: {
+          title: "رعاية طوارئ على مدار الساعة",
+          description: "لا تنتظر حالات الطوارئ ساعات العمل. تضمن خدمات الطوارئ على مدار الساعة لدينا حصول حيوانك الأليف على الرعاية الفورية عندما يحتاجها أكثر. سواء في عيادتنا أو في راحة منزلك، نحن دائماً مستعدون للمساعدة.",
+        },
+      },
+      ui: {
+        bookNow: "احجز الآن",
+        readMore: "اقرأ المزيد",
+        showLess: "عرض أقل",
       },
     },
     footer: {
