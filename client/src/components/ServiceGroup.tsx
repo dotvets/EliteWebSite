@@ -1,4 +1,6 @@
+import { motion } from "framer-motion";
 import { AnimatedContent } from "@/components/AnimatedContent";
+import { fadeInUp } from "@/animations";
 import { ServiceCard } from "@/data/servicesSections";
 
 interface ServiceGroupProps {
@@ -18,18 +20,19 @@ export default function ServiceGroup({
     <section className="px-4 sm:px-6 lg:px-8 mb-12">
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <AnimatedContent
-          variant="stagger"
+          variant="staggerGrid"
           viewport="stagger"
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {services.map((service) => (
-            <ServiceCard
-              key={service.key}
-              service={service}
-              expandedCards={expandedCards}
-              toggleCard={toggleCard}
-              t={t}
-            />
+            <motion.div key={service.key} variants={fadeInUp}>
+              <ServiceCard
+                service={service}
+                expandedCards={expandedCards}
+                toggleCard={toggleCard}
+                t={t}
+              />
+            </motion.div>
           ))}
         </AnimatedContent>
       </div>

@@ -1,29 +1,35 @@
 import { motion, Variants } from "framer-motion";
-
-// Animation variants
-export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
-
-export const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
+import * as animations from "@/animations";
 
 // Viewport configurations
 export const VIEWPORT_CONFIG_DEFAULT = { once: false, amount: 0.3 };
 export const VIEWPORT_CONFIG_STAGGER = { once: false, amount: 0.2 };
 
+// Legacy exports for backward compatibility
+export const fadeInUp = animations.fadeInUp;
+export const staggerContainer = animations.staggerContainer;
+
+// Animation variant mapping
+const variantMap: Record<string, Variants> = {
+  fadeIn: animations.fadeIn,
+  fadeInUp: animations.fadeInUp,
+  fadeInDown: animations.fadeInDown,
+  slideLeft: animations.slideLeft,
+  slideRight: animations.slideRight,
+  zoomIn: animations.zoomIn,
+  zoomInSoft: animations.zoomInSoft,
+  staggerContainer: animations.staggerContainer,
+  staggerList: animations.staggerList,
+  staggerGrid: animations.staggerGrid,
+  stagger: animations.staggerContainer,
+};
+
+type VariantName = keyof typeof variantMap;
+
 interface AnimatedContentProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "fadeInUp" | "stagger" | "custom";
+  variant?: VariantName | "custom";
   customVariants?: Variants;
   viewport?: "default" | "stagger" | { once: boolean; amount: number };
 }
@@ -35,11 +41,19 @@ export function AnimatedContent({
   customVariants,
   viewport = "default"
 }: AnimatedContentProps) {
-  const variants = variant === "custom" && customVariants 
-    ? customVariants 
-    : variant === "stagger" 
-      ? staggerContainer 
-      : fadeInUp;
+  let variants: Variants;
+  
+  if (variant === "custom" && customVariants) {
+    variants = customVariants;
+  } else if (variant === "custom" && !customVariants) {
+    console.warn(`AnimatedContent: variant="custom" requires customVariants prop. Falling back to fadeInUp.`);
+    variants = animations.fadeInUp;
+  } else if (variantMap[variant]) {
+    variants = variantMap[variant];
+  } else {
+    console.warn(`AnimatedContent: Unknown variant "${variant}". Falling back to fadeInUp. Available variants: ${Object.keys(variantMap).join(", ")}`);
+    variants = animations.fadeInUp;
+  }
   
   const viewportConfig = typeof viewport === "object" 
     ? viewport 

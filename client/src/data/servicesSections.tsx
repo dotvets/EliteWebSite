@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { 
   Stethoscope, 
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AnimatedContent, fadeInUp } from "@/components/AnimatedContent";
+import { AnimatedContent } from "@/components/AnimatedContent";
 import ServiceGroup from "@/components/ServiceGroup";
 import ServiceImageBlock from "@/components/ServiceImageBlock";
 import heroBackgroundImg from "@assets/freepik__img1-make-background-fully-white-remove-shadows-re__83842_1763051566185.png";
@@ -351,73 +350,65 @@ export const ServiceCard = ({ service, expandedCards, toggleCard, t }: ServiceCa
   const isExpanded = expandedCards[service.key];
 
   return (
-    <motion.div variants={fadeInUp} className="flex">
-      <Card 
-        className="hover-elevate flex flex-col w-full min-h-[400px]" 
-        data-testid={`card-service-${service.key}`}
-      >
-        <CardHeader className="flex-shrink-0">
-          <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Icon className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg sm:text-xl font-heading text-primary mb-1 leading-tight">
-                {service.title}
-              </CardTitle>
-              {service.hasSubtitle && (
-                <p className="text-xs sm:text-sm text-foreground/80 font-semibold font-heading">
-                  {service.subtitle}
-                </p>
-              )}
-            </div>
+    <Card 
+      className="hover-elevate flex flex-col w-full min-h-[400px]" 
+      data-testid={`card-service-${service.key}`}
+    >
+      <CardHeader className="flex-shrink-0">
+        <div className="flex items-start gap-3">
+          <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Icon className="w-6 h-6 text-primary" />
           </div>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <p className="text-sm text-muted-foreground font-body mb-4 line-clamp-3">
-            {service.intro}
-          </p>
-
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              {service.content()}
-            </motion.div>
-          )}
-
-          <div className="flex flex-wrap gap-3 justify-center mt-auto pt-2">
-            <Button
-              variant={service.isEmergency ? "destructive" : "default"}
-              size="sm"
-              asChild
-              data-testid={`button-book-${service.key}`}
-            >
-              <Link href="/book-now">{t.ui.bookNow}</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toggleCard(service.key)}
-              data-testid={`button-read-more-${service.key}`}
-            >
-              {isExpanded ? (
-                <>
-                  {t.ui.showLess} <ChevronUp className="ml-2 w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  {t.ui.readMore} <ChevronDown className="ml-2 w-4 h-4" />
-                </>
-              )}
-            </Button>
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg sm:text-xl font-heading text-primary mb-1 leading-tight">
+              {service.title}
+            </CardTitle>
+            {service.hasSubtitle && (
+              <p className="text-xs sm:text-sm text-foreground/80 font-semibold font-heading">
+                {service.subtitle}
+              </p>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col">
+        <p className="text-sm text-muted-foreground font-body mb-4 line-clamp-3">
+          {service.intro}
+        </p>
+
+        {isExpanded && (
+          <div className="mb-4">
+            {service.content()}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3 justify-center mt-auto pt-2">
+          <Button
+            variant={service.isEmergency ? "destructive" : "default"}
+            size="sm"
+            asChild
+            data-testid={`button-book-${service.key}`}
+          >
+            <Link href="/book-now">{t.ui.bookNow}</Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toggleCard(service.key)}
+            data-testid={`button-read-more-${service.key}`}
+          >
+            {isExpanded ? (
+              <>
+                {t.ui.showLess} <ChevronUp className="ml-2 w-4 h-4" />
+              </>
+            ) : (
+              <>
+                {t.ui.readMore} <ChevronDown className="ml-2 w-4 h-4" />
+              </>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

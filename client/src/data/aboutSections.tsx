@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Heart, Users, Handshake, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { AnimatedContent, fadeInUp, staggerContainer } from "@/components/AnimatedContent";
+import { AnimatedContent } from "@/components/AnimatedContent";
+import { fadeInUp } from "@/animations";
 import { IconCard } from "@/components/IconCard";
 import { FeatureCard } from "@/components/FeatureCard";
 import { CareerForm } from "@/components/CareerForm";
@@ -44,7 +45,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     reverse: true,
     className: "bg-muted/30",
     content: (
-      <AnimatedContent variant="stagger" viewport="stagger" className="grid md:grid-cols-2 gap-8">
+      <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-8">
         <motion.div variants={fadeInUp}>
           <IconCard
             icon={Target}
@@ -89,7 +90,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     key: "why-choose-cards",
     className: "bg-background pt-0 pb-12 sm:pb-16 md:pb-20",
     content: (
-      <AnimatedContent variant="stagger" viewport="stagger" className="max-w-6xl mx-auto">
+      <AnimatedContent variant="staggerGrid" className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {t.whyChoose.points.map((point: any, index: number) => (
             <motion.div key={index} variants={fadeInUp} className="h-full">
@@ -123,7 +124,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
             {t.csr.description}
           </p>
         </AnimatedContent>
-        <AnimatedContent variant="stagger" viewport="stagger" className="space-y-6 mb-8">
+        <AnimatedContent variant="staggerList" className="space-y-6 mb-8">
           {t.csr.initiatives.map((initiative: any, index: number) => (
             <motion.div key={index} variants={fadeInUp}>
               <FeatureCard
@@ -152,7 +153,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-partners-title">
           {partners.title}
         </h2>
-        <AnimatedContent variant="stagger" viewport="stagger" className="grid md:grid-cols-2 gap-12">
+        <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-12">
           {partners.items.map((partner: string, index: number) => (
             <motion.div key={index} variants={fadeInUp}>
               <Card className="hover-elevate" data-testid={`card-partner-${index}`}>
