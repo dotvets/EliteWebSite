@@ -27,7 +27,7 @@ export default function ServiceImageBlock({
         reverse={reverse}
         className="bg-muted/30"
       >
-        <AnimatedContent className="space-y-4 text-center lg:text-start">
+        <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
           <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">
             {title}
           </h2>

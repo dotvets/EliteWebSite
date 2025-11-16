@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { 
   Stethoscope, 
   Scissors, 
@@ -203,16 +204,17 @@ export const createServicesSections = (
       key: "hero",
       className: "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
       content: (
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url(${heroBackgroundImg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden h-full flex items-center">
+        <>
+          <div 
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url(${heroBackgroundImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+          <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden">
             <AnimatedContent 
               variant="fadeInUp" 
               viewport="default"
@@ -232,7 +234,7 @@ export const createServicesSections = (
               </p>
             </AnimatedContent>
           </div>
-        </div>
+        </>
       ),
     },
     {
@@ -392,10 +394,10 @@ export const ServiceCard = ({ service, expandedCards, toggleCard, t }: ServiceCa
             <Button
               variant={service.isEmergency ? "destructive" : "default"}
               size="sm"
-              onClick={() => {}}
+              asChild
               data-testid={`button-book-${service.key}`}
             >
-              {t.ui.bookNow}
+              <Link href="/book-now">{t.ui.bookNow}</Link>
             </Button>
             <Button
               variant="outline"
