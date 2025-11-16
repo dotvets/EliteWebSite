@@ -1,55 +1,33 @@
-import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { SectionHeader } from "./SectionHeader";
+import { PartnerCard } from "./PartnerCard";
+import { AnimatedContent } from "./AnimatedContent";
 
 export default function PartnersSection() {
   const { language } = useLanguage();
   const t = translations[language].partners;
 
+  const partners = ["Vest Van", "Elite Falcons"];
+
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto overflow-x-hidden">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: false, amount: 0.3 }}
-        >
-          <h2
-            className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading text-foreground mb-4"
-            data-testid="text-partners-title"
-          >
-            {t.title}
-          </h2>
-        </motion.div>
+        <SectionHeader title={t.title} titleTestId="text-partners-title" />
 
         <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: false, amount: 0.3 }}
-          >
-            <Card className="p-8 w-64 h-32 flex items-center justify-center hover-elevate">
-              <div className="text-center">
-                <p className="text-2xl font-semibold text-primary">Vest Van</p>
-              </div>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: false, amount: 0.3 }}
-          >
-            <Card className="p-8 w-64 h-32 flex items-center justify-center hover-elevate">
-              <div className="text-center">
-                <p className="text-2xl font-semibold text-primary">Elite Falcons</p>
-              </div>
-            </Card>
-          </motion.div>
+          {partners.map((partner, index) => (
+            <AnimatedContent
+              key={index}
+              variant="custom"
+              customVariants={{
+                hidden: { opacity: 0, scale: 0.9 },
+                visible: { opacity: 1, scale: 1, transition: { duration: 0.5, delay: index * 0.2 } }
+              }}
+            >
+              <PartnerCard name={partner} />
+            </AnimatedContent>
+          ))}
         </div>
       </div>
     </section>
