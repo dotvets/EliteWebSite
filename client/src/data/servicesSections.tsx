@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnimatedContent, fadeInUp } from "@/components/AnimatedContent";
+import ServiceGroup from "@/components/ServiceGroup";
+import ServiceImageBlock from "@/components/ServiceImageBlock";
 import heroBackgroundImg from "@assets/freepik__img1-make-background-fully-white-remove-shadows-re__83842_1763051566185.png";
 import medicalSpecialtiesImg from "@assets/stock_images/veterinarian_examini_bffcd340.jpg";
 import surgeryImg from "@assets/stock_images/veterinary_surgery_o_7559b1f2.jpg";
@@ -74,7 +76,11 @@ const renderWhyChoose = (whyChoose: { title: string; points: Array<{ title: stri
   </div>
 );
 
-export const createServicesSections = (t: Translation) => {
+export const createServicesSections = (
+  t: Translation,
+  expandedCards: Record<string, boolean>,
+  toggleCard: (key: string) => void
+) => {
   const serviceCards = [
     {
       key: "medical-specialties",
@@ -192,40 +198,13 @@ export const createServicesSections = (t: Translation) => {
     serviceCards.slice(9, 11),
   ];
 
-  const imageSections = [
-    {
-      image: medicalSpecialtiesImg,
-      imageAlt: "Elite Vet medical specialties",
-      imageTestId: "img-section-medical",
-      reverse: false,
-      title: t.imageSections.medical.title,
-      description: t.imageSections.medical.description,
-    },
-    {
-      image: surgeryImg,
-      imageAlt: "Surgical procedures at Elite Vet",
-      imageTestId: "img-section-surgery",
-      reverse: true,
-      title: t.imageSections.surgery.title,
-      description: t.imageSections.surgery.description,
-    },
-    {
-      image: diagnosticImg,
-      imageAlt: "Diagnostic services",
-      imageTestId: "img-section-diagnostic",
-      reverse: false,
-      title: t.imageSections.emergency.title,
-      description: t.imageSections.emergency.description,
-    },
-  ];
-
   return [
     {
       key: "hero",
-      type: "hero" as const,
-      component: (
-        <section 
-          className="relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className: "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
+      content: (
+        <div 
+          className="absolute inset-0"
           style={{
             backgroundImage: `url(${heroBackgroundImg})`,
             backgroundSize: 'cover',
@@ -233,7 +212,7 @@ export const createServicesSections = (t: Translation) => {
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden">
+          <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden h-full flex items-center">
             <AnimatedContent 
               variant="fadeInUp" 
               viewport="default"
@@ -253,14 +232,98 @@ export const createServicesSections = (t: Translation) => {
               </p>
             </AnimatedContent>
           </div>
-        </section>
+        </div>
       ),
     },
     {
-      key: "service-groups",
-      type: "service-groups" as const,
-      serviceGroups,
-      imageSections,
+      key: "service-group-1",
+      className: "",
+      content: (
+        <ServiceGroup
+          services={serviceGroups[0]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
+      ),
+    },
+    {
+      key: "image-medical",
+      className: "",
+      content: (
+        <ServiceImageBlock
+          image={medicalSpecialtiesImg}
+          imageAlt="Elite Vet medical specialties"
+          imageTestId="img-section-medical"
+          title={t.imageSections.medical.title}
+          description={t.imageSections.medical.description}
+          reverse={false}
+        />
+      ),
+    },
+    {
+      key: "service-group-2",
+      className: "",
+      content: (
+        <ServiceGroup
+          services={serviceGroups[1]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
+      ),
+    },
+    {
+      key: "image-surgery",
+      className: "",
+      content: (
+        <ServiceImageBlock
+          image={surgeryImg}
+          imageAlt="Surgical procedures at Elite Vet"
+          imageTestId="img-section-surgery"
+          title={t.imageSections.surgery.title}
+          description={t.imageSections.surgery.description}
+          reverse={true}
+        />
+      ),
+    },
+    {
+      key: "service-group-3",
+      className: "",
+      content: (
+        <ServiceGroup
+          services={serviceGroups[2]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
+      ),
+    },
+    {
+      key: "image-emergency",
+      className: "",
+      content: (
+        <ServiceImageBlock
+          image={diagnosticImg}
+          imageAlt="Diagnostic services"
+          imageTestId="img-section-diagnostic"
+          title={t.imageSections.emergency.title}
+          description={t.imageSections.emergency.description}
+          reverse={false}
+        />
+      ),
+    },
+    {
+      key: "service-group-4",
+      className: "pb-12 sm:pb-16 md:pb-20",
+      content: (
+        <ServiceGroup
+          services={serviceGroups[3]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
+      ),
     },
   ];
 };
