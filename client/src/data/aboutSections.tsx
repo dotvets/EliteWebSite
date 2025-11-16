@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Target, Heart, Users, Handshake } from "lucide-react";
+import { Target, Heart, Users, Handshake, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedContent, fadeInUp, staggerContainer } from "@/components/AnimatedContent";
 import { IconCard } from "@/components/IconCard";
@@ -82,6 +82,27 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
         <p className="text-lg text-foreground/80" data-testid="text-why-choose-description">
           {t.whyChoose.description}
         </p>
+      </AnimatedContent>
+    ),
+  },
+  {
+    key: "why-choose-cards",
+    className: "bg-background pt-0 pb-12 sm:pb-16 md:pb-20",
+    content: (
+      <AnimatedContent variant="stagger" viewport="stagger" className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+          {t.whyChoose.points.map((point: any, index: number) => (
+            <motion.div key={index} variants={fadeInUp} className="h-full">
+              <FeatureCard
+                title={point.title}
+                description={point.description}
+                icon={CheckCircle2}
+                variant="compact"
+                testId={`card-why-choose-${index}`}
+              />
+            </motion.div>
+          ))}
+        </div>
       </AnimatedContent>
     ),
   },
