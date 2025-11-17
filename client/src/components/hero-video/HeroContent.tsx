@@ -12,7 +12,7 @@ export function HeroContent({ title, subtitle, ctaText }: HeroContentProps) {
   return (
     <div className="absolute inset-0 z-20 flex items-center justify-center">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <AnimatedContent variant="fadeInUp">
+        <AnimatedContent variant="fadeInUpSoft">
           <h1
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white mb-4 sm:mb-6"
             data-testid="text-hero-title"
@@ -21,7 +21,7 @@ export function HeroContent({ title, subtitle, ctaText }: HeroContentProps) {
           </h1>
         </AnimatedContent>
 
-        <AnimatedContent variant="fadeInUp">
+        <AnimatedContent variant="fadeInUpSoft">
           <p
             className="text-base sm:text-lg md:text-xl text-white/95 mb-6 sm:mb-8"
             data-testid="text-hero-subtitle"
@@ -30,7 +30,7 @@ export function HeroContent({ title, subtitle, ctaText }: HeroContentProps) {
           </p>
         </AnimatedContent>
 
-        <AnimatedContent variant="fadeIn">
+        <AnimatedContent variant="zoomInSoft">
           <Link href="/book-now">
             <Button
               size="default"

@@ -14,6 +14,7 @@ const variantMap: Record<string, Variants> = {
   fadeIn: animations.fadeIn,
   fadeInUp: animations.fadeInUp,
   fadeInDown: animations.fadeInDown,
+  fadeInUpSoft: animations.fadeInUpSoft,
   slideLeft: animations.slideLeft,
   slideRight: animations.slideRight,
   zoomIn: animations.zoomIn,
