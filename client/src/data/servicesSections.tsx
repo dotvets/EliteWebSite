@@ -213,7 +213,8 @@ export const createServicesSections = (
               backgroundRepeat: 'no-repeat',
             }}
           />
-          <div className="relative z-10 max-w-7xl mx-auto overflow-x-hidden">
+          <div className="absolute inset-0 bg-black/20 z-10" />
+          <div className="relative z-20 max-w-7xl mx-auto overflow-x-hidden">
             <AnimatedContent 
               variant="fadeInUp" 
               viewport="default"
