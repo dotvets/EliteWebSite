@@ -1,8 +1,8 @@
 import { Link } from "wouter";
-import { 
-  Stethoscope, 
-  Scissors, 
-  FlaskConical, 
+import {
+  Stethoscope,
+  Scissors,
+  FlaskConical,
   Syringe,
   Pill,
   Heart,
@@ -12,7 +12,7 @@ import {
   Ambulance,
   Phone,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,15 +34,17 @@ const serviceIcons: Record<string, React.ComponentType<any>> = {
   "diagnostic-tests": FlaskConical,
   "medical-surgeries": Activity,
   "dental-services": Syringe,
-  "vaccinations": Pill,
+  vaccinations: Pill,
   "pet-travel": Plane,
-  "boarding": HomeIcon,
+  boarding: HomeIcon,
   "intensive-care": Heart,
-  "emergency": Ambulance,
+  emergency: Ambulance,
   "home-care": Phone,
 };
 
-const renderServiceList = (services: Array<{ title: string; description: string }>) => (
+const renderServiceList = (
+  services: Array<{ title: string; description: string }>,
+) => (
   <div className="space-y-3 mt-4">
     {services.map((service, index) => (
       <div key={index} className="pl-3">
@@ -57,7 +59,10 @@ const renderServiceList = (services: Array<{ title: string; description: string 
   </div>
 );
 
-const renderWhyChoose = (whyChoose: { title: string; points: Array<{ title: string; description: string }> }) => (
+const renderWhyChoose = (whyChoose: {
+  title: string;
+  points: Array<{ title: string; description: string }>;
+}) => (
   <div className="mt-4">
     <h5 className="font-semibold text-foreground text-sm mb-3 font-heading">
       {whyChoose.title}
@@ -67,8 +72,12 @@ const renderWhyChoose = (whyChoose: { title: string; points: Array<{ title: stri
         <li key={index} className="flex items-start gap-2 text-xs">
           <span className="text-primary mt-0.5">●</span>
           <div>
-            <span className="font-semibold text-foreground">{point.title}:</span>{" "}
-            <span className="text-muted-foreground font-body">{point.description}</span>
+            <span className="font-semibold text-foreground">
+              {point.title}:
+            </span>{" "}
+            <span className="text-muted-foreground font-body">
+              {point.description}
+            </span>
           </div>
         </li>
       ))}
@@ -79,7 +88,7 @@ const renderWhyChoose = (whyChoose: { title: string; points: Array<{ title: stri
 export const createServicesSections = (
   t: Translation,
   expandedCards: Record<string, boolean>,
-  toggleCard: (key: string) => void
+  toggleCard: (key: string) => void,
 ) => {
   const serviceCards = [
     {
@@ -201,22 +210,23 @@ export const createServicesSections = (
   return [
     {
       key: "hero",
-      className: "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
+      className:
+        "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
       content: (
         <>
-          <div 
+          <div
             className="absolute inset-0 z-0"
             style={{
               backgroundImage: `url(${heroBackgroundImg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }}
           />
           <div className="absolute inset-0 bg-black/20 z-10" />
           <div className="relative z-20 max-w-7xl mx-auto overflow-x-hidden">
-            <AnimatedContent 
-              variant="fadeInUp" 
+            <AnimatedContent
+              variant="fadeInUp"
               viewport="default"
               className="text-center max-w-4xl mx-auto"
             >
@@ -239,7 +249,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-1",
-      className: "",
+      className: "mt-16",
       content: (
         <ServiceGroup
           services={serviceGroups[0]}
@@ -346,13 +356,18 @@ interface ServiceCardProps {
   t: Translation;
 }
 
-export const ServiceCard = ({ service, expandedCards, toggleCard, t }: ServiceCardProps) => {
+export const ServiceCard = ({
+  service,
+  expandedCards,
+  toggleCard,
+  t,
+}: ServiceCardProps) => {
   const Icon = service.icon;
   const isExpanded = expandedCards[service.key];
 
   return (
-    <Card 
-      className="hover-elevate flex flex-col w-full min-h-[400px]" 
+    <Card
+      className="hover-elevate flex flex-col w-full min-h-[400px]"
       data-testid={`card-service-${service.key}`}
     >
       <CardHeader className="flex-shrink-0">
@@ -377,11 +392,7 @@ export const ServiceCard = ({ service, expandedCards, toggleCard, t }: ServiceCa
           {service.intro}
         </p>
 
-        {isExpanded && (
-          <div className="mb-4">
-            {service.content()}
-          </div>
-        )}
+        {isExpanded && <div className="mb-4">{service.content()}</div>}
 
         <div className="flex flex-wrap gap-3 justify-center mt-auto pt-2">
           <Button

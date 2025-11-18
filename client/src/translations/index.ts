@@ -1,4 +1,27 @@
-export const translations = {
+
+interface BlogPageArticle {
+  date: string;
+  title: string;
+  description: string;
+}
+
+interface BlogPageTranslation {
+  hero: {
+    title: string;
+    subtitle: string;
+  };
+  article1: BlogPageArticle;
+  article2: BlogPageArticle;
+  article3: BlogPageArticle;
+  article4: BlogPageArticle;
+}
+
+interface TranslationBase {
+  blogPage?: BlogPageTranslation;
+}
+
+export const translations: TranslationBase & any = {
+
   en: {
     header: {
       nav: {
@@ -235,6 +258,7 @@ export const translations = {
         },
       },
     },
+
     servicesPage: {
       hero: {
         title: "Our Services",
@@ -443,6 +467,41 @@ export const translations = {
         showLess: "Show Less",
       },
     },
+    blogPage: {
+      hero: {
+        title: "Elite Vet",
+        subtitle: "Helpful Tips & Information for Your Pet Care",
+      },
+
+      article1: {
+        date: "📅 Jan 10, 2025 — Elite Vet Team",
+        title: "Caring for Your Pet Birds at Home",
+        description:
+          "Birds need special care — clean cages, fresh food, and daily interaction. Watch for changes in feathers or appetite, as they can indicate illness. Dr. Paws provides expert avian care and health consultations for all bird species.",
+      },
+
+      article2: {
+        date: "📅 Jan 18, 2025 — Elite Vet Team",
+        title: "Importance of Vaccinations for Pets",
+        description:
+          "Vaccines protect your pet from dangerous diseases like rabies and parvovirus. Keeping vaccinations up to date ensures long-term safety. Schedule your pet's vaccination today at Dr. Paws and keep them protected year-round.",
+      },
+
+      article3: {
+        date: "📅 Jan 25, 2025 — Elite Vet Team",
+        title: "Why Regular Check-ups Matter for Cats",
+        description:
+          "Cats often hide signs of illness. Regular veterinary check-ups can detect problems early, keeping your cat healthy and happy. Dr. Paws offers gentle, stress-free examinations to ensure your feline friend's well-being.",
+      },
+
+      article4: {
+        date: "📅 Feb 01, 2025 — Elite Vet Team",
+        title: "Summer Care Tips for Dogs",
+        description:
+          "Hot Saudi summers can be tough for dogs! Keep your furry friend cool by keeping them hydrated, walking during early mornings, and avoiding hot pavements. Regular grooming helps reduce body heat and keeps them comfortable. Visit Dr. Paws for a summer health check and professional grooming.",
+      },
+    },
+
     contact: {
       title: "Contact Us",
       description: "Have a question or concern? Need to schedule an appointment? Contact us today! Our dedicated team is ready to assist you.",
@@ -468,6 +527,7 @@ export const translations = {
         title: "Message Sent!",
         description: "Thank you for contacting us. We'll get back to you soon.",
       },
+
     },
     footer: {
       about: "Elite Veterinary Clinic: Your Trusted Partner in Pet Care. Providing exceptional service & ensuring your pet's well-being.",
