@@ -122,24 +122,24 @@ export const translations: TranslationBase & any = {
       description: "Our team of highly skilled veterinarians is committed to providing top-notch care for your furry companions. They're passionate about animal health & dedicated to providing the best possible medical services.",
       members: [
         {
-          name: "Dr. Sarah Johnson",
-          role: "Chief Veterinarian",
-          initials: "SJ",
+          name: "Dr. Khaled Abu Elnasser",
+          initials: "KA",
         },
         {
-          name: "Dr. Michael Chen",
-          role: "Surgical Specialist",
-          initials: "MC",
+          name: "Dr. Anas Shobaki",
+          initials: "AS",
         },
         {
-          name: "Dr. Emily Rodriguez",
-          role: "Pet Dentist",
-          initials: "ER",
+          name: "Dr. Ahmed Mnadour",
+          initials: "AM",
         },
         {
-          name: "Dr. Ahmed Al-Mansour",
-          role: "Emergency Care",
-          initials: "AA",
+          name: "Dr. Ahmed Moneer",
+          initials: "AM",
+        },
+        {
+          name: "Dr. Shoaib Husnain",
+          initials: "SH",
         },
       ],
     },
@@ -474,31 +474,31 @@ export const translations: TranslationBase & any = {
       },
 
       article1: {
-        date: "📅 Jan 10, 2025 — Elite Vet Team",
+        date: "Jan 10, 2025 — Elite Vet Team",
         title: "Caring for Your Pet Birds at Home",
         description:
-          "Birds need special care — clean cages, fresh food, and daily interaction. Watch for changes in feathers or appetite, as they can indicate illness. Dr. Paws provides expert avian care and health consultations for all bird species.",
+          "Birds need special care — clean cages, fresh food, and daily interaction. Watch for changes in feathers or appetite, as they can indicate illness. Elite Vet provides expert avian care and health consultations for all bird species.",
       },
 
       article2: {
-        date: "📅 Jan 18, 2025 — Elite Vet Team",
+        date: "Jan 18, 2025 — Elite Vet Team",
         title: "Importance of Vaccinations for Pets",
         description:
-          "Vaccines protect your pet from dangerous diseases like rabies and parvovirus. Keeping vaccinations up to date ensures long-term safety. Schedule your pet's vaccination today at Dr. Paws and keep them protected year-round.",
+          "Vaccines protect your pet from dangerous diseases like rabies and parvovirus. Keeping vaccinations up to date ensures long-term safety. Schedule your pet's vaccination today at Elite Vet and keep them protected year-round.",
       },
 
       article3: {
-        date: "📅 Jan 25, 2025 — Elite Vet Team",
+        date: "Jan 25, 2025 — Elite Vet Team",
         title: "Why Regular Check-ups Matter for Cats",
         description:
-          "Cats often hide signs of illness. Regular veterinary check-ups can detect problems early, keeping your cat healthy and happy. Dr. Paws offers gentle, stress-free examinations to ensure your feline friend's well-being.",
+          "Cats often hide signs of illness. Regular veterinary check-ups can detect problems early, keeping your cat healthy and happy. Elite Vet offers gentle, stress-free examinations to ensure your feline friend's well-being.",
       },
 
       article4: {
-        date: "📅 Feb 01, 2025 — Elite Vet Team",
+        date: "Feb 01, 2025 — Elite Vet Team",
         title: "Summer Care Tips for Dogs",
         description:
-          "Hot Saudi summers can be tough for dogs! Keep your furry friend cool by keeping them hydrated, walking during early mornings, and avoiding hot pavements. Regular grooming helps reduce body heat and keeps them comfortable. Visit Dr. Paws for a summer health check and professional grooming.",
+          "Hot Saudi summers can be tough for dogs! Keep your furry friend cool by keeping them hydrated, walking during early mornings, and avoiding hot pavements. Regular grooming helps reduce body heat and keeps them comfortable. Visit Elite Vet for a summer health check and professional grooming.",
       },
     },
 
@@ -642,24 +642,24 @@ export const translations: TranslationBase & any = {
       description: "فريقنا من الأطباء البيطريين المتخصصين يجمع بين الخبرة والرعاية، يقدمون تشخيصًا دقيقًا وعلاجًا فعالًا لجميع الحالات، مع إيلاء اهتمام خاص لراحة ورفاهية صديقك الأليف",
       members: [
         {
-          name: "د. سارة جونسون",
-          role: "كبير الأطباء البيطريين",
-          initials: "SJ",
+          name: "د. خالد أبو النصر",
+          initials: "KA",
         },
         {
-          name: "د. مايكل تشين",
-          role: "أخصائي جراحة",
-          initials: "MC",
+          name: "د. أنس شوبكي",
+          initials: "AS",
         },
         {
-          name: "د. إميلي رودريغيز",
-          role: "طبيب أسنان الحيوانات",
-          initials: "ER",
+          name: "د. أحمد مناضور",
+          initials: "AM",
         },
         {
-          name: "د. أحمد المنصور",
-          role: "رعاية الطوارئ",
-          initials: "AA",
+          name: "د. أحمد منير",
+          initials: "AM",
+        },
+        {
+          name: "د. شعيب حسنين",
+          initials: "SH",
         },
       ],
     },
@@ -1010,6 +1010,40 @@ export const translations: TranslationBase & any = {
         bookNow: "احجز الآن",
         readMore: "اقرأ المزيد",
         showLess: "عرض أقل",
+      },
+    },
+    blogPage: {
+      hero: {
+        title: "عيادة النخبة",
+        subtitle: "نصائح ومعلومات مفيدة للعناية بحيوانك الأليف",
+      },
+
+      article1: {
+        date: "١٠ يناير ٢٠٢٥ — فريق عيادة النخبة",
+        title: "العناية بطيورك الأليفة في المنزل",
+        description:
+          "تحتاج الطيور إلى رعاية خاصة — أقفاص نظيفة، طعام طازج، وتفاعل يومي. راقب التغيرات في الريش أو الشهية، حيث يمكن أن تشير إلى مرض. تقدم عيادة النخبة رعاية واستشارات صحية متخصصة لجميع أنواع الطيور.",
+      },
+
+      article2: {
+        date: "١٨ يناير ٢٠٢٥ — فريق عيادة النخبة",
+        title: "أهمية التطعيمات للحيوانات الأليفة",
+        description:
+          "تحمي اللقاحات حيوانك الأليف من الأمراض الخطيرة مثل داء الكلب والفيروس الصغير. يضمن الحفاظ على التطعيمات محدثة السلامة على المدى الطويل. احجز تطعيم حيوانك الأليف اليوم في عيادة النخبة واحميهم على مدار العام.",
+      },
+
+      article3: {
+        date: "٢٥ يناير ٢٠٢٥ — فريق عيادة النخبة",
+        title: "لماذا تهم الفحوصات الدورية للقطط",
+        description:
+          "غالبًا ما تخفي القطط علامات المرض. يمكن للفحوصات البيطرية المنتظمة اكتشاف المشاكل مبكرًا، مما يحافظ على صحة وسعادة قطتك. تقدم عيادة النخبة فحوصات لطيفة وخالية من التوتر لضمان رفاهية صديقك القطط.",
+      },
+
+      article4: {
+        date: "١ فبراير ٢٠٢٥ — فريق عيادة النخبة",
+        title: "نصائح للعناية بالكلاب في الصيف",
+        description:
+          "يمكن أن يكون الصيف السعودي الحار صعبًا على الكلاب! حافظ على برودة صديقك الفروي عن طريق الحفاظ على ترطيبه، والمشي خلال الصباح الباكر، وتجنب الأرصفة الساخنة. يساعد الاستمالة المنتظمة على تقليل حرارة الجسم ويبقيهم مرتاحين. قم بزيارة عيادة النخبة لفحص صحي صيفي واستمالة احترافية.",
       },
     },
     footer: {

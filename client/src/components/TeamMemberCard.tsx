@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type TeamMemberCardProps = {
   name: string;
-  role: string;
+  role?: string;
   initials: string;
   testId?: string;
 };
@@ -20,10 +20,9 @@ export function TeamMemberCard({ name, role, initials, testId }: TeamMemberCardP
           {initials}
         </AvatarFallback>
       </Avatar>
-      <h3 className="text-lg font-semibold font-heading text-foreground mb-1">
+      <h3 className="text-lg font-semibold font-heading text-foreground">
         {name}
       </h3>
-      <p className="text-sm text-muted-foreground">{role}</p>
     </Card>
   );
 }
