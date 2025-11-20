@@ -25,7 +25,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet modern clinic reception",
     imageTestId: "img-clinic-reception",
     reverse: false,
-    className: "bg-background",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <AnimatedContent className="space-y-6 text-center lg:text-start">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
@@ -43,7 +43,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet caring for pets",
     imageTestId: "img-vet-with-dog",
     reverse: true,
-    className: "bg-muted/30",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-8">
         <motion.div variants={fadeInUp}>
@@ -71,7 +71,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet professional team",
     imageTestId: "img-vet-team",
     reverse: false,
-    className: "bg-background pb-8",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background pb-8",
     content: (
       <AnimatedContent className="text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
@@ -88,7 +88,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "why-choose-cards",
-    className: "bg-background pt-0 pb-12 sm:pb-16 md:pb-20",
+    className: "px-4 sm:px-6 lg:px-8 bg-background pt-0 pb-12 sm:pb-16 md:pb-20",
     content: (
       <AnimatedContent variant="staggerGrid" className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
@@ -113,7 +113,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet community service",
     imageTestId: "img-community-service",
     reverse: true,
-    className: "bg-muted/30",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="space-y-8 text-center lg:text-start">
         <AnimatedContent>
@@ -147,7 +147,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet partnerships",
     imageTestId: "img-partnership",
     reverse: false,
-    className: "bg-background",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <div className="space-y-12 text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-partners-title">
@@ -179,7 +179,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet surgical expertise",
     imageTestId: "img-surgical-team",
     reverse: true,
-    className: "bg-muted/30",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="space-y-6 text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
@@ -208,7 +208,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet career opportunities",
     imageTestId: "img-career-development",
     reverse: true,
-    className: "bg-muted/30",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <AnimatedContent className="space-y-6 text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
@@ -225,7 +225,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "careers-form",
-    className: "bg-background",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: <CareerForm translations={t.careers} />,
   },
 ];

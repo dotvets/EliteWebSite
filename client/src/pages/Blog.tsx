@@ -28,6 +28,9 @@ export default function Blog() {
         </div>
       </section>
 
+      {/* Spacer between Hero and first section */}
+      <section className="py-8 sm:py-10 md:py-12 bg-background" />
+
       {/* Blog Sections */}
       {sections.map(({ key, className, content }) => (
         <section key={key} className={className}>

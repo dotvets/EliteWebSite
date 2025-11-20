@@ -247,8 +247,13 @@ export const createServicesSections = (
       ),
     },
     {
+      key: "hero-spacer",
+      className: "py-8 sm:py-10 md:py-12 bg-background",
+      content: null,
+    },
+    {
       key: "service-group-1",
-      className: "mt-24 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[0]}

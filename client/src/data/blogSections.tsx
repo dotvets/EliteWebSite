@@ -40,14 +40,13 @@ export const createBlogSections = (t: any) => {
 
   return articles.map((article, index) => ({
     key: `blog-article-${index}`,
-    className: "",
+    className: `py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${index % 2 === 0 ? "bg-muted/30" : "bg-background"}`,
     content: (
       <ContentWithMediaSection
         image={article.image}
         imageAlt={article.title}
         imageTestId={`blog-image-${index}`}
         reverse={article.reverse}
-        className={index % 2 === 0 ? "bg-muted/30" : "bg-background"}
       >
         <AnimatedContent variant="fadeInUp" className="space-y-4">
           {/* التاريخ */}
