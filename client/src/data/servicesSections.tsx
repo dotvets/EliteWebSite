@@ -248,7 +248,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-1",
-      className: "mt-24 bg-background",
+      className: "mt-24 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[0]}
@@ -260,7 +260,7 @@ export const createServicesSections = (
     },
     {
       key: "image-medical",
-      className: "bg-muted/30",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
       content: (
         <ServiceImageBlock
           image={medicalSpecialtiesImg}
@@ -274,7 +274,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-2",
-      className: "bg-background",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[1]}
@@ -286,7 +286,7 @@ export const createServicesSections = (
     },
     {
       key: "image-surgery",
-      className: "bg-muted/30",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
       content: (
         <ServiceImageBlock
           image={surgeryImg}
@@ -300,7 +300,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-3",
-      className: "bg-background",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[2]}
@@ -312,7 +312,7 @@ export const createServicesSections = (
     },
     {
       key: "image-emergency",
-      className: "bg-muted/30",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
       content: (
         <ServiceImageBlock
           image={diagnosticImg}
@@ -326,7 +326,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-4",
-      className: "pb-12 sm:pb-16 md:pb-20 bg-background",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 md:pb-20 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[3]}

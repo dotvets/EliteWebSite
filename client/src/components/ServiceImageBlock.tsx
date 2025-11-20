@@ -21,14 +21,13 @@ export default function ServiceImageBlock({
   className = ""
 }: ServiceImageBlockProps) {
   return (
-    <div className="mb-12">
-      <ContentWithMediaSection
-        image={image}
-        imageAlt={imageAlt}
-        imageTestId={imageTestId}
-        reverse={reverse}
-        className={className}
-      >
+    <ContentWithMediaSection
+      image={image}
+      imageAlt={imageAlt}
+      imageTestId={imageTestId}
+      reverse={reverse}
+      className={className}
+    >
         <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
           <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">
             {title}
@@ -38,6 +37,5 @@ export default function ServiceImageBlock({
           </p>
         </AnimatedContent>
       </ContentWithMediaSection>
-    </div>
   );
 }

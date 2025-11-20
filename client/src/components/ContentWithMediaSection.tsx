@@ -35,7 +35,7 @@ export default function ContentWithMediaSection({
   const hasImage = Boolean(image);
 
   return (
-    <div className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div className={`${className}`}>
       <motion.div
         ref={ref}
         initial={{ opacity: 0 }}
