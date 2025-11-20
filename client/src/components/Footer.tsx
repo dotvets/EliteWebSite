@@ -49,15 +49,15 @@ export default function Footer() {
   ];
 
   return (
-    <div>
+    <div className="relative">
       {/* Gray border - 10px thick */}
       <div className="w-full h-[10px] bg-[#9d9ea0]" data-testid="footer-top-border"></div>
       
       {/* White space above footer */}
-      <div className="w-full h-16 bg-white" data-testid="footer-white-space"></div>
+      <div className="w-full h-16 bg-white/75 backdrop-blur-md" data-testid="footer-white-space"></div>
       
       {/* Footer */}
-      <footer className="bg-gradient-to-b from-primary to-[#6650a0] text-white">
+      <footer className="bg-gradient-to-b from-primary/75 to-[#6650a0]/75 backdrop-blur-md text-white relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Logo Section */}

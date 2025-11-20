@@ -25,7 +25,6 @@ export default function ServiceImageBlock({
         imageAlt={imageAlt}
         imageTestId={imageTestId}
         reverse={reverse}
-        className="bg-muted/30"
       >
         <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
           <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">

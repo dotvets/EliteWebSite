@@ -47,7 +47,7 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
           <nav className="flex flex-col gap-4 px-4 sm:px-6 py-6">
             {items.map((item) => {
               const active = isActive(item.href);
-              const activeClasses = active ? "text-primary underline" : "text-foreground hover:text-primary";
+              const activeClasses = active ? "text-primary underline underline-offset-8 decoration-2" : "text-foreground hover:text-primary";
               
               return item.onClick ? (
                 <span

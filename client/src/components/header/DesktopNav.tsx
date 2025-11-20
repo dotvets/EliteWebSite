@@ -24,7 +24,7 @@ export function DesktopNav({ items }: DesktopNavProps) {
     <nav className="hidden lg:flex items-center gap-8">
       {items.map((item) => {
         const active = isActive(item.href);
-        const activeClasses = active ? "text-primary underline" : "text-foreground hover:text-primary";
+        const activeClasses = active ? "text-primary underline underline-offset-8 decoration-2" : "text-foreground hover:text-primary";
         
         return item.onClick ? (
           <span
