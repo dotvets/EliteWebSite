@@ -650,7 +650,7 @@ export const translations: TranslationBase & any = {
           initials: "AS",
         },
         {
-          name: "د. أحمد مناضور",
+          name: "د. أحمد مندور",
           initials: "AM",
         },
         {
