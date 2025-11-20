@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { LanguageToggle } from "./LanguageToggle";
@@ -18,6 +18,15 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps) {
+  const [location] = useLocation();
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return location === '/';
+    }
+    return location === href;
+  };
+
   return (
     <>
       <button
@@ -36,12 +45,15 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
       {isOpen && (
         <div className="lg:hidden fixed left-0 right-0 top-20 bg-background shadow-lg border-t z-[190] max-h-[calc(100vh-5rem)] overflow-y-auto">
           <nav className="flex flex-col gap-4 px-4 sm:px-6 py-6">
-            {items.map((item) => (
-              item.onClick ? (
+            {items.map((item) => {
+              const active = isActive(item.href);
+              const activeClasses = active ? "text-primary underline" : "text-foreground hover:text-primary";
+              
+              return item.onClick ? (
                 <span
                   key={item.href}
                   data-testid={`link-mobile-${item.href.replace('/', '').replace('#', '') || 'home'}`}
-                  className="text-foreground hover:text-primary transition-colors font-medium py-2 cursor-pointer block"
+                  className={`${activeClasses} transition-colors font-medium py-2 cursor-pointer block`}
                   onClick={() => {
                     item.onClick?.();
                     onClose();
@@ -53,14 +65,14 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
                 <Link key={item.href} href={item.href}>
                   <span
                     data-testid={`link-mobile-${item.href.replace('/', '') || 'home'}`}
-                    className="text-foreground hover:text-primary transition-colors font-medium py-2 cursor-pointer block"
+                    className={`${activeClasses} transition-colors font-medium py-2 cursor-pointer block`}
                     onClick={onClose}
                   >
                     {item.label}
                   </span>
                 </Link>
-              )
-            ))}
+              );
+            })}
             <LanguageToggle 
               variant="outline" 
               className="w-full mt-2" 

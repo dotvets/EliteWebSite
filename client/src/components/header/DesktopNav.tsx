@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 interface NavItem {
   label: string;
@@ -11,14 +11,26 @@ interface DesktopNavProps {
 }
 
 export function DesktopNav({ items }: DesktopNavProps) {
+  const [location] = useLocation();
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return location === '/';
+    }
+    return location === href;
+  };
+
   return (
     <nav className="hidden lg:flex items-center gap-8">
-      {items.map((item) => (
-        item.onClick ? (
+      {items.map((item) => {
+        const active = isActive(item.href);
+        const activeClasses = active ? "text-primary underline" : "text-foreground hover:text-primary";
+        
+        return item.onClick ? (
           <span
             key={item.href}
             data-testid={`link-nav-${item.href.replace('/', '').replace('#', '') || 'home'}`}
-            className="text-foreground hover:text-primary transition-colors font-medium cursor-pointer"
+            className={`${activeClasses} transition-colors font-medium cursor-pointer`}
             onClick={item.onClick}
           >
             {item.label}
@@ -27,13 +39,13 @@ export function DesktopNav({ items }: DesktopNavProps) {
           <Link key={item.href} href={item.href}>
             <span
               data-testid={`link-nav-${item.href.replace('/', '') || 'home'}`}
-              className="text-foreground hover:text-primary transition-colors font-medium cursor-pointer"
+              className={`${activeClasses} transition-colors font-medium cursor-pointer`}
             >
               {item.label}
             </span>
           </Link>
-        )
-      ))}
+        );
+      })}
     </nav>
   );
 }
