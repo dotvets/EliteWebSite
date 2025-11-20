@@ -17,7 +17,7 @@ export default function ServiceGroup({
   t
 }: ServiceGroupProps) {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 mb-12">
+    <section className="px-4 sm:px-6 lg:px-8 mb-12 bg-background">
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <AnimatedContent
           variant="staggerGrid"

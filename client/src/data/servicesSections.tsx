@@ -210,10 +210,8 @@ export const createServicesSections = (
   return [
     {
       key: "hero",
-      className:
-        "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
       content: (
-        <>
+        <section className="relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
           <div
             className="absolute inset-0 z-0"
             style={{
@@ -244,24 +242,24 @@ export const createServicesSections = (
               </p>
             </AnimatedContent>
           </div>
-        </>
+        </section>
       ),
     },
     {
       key: "service-group-1",
-      className: "mt-16 bg-background",
       content: (
-        <ServiceGroup
-          services={serviceGroups[0]}
-          expandedCards={expandedCards}
-          toggleCard={toggleCard}
-          t={t}
-        />
+        <div className="mt-24">
+          <ServiceGroup
+            services={serviceGroups[0]}
+            expandedCards={expandedCards}
+            toggleCard={toggleCard}
+            t={t}
+          />
+        </div>
       ),
     },
     {
       key: "image-medical",
-      className: "",
       content: (
         <ServiceImageBlock
           image={medicalSpecialtiesImg}
@@ -276,7 +274,6 @@ export const createServicesSections = (
     },
     {
       key: "service-group-2",
-      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[1]}
@@ -288,7 +285,6 @@ export const createServicesSections = (
     },
     {
       key: "image-surgery",
-      className: "",
       content: (
         <ServiceImageBlock
           image={surgeryImg}
@@ -303,7 +299,6 @@ export const createServicesSections = (
     },
     {
       key: "service-group-3",
-      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[2]}
@@ -315,7 +310,6 @@ export const createServicesSections = (
     },
     {
       key: "image-emergency",
-      className: "",
       content: (
         <ServiceImageBlock
           image={diagnosticImg}
@@ -330,14 +324,15 @@ export const createServicesSections = (
     },
     {
       key: "service-group-4",
-      className: "pb-12 sm:pb-16 md:pb-20 bg-background",
       content: (
-        <ServiceGroup
-          services={serviceGroups[3]}
-          expandedCards={expandedCards}
-          toggleCard={toggleCard}
-          t={t}
-        />
+        <div className="pb-12 sm:pb-16 md:pb-20">
+          <ServiceGroup
+            services={serviceGroups[3]}
+            expandedCards={expandedCards}
+            toggleCard={toggleCard}
+            t={t}
+          />
+        </div>
       ),
     },
   ];
