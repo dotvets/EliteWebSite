@@ -8,6 +8,7 @@ interface ServiceImageBlockProps {
   title: string;
   description: string;
   reverse?: boolean;
+  className?: string;
 }
 
 export default function ServiceImageBlock({
@@ -16,7 +17,8 @@ export default function ServiceImageBlock({
   imageTestId,
   title,
   description,
-  reverse = false
+  reverse = false,
+  className = ""
 }: ServiceImageBlockProps) {
   return (
     <div className="mb-12">
@@ -25,6 +27,7 @@ export default function ServiceImageBlock({
         imageAlt={imageAlt}
         imageTestId={imageTestId}
         reverse={reverse}
+        className={className}
       >
         <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
           <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">

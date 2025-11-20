@@ -261,7 +261,7 @@ export const createServicesSections = (
     },
     {
       key: "image-medical",
-      className: "bg-muted/30",
+      className: "",
       content: (
         <ServiceImageBlock
           image={medicalSpecialtiesImg}
@@ -270,6 +270,7 @@ export const createServicesSections = (
           title={t.imageSections.medical.title}
           description={t.imageSections.medical.description}
           reverse={false}
+          className="bg-muted/30"
         />
       ),
     },
@@ -287,7 +288,7 @@ export const createServicesSections = (
     },
     {
       key: "image-surgery",
-      className: "bg-muted/30",
+      className: "",
       content: (
         <ServiceImageBlock
           image={surgeryImg}
@@ -296,6 +297,7 @@ export const createServicesSections = (
           title={t.imageSections.surgery.title}
           description={t.imageSections.surgery.description}
           reverse={true}
+          className="bg-muted/30"
         />
       ),
     },
@@ -313,7 +315,7 @@ export const createServicesSections = (
     },
     {
       key: "image-emergency",
-      className: "bg-muted/30",
+      className: "",
       content: (
         <ServiceImageBlock
           image={diagnosticImg}
@@ -322,6 +324,7 @@ export const createServicesSections = (
           title={t.imageSections.emergency.title}
           description={t.imageSections.emergency.description}
           reverse={false}
+          className="bg-muted/30"
         />
       ),
     },
