@@ -13,10 +13,10 @@ export default function Services() {
 
   return (
     <PageLayout dataTestId="page-services">
-      {sections.map(({ key, content }) => (
-        <div key={key}>
+      {sections.map(({ key, className, content }) => (
+        <section key={key} className={className}>
           {content}
-        </div>
+        </section>
       ))}
     </PageLayout>
   );

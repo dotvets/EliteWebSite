@@ -35,7 +35,7 @@ export default function ContentWithMediaSection({
   const hasImage = Boolean(image);
 
   return (
-    <section className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${className}`}>
       <motion.div
         ref={ref}
         initial={{ opacity: 0 }}
@@ -78,6 +78,6 @@ export default function ContentWithMediaSection({
           </motion.div>
         </div>
       </motion.div>
-    </section>
+    </div>
   );
 }

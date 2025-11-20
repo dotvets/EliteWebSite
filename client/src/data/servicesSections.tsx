@@ -210,8 +210,9 @@ export const createServicesSections = (
   return [
     {
       key: "hero",
+      className: "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
       content: (
-        <section className="relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <>
           <div
             className="absolute inset-0 z-0"
             style={{
@@ -242,24 +243,24 @@ export const createServicesSections = (
               </p>
             </AnimatedContent>
           </div>
-        </section>
+        </>
       ),
     },
     {
       key: "service-group-1",
+      className: "mt-24 bg-background",
       content: (
-        <div className="mt-24">
-          <ServiceGroup
-            services={serviceGroups[0]}
-            expandedCards={expandedCards}
-            toggleCard={toggleCard}
-            t={t}
-          />
-        </div>
+        <ServiceGroup
+          services={serviceGroups[0]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
       ),
     },
     {
       key: "image-medical",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={medicalSpecialtiesImg}
@@ -268,12 +269,12 @@ export const createServicesSections = (
           title={t.imageSections.medical.title}
           description={t.imageSections.medical.description}
           reverse={false}
-          className="bg-muted/30"
         />
       ),
     },
     {
       key: "service-group-2",
+      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[1]}
@@ -285,6 +286,7 @@ export const createServicesSections = (
     },
     {
       key: "image-surgery",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={surgeryImg}
@@ -293,12 +295,12 @@ export const createServicesSections = (
           title={t.imageSections.surgery.title}
           description={t.imageSections.surgery.description}
           reverse={true}
-          className="bg-muted/30"
         />
       ),
     },
     {
       key: "service-group-3",
+      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[2]}
@@ -310,6 +312,7 @@ export const createServicesSections = (
     },
     {
       key: "image-emergency",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={diagnosticImg}
@@ -318,21 +321,19 @@ export const createServicesSections = (
           title={t.imageSections.emergency.title}
           description={t.imageSections.emergency.description}
           reverse={false}
-          className="bg-muted/30"
         />
       ),
     },
     {
       key: "service-group-4",
+      className: "pb-12 sm:pb-16 md:pb-20 bg-background",
       content: (
-        <div className="pb-12 sm:pb-16 md:pb-20">
-          <ServiceGroup
-            services={serviceGroups[3]}
-            expandedCards={expandedCards}
-            toggleCard={toggleCard}
-            t={t}
-          />
-        </div>
+        <ServiceGroup
+          services={serviceGroups[3]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
       ),
     },
   ];
