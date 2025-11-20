@@ -161,9 +161,33 @@ export default function Footer() {
 
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-            <p className="text-center text-white/70 text-sm font-body">
+            <p className="text-center text-white/70 text-sm font-body mb-3">
               © {new Date().getFullYear()} {t.copyright}
             </p>
+            <div className="text-center">
+              <p className="text-white/60 text-xs font-body mb-1" data-testid="text-powered-by">
+                {t.poweredBy}
+              </p>
+              <div className="flex items-center justify-center gap-2 text-xs">
+                <a 
+                  href="tel:+966548336693"
+                  className="text-white/60 hover:text-white transition-colors"
+                  data-testid="link-dotvets-phone"
+                >
+                  {t.phone}
+                </a>
+                <span className="text-white/40">|</span>
+                <a 
+                  href="https://wa.me/966548336693"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 hover:text-white transition-colors inline-flex items-center gap-1"
+                  data-testid="link-dotvets-whatsapp"
+                >
+                  {t.whatsapp}
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

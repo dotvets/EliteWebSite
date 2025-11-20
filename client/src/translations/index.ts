@@ -540,6 +540,9 @@ export const translations: TranslationBase & any = {
       emergencyServices: "24/7 Emergency Services",
       stayInTouch: "Stay In Touch",
       copyright: "Elite Vet. All rights reserved.",
+      poweredBy: "Powered By DotVets Software",
+      phone: "+966 548336693",
+      whatsapp: "WhatsApp",
     },
   },
   ar: {
@@ -1057,6 +1060,9 @@ export const translations: TranslationBase & any = {
       emergencyServices: "خدمات طوارئ ٢٤ ساعة",
       stayInTouch: "تابعنا",
       copyright: "النخبة البيطرية. جميع الحقوق محفوظة.",
+      poweredBy: "مدعوم من DotVets Software",
+      phone: "548336693 966+",
+      whatsapp: "واتساب",
     },
   },
 };
