@@ -47,7 +47,7 @@ export const createBlogSections = (t: any) => {
         imageAlt={article.title}
         imageTestId={`blog-image-${index}`}
         reverse={article.reverse}
-        className="bg-muted/30"
+        className={index % 2 === 0 ? "bg-muted/30" : "bg-background"}
       >
         <AnimatedContent variant="fadeInUp" className="space-y-4">
           {/* التاريخ */}

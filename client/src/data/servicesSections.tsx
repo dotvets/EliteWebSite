@@ -249,7 +249,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-1",
-      className: "mt-16",
+      className: "mt-16 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[0]}
@@ -261,7 +261,7 @@ export const createServicesSections = (
     },
     {
       key: "image-medical",
-      className: "",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={medicalSpecialtiesImg}
@@ -275,7 +275,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-2",
-      className: "",
+      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[1]}
@@ -287,7 +287,7 @@ export const createServicesSections = (
     },
     {
       key: "image-surgery",
-      className: "",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={surgeryImg}
@@ -301,7 +301,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-3",
-      className: "",
+      className: "bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[2]}
@@ -313,7 +313,7 @@ export const createServicesSections = (
     },
     {
       key: "image-emergency",
-      className: "",
+      className: "bg-muted/30",
       content: (
         <ServiceImageBlock
           image={diagnosticImg}
@@ -327,7 +327,7 @@ export const createServicesSections = (
     },
     {
       key: "service-group-4",
-      className: "pb-12 sm:pb-16 md:pb-20",
+      className: "pb-12 sm:pb-16 md:pb-20 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[3]}

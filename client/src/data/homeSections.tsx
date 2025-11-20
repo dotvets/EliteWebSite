@@ -21,7 +21,7 @@ interface Translation {
 export const createHomeSections = (t: Translation) => [
   {
     key: "intro",
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -113,7 +113,7 @@ export const createHomeSections = (t: Translation) => [
   },
   {
     key: "why-choose",
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <div className="text-center mb-16">
@@ -179,7 +179,7 @@ export const createHomeSections = (t: Translation) => [
   },
   {
     key: "partners",
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />

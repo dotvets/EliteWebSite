@@ -13,7 +13,7 @@ export default function Blog() {
   return (
     <PageLayout dataTestId="page-blog">
       {/* Hero Section */}
-      <section className="relative h-[260px] sm:h-[300px] md:h-[350px] w-full overflow-hidden mb-12 bg-gradient-to-br from-primary/10 to-primary/5">
+      <section className="relative h-[260px] sm:h-[300px] md:h-[350px] w-full overflow-hidden mb-12 bg-gradient-to-br from-primary/10 to-primary/5 bg-background">
         <div className="absolute inset-0 bg-black/10" />
 
         <div className="relative z-20 h-full flex flex-col justify-center items-center text-center px-4">
