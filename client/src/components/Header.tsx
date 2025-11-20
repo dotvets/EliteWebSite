@@ -15,13 +15,20 @@ export default function Header() {
   const { language } = useLanguage();
   const t = translations[language].header;
 
+  const scrollToFooter = () => {
+    const footer = document.querySelector('footer');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const navItems = [
     { label: t.nav.home, href: "/" },
     { label: t.nav.about, href: "/about" },
     { label: t.nav.services, href: "/services" },
     { label: t.nav.blog, href: "/blog" },
     { label: t.nav.bookNow, href: "/book-now" },
-    { label: t.nav.contactUs, href: "/contact-us" },
+    { label: t.nav.contactUs, href: "#footer", onClick: scrollToFooter },
     { label: t.nav.eliteOnyx, href: "/elite-onyx" },
   ];
 

@@ -7,6 +7,7 @@ import { AnimatedPhoneNumber } from "./AnimatedPhoneNumber";
 interface NavItem {
   label: string;
   href: string;
+  onClick?: () => void;
 }
 
 interface MobileMenuProps {
@@ -33,18 +34,32 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
       </button>
 
       {isOpen && (
-        <div className="lg:hidden py-6 border-t">
-          <nav className="flex flex-col gap-4">
+        <div className="lg:hidden fixed left-0 right-0 top-20 bg-background shadow-lg border-t z-[190] max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <nav className="flex flex-col gap-4 px-4 sm:px-6 py-6">
             {items.map((item) => (
-              <Link key={item.href} href={item.href}>
+              item.onClick ? (
                 <span
-                  data-testid={`link-mobile-${item.href.replace('/', '') || 'home'}`}
+                  key={item.href}
+                  data-testid={`link-mobile-${item.href.replace('/', '').replace('#', '') || 'home'}`}
                   className="text-foreground hover:text-primary transition-colors font-medium py-2 cursor-pointer block"
-                  onClick={onClose}
+                  onClick={() => {
+                    item.onClick?.();
+                    onClose();
+                  }}
                 >
                   {item.label}
                 </span>
-              </Link>
+              ) : (
+                <Link key={item.href} href={item.href}>
+                  <span
+                    data-testid={`link-mobile-${item.href.replace('/', '') || 'home'}`}
+                    className="text-foreground hover:text-primary transition-colors font-medium py-2 cursor-pointer block"
+                    onClick={onClose}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              )
             ))}
             <LanguageToggle 
               variant="outline" 
