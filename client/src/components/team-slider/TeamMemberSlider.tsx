@@ -2,7 +2,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTeamSlider } from "./useTeamSlider";
 import { TeamSlideItem } from "./TeamSlideItem";
 import { SliderNavigation } from "../hero-slider/SliderNavigation";
-import { SliderIndicators } from "../hero-slider/SliderIndicators";
 import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
 import drAnasImage from "@assets/dr-anas-shobaki.png";
 import drAhmedMandourImage from "@assets/dr-ahmed-mandour.png";
@@ -56,12 +55,6 @@ export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
       </div>
 
       <SliderNavigation onPrev={scrollPrev} onNext={scrollNext} />
-      
-      <SliderIndicators 
-        count={membersWithImages.length} 
-        selectedIndex={selectedIndex} 
-        onSelect={scrollTo} 
-      />
     </div>
   );
 }
