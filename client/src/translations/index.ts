@@ -124,28 +124,55 @@ export const translations: TranslationBase & any = {
         {
           name: "Dr. Khaled Abu Elnasser",
           initials: "KA",
+          image: "/attached_assets/Dr Khaled Abu Elnasser_1764074410649.png",
         },
         {
           name: "Dr. Anas Shobaki",
           initials: "AS",
+          image: "/attached_assets/Dr. Anas Shobaki_1764074410651.png",
         },
         {
           name: "Dr. Ahmed Mnadour",
           initials: "AM",
+          image: "/attached_assets/Dr Ahmed Mandour_1764074410643.png",
         },
         {
           name: "Dr. Ahmed Moneer",
           initials: "AM",
+          image: "/attached_assets/Dr Ahmed Mounir_1764074410646.png",
+        },
+        {
+          name: "Dr. Essam Elmenshawy",
+          initials: "EE",
+          image: "/attached_assets/Dr Essam Elmenshawy_1764074410648.png",
         },
         {
           name: "Dr. Shoaib Husnain",
           initials: "SH",
+          image: "/attached_assets/Dr. Shoaib Husnain_1764074410655.png",
         },
       ],
     },
     partners: {
       title: "Our Partners",
-      items: ["Vest Van", "Elite Falcons"],
+      items: [
+        {
+          name: "Vets Van",
+          image: "/attached_assets/Partners_vetsvan_1764074463590.png",
+        },
+        {
+          name: "Wadi Qortuba",
+          image: "/attached_assets/Partners_wadi qourtobah_1764074463601.jpg",
+        },
+        {
+          name: "Walaa Plus",
+          image: "/attached_assets/Partners_walaaa plus_1764074463607.png",
+        },
+        {
+          name: "Wazen",
+          image: "/attached_assets/Partners_wazen_1764074463608.jpg",
+        },
+      ],
     },
     about: {
       hero: {
@@ -647,28 +674,55 @@ export const translations: TranslationBase & any = {
         {
           name: "د. خالد أبو النصر",
           initials: "KA",
+          image: "/attached_assets/Dr Khaled Abu Elnasser_1764074410649.png",
         },
         {
           name: "د. أنس شوبكي",
           initials: "AS",
+          image: "/attached_assets/Dr. Anas Shobaki_1764074410651.png",
         },
         {
           name: "د. أحمد مندور",
           initials: "AM",
+          image: "/attached_assets/Dr Ahmed Mandour_1764074410643.png",
         },
         {
           name: "د. أحمد منير",
           initials: "AM",
+          image: "/attached_assets/Dr Ahmed Mounir_1764074410646.png",
+        },
+        {
+          name: "د. عصام المنشاوي",
+          initials: "EE",
+          image: "/attached_assets/Dr Essam Elmenshawy_1764074410648.png",
         },
         {
           name: "د. شعيب حسنين",
           initials: "SH",
+          image: "/attached_assets/Dr. Shoaib Husnain_1764074410655.png",
         },
       ],
     },
     partners: {
       title: "شركاؤنا",
-      items: ["Vest Van", "Elite Falcons"],
+      items: [
+        {
+          name: "Vets Van",
+          image: "/attached_assets/Partners_vetsvan_1764074463590.png",
+        },
+        {
+          name: "Wadi Qortuba",
+          image: "/attached_assets/Partners_wadi qourtobah_1764074463601.jpg",
+        },
+        {
+          name: "Walaa Plus",
+          image: "/attached_assets/Partners_walaaa plus_1764074463607.png",
+        },
+        {
+          name: "Wazen",
+          image: "/attached_assets/Partners_wazen_1764074463608.jpg",
+        },
+      ],
     },
     about: {
       hero: {
