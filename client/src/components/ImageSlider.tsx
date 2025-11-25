@@ -40,25 +40,27 @@ export function ImageSlider({ images, autoplayDelay = 4000, className = "" }: Im
 
   return (
     <div className={`relative ${className}`}>
-      {/* Image Container with Fixed Aspect Ratio */}
-      <div className="relative w-full overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="w-full"
-          >
-            <img
-              src={images[selectedIndex]}
-              alt={`Slide ${selectedIndex + 1}`}
-              className="w-full h-auto rounded-xl shadow-lg object-cover"
-              loading="lazy"
-            />
-          </motion.div>
-        </AnimatePresence>
+      {/* Image Container with Enhanced Styling */}
+      <div className="relative w-full bg-card rounded-2xl overflow-hidden shadow-2xl border border-border/50 p-2 sm:p-3">
+        <div className="relative w-full overflow-hidden rounded-xl bg-muted/20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedIndex}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="w-full"
+            >
+              <img
+                src={images[selectedIndex]}
+                alt={`Slide ${selectedIndex + 1}`}
+                className="w-full h-auto object-cover aspect-[4/3] sm:aspect-[16/10]"
+                loading="lazy"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Navigation Dots */}
