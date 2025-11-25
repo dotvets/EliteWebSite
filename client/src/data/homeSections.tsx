@@ -7,7 +7,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { CountingNumber } from "@/components/CountingNumber";
 import { BenefitCard } from "@/components/BenefitCard";
 import { TeamMemberSlider } from "@/components/team-slider/TeamMemberSlider";
-import { PartnerCard } from "@/components/PartnerCard";
+import { PartnerCarousel } from "@/components/partner-carousel/PartnerCarousel";
 import { ContactForm } from "@/components/ContactForm";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
 import vetsvanLogo from "@assets/Partners_vetsvan_1764085956349.png";
@@ -186,15 +186,8 @@ export const createHomeSections = (t: Translation) => [
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />
 
-        <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 md:gap-16 mt-12">
-          {partnerLogos.map((partner, index) => (
-            <PartnerCard 
-              key={index} 
-              name={partner.name} 
-              image={partner.image} 
-              width={partner.width}
-            />
-          ))}
+        <div className="mt-12">
+          <PartnerCarousel partners={partnerLogos} />
         </div>
       </div>
     ),
