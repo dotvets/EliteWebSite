@@ -56,6 +56,9 @@ export function ImageSlider({ images, autoplayDelay = 4000, className = "" }: Im
                 src={images[selectedIndex]}
                 alt={`Slide ${selectedIndex + 1}`}
                 className="w-full h-auto object-cover aspect-[4/3] sm:aspect-[16/10]"
+                style={{
+                  filter: 'brightness(1.05) contrast(1.1) saturate(1.15)',
+                }}
                 loading="lazy"
               />
             </motion.div>
