@@ -169,6 +169,7 @@ export const createHomeSections = (t: Translation) => [
                 name={member.name}
                 role={member.role}
                 initials={member.initials}
+                image={member.image}
                 testId={`card-team-${index}`}
               />
             </motion.div>
