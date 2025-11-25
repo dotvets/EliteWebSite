@@ -124,7 +124,6 @@ export const translations: TranslationBase & any = {
         {
           name: "Dr. Khaled Abu Elnasser",
           initials: "KA",
-          image: "/attached_assets/Dr Khaled Abu Elnasser#1_1764076492020.png",
         },
         {
           name: "Dr. Anas Shobaki",

@@ -10,6 +10,7 @@ import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { PartnerCard } from "@/components/PartnerCard";
 import { ContactForm } from "@/components/ContactForm";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
+import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
 
 const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
 const benefitIcons = [Clock, StethoscopeIcon, Wrench, Heart];
@@ -169,7 +170,7 @@ export const createHomeSections = (t: Translation) => [
                 name={member.name}
                 role={member.role}
                 initials={member.initials}
-                image={member.image}
+                image={index === 0 ? drKhaledImage : undefined}
                 testId={`card-team-${index}`}
               />
             </motion.div>
