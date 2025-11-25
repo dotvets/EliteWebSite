@@ -179,12 +179,11 @@ export const createHomeSections = (t: Translation) => [
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />
 
-        <AnimatedContent variant="staggerList" className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8">
-          {t.partners.items.map((partner: string, index: number) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <PartnerCard name={partner} />
-            </motion.div>
-          ))}
+        <AnimatedContent variant="fadeInUp" className="max-w-3xl mx-auto">
+          <ImageSlider 
+            images={t.partners.items.map((partner: any) => partner.image)}
+            autoplayDelay={4000}
+          />
         </AnimatedContent>
       </div>
     ),
