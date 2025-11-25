@@ -134,7 +134,7 @@ export const translations: TranslationBase & any = {
         {
           name: "Dr. Ahmed Mnadour",
           initials: "AM",
-          image: "/attached_assets/Dr Ahmed Mandour#1_1764075778790.png",
+          image: "/attached_assets/Dr_Ahmed_Mandour_1_1764075778790.png",
         },
         {
           name: "Dr. Ahmed Moneer",
@@ -684,7 +684,7 @@ export const translations: TranslationBase & any = {
         {
           name: "د. أحمد مندور",
           initials: "AM",
-          image: "/attached_assets/Dr Ahmed Mandour#1_1764075778790.png",
+          image: "/attached_assets/Dr_Ahmed_Mandour_1_1764075778790.png",
         },
         {
           name: "د. أحمد منير",
