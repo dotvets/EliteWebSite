@@ -4,6 +4,11 @@ import { TeamSlideItem } from "./TeamSlideItem";
 import { SliderNavigation } from "../hero-slider/SliderNavigation";
 import { SliderIndicators } from "../hero-slider/SliderIndicators";
 import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
+import drAnasImage from "@assets/dr-anas-shobaki.png";
+import drAhmedMandourImage from "@assets/dr-ahmed-mandour.png";
+import drAhmedMounirImage from "@assets/dr-ahmed-mounir.png";
+import drShoaibImage from "@assets/dr-shoaib-husnain.png";
+import drEssamImage from "@assets/dr-essam-elmenshawy.png";
 
 interface TeamMember {
   name: string;
@@ -15,6 +20,15 @@ interface TeamMemberSliderProps {
   members: TeamMember[];
 }
 
+const doctorImages = [
+  drKhaledImage,
+  drAnasImage,
+  drAhmedMandourImage,
+  drAhmedMounirImage,
+  drShoaibImage,
+  drEssamImage
+];
+
 export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
   const { language } = useLanguage();
   
@@ -22,7 +36,7 @@ export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
 
   const membersWithImages = members.map((member, index) => ({
     ...member,
-    image: index === 0 ? drKhaledImage : undefined
+    image: doctorImages[index]
   }));
 
   return (

@@ -141,6 +141,10 @@ export const translations: TranslationBase & any = {
           name: "Dr. Shoaib Husnain",
           initials: "SH",
         },
+        {
+          name: "Dr. Essam Elmenshawy",
+          initials: "EE",
+        },
       ],
     },
     partners: {
@@ -663,6 +667,10 @@ export const translations: TranslationBase & any = {
         {
           name: "د. شعيب حسنين",
           initials: "SH",
+        },
+        {
+          name: "د. عصام المنشاوي",
+          initials: "EE",
         },
       ],
     },
