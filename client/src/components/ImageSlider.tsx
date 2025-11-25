@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageSliderProps {
@@ -9,64 +7,58 @@ interface ImageSliderProps {
   className?: string;
 }
 
-export function ImageSlider({ images, autoplayDelay = 3000, className = "" }: ImageSliderProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
-      loop: true,
-      duration: 20,
-    },
-    [Autoplay({ delay: autoplayDelay, stopOnInteraction: false })]
-  );
-
+export function ImageSlider({ images, autoplayDelay = 4000, className = "" }: ImageSliderProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
+  // Auto-advance the slider
   useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi, onSelect]);
+    if (isPaused) return;
+    
+    const timer = setInterval(() => {
+      setSelectedIndex((current) => (current + 1) % images.length);
+    }, autoplayDelay);
 
-  const scrollTo = useCallback(
-    (index: number) => emblaApi && emblaApi.scrollTo(index),
-    [emblaApi]
-  );
+    return () => clearInterval(timer);
+  }, [images.length, autoplayDelay, isPaused]);
+
+  // Resume autoplay after manual interaction
+  useEffect(() => {
+    if (!isPaused) return;
+    
+    const resumeTimer = setTimeout(() => {
+      setIsPaused(false);
+    }, autoplayDelay * 2);
+
+    return () => clearTimeout(resumeTimer);
+  }, [isPaused, autoplayDelay]);
+
+  const scrollTo = useCallback((index: number) => {
+    setSelectedIndex(index);
+    setIsPaused(true);
+  }, []);
 
   return (
     <div className={`relative ${className}`}>
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className="flex-[0_0_100%] min-w-0"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full"
-                >
-                  <img
-                    src={image}
-                    alt={`Slide ${index + 1}`}
-                    className="w-full h-auto rounded-xl shadow-lg object-cover"
-                    loading="lazy"
-                  />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          ))}
-        </div>
+      {/* Image Container with Fixed Aspect Ratio */}
+      <div className="relative w-full overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="w-full"
+          >
+            <img
+              src={images[selectedIndex]}
+              alt={`Slide ${selectedIndex + 1}`}
+              className="w-full h-auto rounded-xl shadow-lg object-cover"
+              loading="lazy"
+            />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Navigation Dots */}

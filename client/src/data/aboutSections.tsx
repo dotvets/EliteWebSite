@@ -154,16 +154,19 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
           {partners.title}
         </h2>
         <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-12">
-          {partners.items.map((partner: string, index: number) => (
+          {partners.items.map((partner: any, index: number) => (
             <motion.div key={index} variants={fadeInUp}>
               <Card className="hover-elevate" data-testid={`card-partner-${index}`}>
                 <CardContent className="pt-12 pb-12">
                   <div className="flex flex-col items-center gap-4">
-                    <Handshake className="w-16 h-16 text-primary" />
+                    <img
+                      src={partner.image}
+                      alt={partner.name}
+                      className="w-full max-w-[200px] h-auto object-contain"
+                    />
                     <h3 className="text-2xl font-bold font-heading text-center" data-testid={`text-partner-name-${index}`}>
-                      {partner}
+                      {partner.name}
                     </h3>
-                    <p className="text-sm text-foreground/60 text-center italic">Logo coming soon</p>
                   </div>
                 </CardContent>
               </Card>
