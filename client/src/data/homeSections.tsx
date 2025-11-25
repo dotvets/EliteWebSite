@@ -6,11 +6,10 @@ import { fadeInUp } from "@/animations";
 import { SectionHeader } from "@/components/SectionHeader";
 import { CountingNumber } from "@/components/CountingNumber";
 import { BenefitCard } from "@/components/BenefitCard";
-import { TeamMemberCard } from "@/components/TeamMemberCard";
+import { TeamMemberSlider } from "@/components/team-slider/TeamMemberSlider";
 import { PartnerCard } from "@/components/PartnerCard";
 import { ContactForm } from "@/components/ContactForm";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
-import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
 
 const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
 const benefitIcons = [Clock, StethoscopeIcon, Wrench, Heart];
@@ -163,18 +162,8 @@ export const createHomeSections = (t: Translation) => [
           titleTestId="text-team-title" 
         />
 
-        <AnimatedContent variant="staggerGrid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {t.team.members.map((member: any, index: number) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <TeamMemberCard
-                name={member.name}
-                role={member.role}
-                initials={member.initials}
-                image={index === 0 ? drKhaledImage : undefined}
-                testId={`card-team-${index}`}
-              />
-            </motion.div>
-          ))}
+        <AnimatedContent variant="fadeInUp" className="mt-8">
+          <TeamMemberSlider members={t.team.members} />
         </AnimatedContent>
       </div>
     ),
