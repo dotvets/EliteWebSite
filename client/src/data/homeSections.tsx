@@ -9,7 +9,7 @@ import { BenefitCard } from "@/components/BenefitCard";
 import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { PartnerCard } from "@/components/PartnerCard";
 import { ContactForm } from "@/components/ContactForm";
-import { ImageSlider } from "@/components/ImageSlider";
+import { DoctorShowcase } from "@/components/DoctorShowcase";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
 
 const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
@@ -163,10 +163,10 @@ export const createHomeSections = (t: Translation) => [
           titleTestId="text-team-title" 
         />
 
-        <AnimatedContent variant="fadeInUp" className="max-w-3xl mx-auto">
-          <ImageSlider 
-            images={t.team.members.map((member: any) => member.image)}
-            autoplayDelay={4000}
+        <AnimatedContent variant="fadeInUp">
+          <DoctorShowcase 
+            doctors={t.team.members}
+            autoplayDelay={5000}
           />
         </AnimatedContent>
       </div>
@@ -179,11 +179,21 @@ export const createHomeSections = (t: Translation) => [
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />
 
-        <AnimatedContent variant="fadeInUp" className="max-w-3xl mx-auto">
-          <ImageSlider 
-            images={t.partners.items.map((partner: any) => partner.image)}
-            autoplayDelay={4000}
-          />
+        <AnimatedContent variant="staggerGrid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          {t.partners.items.map((partner: any, index: number) => (
+            <motion.div key={index} variants={fadeInUp}>
+              <Card className="hover-elevate transition-all duration-300 h-full" data-testid={`card-partner-${index}`}>
+                <div className="p-6 flex items-center justify-center min-h-[120px]">
+                  <img
+                    src={partner.image}
+                    alt={partner.name}
+                    className="w-full h-auto object-contain max-h-20"
+                    loading="lazy"
+                  />
+                </div>
+              </Card>
+            </motion.div>
+          ))}
         </AnimatedContent>
       </div>
     ),
