@@ -15,9 +15,9 @@ export function TeamMemberCard({ name, role, initials, image, testId }: TeamMemb
       className="p-6 text-center hover-elevate h-full"
       data-testid={testId}
     >
-      <Avatar className="w-24 h-24 mx-auto mb-4">
+      <Avatar className="w-40 h-40 mx-auto mb-4">
         <AvatarImage src={image} alt={name} />
-        <AvatarFallback className="bg-primary/10 text-primary text-xl">
+        <AvatarFallback className="bg-primary/10 text-primary text-3xl">
           {initials}
         </AvatarFallback>
       </Avatar>
