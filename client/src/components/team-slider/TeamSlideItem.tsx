@@ -27,7 +27,7 @@ export function TeamSlideItem({ name, image, initials, index }: TeamSlideItemPro
           </Avatar>
         )}
         <h3 
-          className="text-2xl sm:text-3xl font-bold font-heading text-foreground mt-6"
+          className="text-2xl sm:text-3xl font-bold font-heading text-foreground mt-12 sm:mt-16"
           data-testid={`text-team-name-${index}`}
         >
           {name}
