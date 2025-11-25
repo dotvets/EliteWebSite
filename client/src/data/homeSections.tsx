@@ -10,9 +10,20 @@ import { TeamMemberSlider } from "@/components/team-slider/TeamMemberSlider";
 import { PartnerCard } from "@/components/PartnerCard";
 import { ContactForm } from "@/components/ContactForm";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
+import vetsvanLogo from "@assets/Partners_vetsvan_1764085956349.png";
+import wadiQortubaLogo from "@assets/Partners_wadi qourtobah_1764085956355.jpg";
+import walaaaPlusLogo from "@assets/Partners_walaaa plus_1764085956356.png";
+import wazenLogo from "@assets/Partners_wazen_1764085956358.jpg";
 
 const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
 const benefitIcons = [Clock, StethoscopeIcon, Wrench, Heart];
+
+const partnerLogos = [
+  { name: "VetsVan", image: vetsvanLogo, width: "w-56" },
+  { name: "Wadi Qortuba", image: wadiQortubaLogo, width: "w-48" },
+  { name: "Walaaa Plus", image: walaaaPlusLogo, width: "w-56" },
+  { name: "Wazen", image: wazenLogo, width: "w-44" },
+];
 
 interface Translation {
   [key: string]: any;
@@ -175,13 +186,16 @@ export const createHomeSections = (t: Translation) => [
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />
 
-        <AnimatedContent variant="staggerList" className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8">
-          {t.partners.items.map((partner: string, index: number) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <PartnerCard name={partner} />
-            </motion.div>
+        <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 md:gap-16 mt-12">
+          {partnerLogos.map((partner, index) => (
+            <PartnerCard 
+              key={index} 
+              name={partner.name} 
+              image={partner.image} 
+              width={partner.width}
+            />
           ))}
-        </AnimatedContent>
+        </div>
       </div>
     ),
   },

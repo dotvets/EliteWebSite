@@ -1,16 +1,19 @@
-import { Card } from "@/components/ui/card";
-
 type PartnerCardProps = {
   name: string;
+  image: string;
+  width?: string;
   delay?: number;
 };
 
-export function PartnerCard({ name }: PartnerCardProps) {
+export function PartnerCard({ name, image, width = "w-48" }: PartnerCardProps) {
   return (
-    <Card className="p-8 w-64 h-32 flex items-center justify-center hover-elevate">
-      <div className="text-center">
-        <p className="text-2xl font-semibold text-primary">{name}</p>
-      </div>
-    </Card>
+    <div className={`${width} flex items-center justify-center`}>
+      <img 
+        src={image} 
+        alt={name} 
+        className="w-full h-auto object-contain"
+        data-testid={`img-partner-${name.toLowerCase().replace(/\s+/g, '-')}`}
+      />
+    </div>
   );
 }
