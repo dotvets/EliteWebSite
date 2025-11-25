@@ -9,6 +9,7 @@ import { BenefitCard } from "@/components/BenefitCard";
 import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { PartnerCard } from "@/components/PartnerCard";
 import { ContactForm } from "@/components/ContactForm";
+import { ImageSlider } from "@/components/ImageSlider";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
 
 const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
@@ -162,17 +163,11 @@ export const createHomeSections = (t: Translation) => [
           titleTestId="text-team-title" 
         />
 
-        <AnimatedContent variant="staggerGrid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {t.team.members.map((member: any, index: number) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <TeamMemberCard
-                name={member.name}
-                role={member.role}
-                initials={member.initials}
-                testId={`card-team-${index}`}
-              />
-            </motion.div>
-          ))}
+        <AnimatedContent variant="fadeInUp" className="max-w-3xl mx-auto">
+          <ImageSlider 
+            images={t.team.members.map((member: any) => member.image)}
+            autoplayDelay={4000}
+          />
         </AnimatedContent>
       </div>
     ),
