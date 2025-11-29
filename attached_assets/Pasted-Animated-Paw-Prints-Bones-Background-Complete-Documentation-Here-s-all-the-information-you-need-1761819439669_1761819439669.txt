@@ -1,5 +1,5 @@
 Animated Paw Prints & Bones Background - Complete Documentation
-Here's all the information you need to share with the Replit Agent for implementing the animated paw prints and bones background:
+Here's all the information you need to share with the Elite Vet team for implementing the animated paw prints and bones background:
 
 Overview
 The Dr. Paws website features a full-screen animated background with floating paw prints and bones that gently move across the screen. This creates a playful, veterinary-themed ambiance.

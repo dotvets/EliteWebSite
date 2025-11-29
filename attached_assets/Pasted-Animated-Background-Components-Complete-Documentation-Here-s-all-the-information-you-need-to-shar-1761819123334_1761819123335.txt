@@ -1,5 +1,5 @@
 Animated Background Components - Complete Documentation
-Here's all the information you need to share with the Replit Agent for implementing these animated backgrounds on another website:
+Here's all the information you need to share with the Elite Vet team for implementing these animated backgrounds on another website:
 
 Overview
 The Dr. Paws website uses two animated ECG (electrocardiogram) heartbeat line animations that continuously scroll across the screen. Both use pure SVG animations (no JavaScript required).

@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 **Development Features:**
 - Vite integration for hot module replacement in development
 - Custom error handling and logging
-- Development-only Replit plugins (cartographer, dev banner, runtime error overlay)
+- Development plugins (cartographer, dev banner, runtime error overlay)
 
 ### Data Storage
 
@@ -193,7 +193,7 @@ Preferred communication style: Simple, everyday language.
 - Embla Carousel - Lightweight carousel library with autoplay plugin
 
 **Development Tools:**
-- Replit-specific plugins (vite-plugin-runtime-error-modal, vite-plugin-cartographer, vite-plugin-dev-banner)
+- Vite development plugins (runtime-error-modal, cartographer, dev-banner)
 
 **Icons:**
 - Lucide React - Icon library
