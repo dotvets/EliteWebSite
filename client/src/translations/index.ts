@@ -31,7 +31,7 @@ export const translations: TranslationBase & any = {
         blog: "Blog",
         bookNow: "Book Now",
         contactUs: "Contact Us",
-        eliteOnyx: "Elite Onyx",
+        eliteOnx: "Elite Onx",
       },
       bookAppointment: "Book Appointment",
     },
@@ -533,6 +533,15 @@ export const translations: TranslationBase & any = {
       },
 
     },
+    bookNowPage: {
+      title: "Book Now",
+      subtitle: "We're happy that you want to book and be part of our family.",
+      chooseMethod: "Choose Your Preferred Booking Method",
+      riyadhBranches: "Riyadh Branches",
+      phoneCall: "Phone Call",
+      whatsapp: "WhatsApp",
+      mobileApp: "Mobile App",
+    },
     footer: {
       about: "Elite Veterinary Clinic: Your Trusted Partner in Pet Care. Providing exceptional service & ensuring your pet's well-being.",
       contactInfo: "Contact Info",
@@ -558,7 +567,7 @@ export const translations: TranslationBase & any = {
         blog: "المدونة",
         bookNow: "أحجز ألان",
         contactUs: "تواصل معنا",
-        eliteOnyx: "أونيكس النخبة",
+        eliteOnx: "إيليت أونكس",
       },
       bookAppointment: "احجز موعدك",
     },
@@ -1056,6 +1065,15 @@ export const translations: TranslationBase & any = {
         description:
           "يمكن أن يكون الصيف السعودي الحار صعبًا على الكلاب! حافظ على برودة صديقك الفروي عن طريق الحفاظ على ترطيبه، والمشي خلال الصباح الباكر، وتجنب الأرصفة الساخنة. يساعد الاستمالة المنتظمة على تقليل حرارة الجسم ويبقيهم مرتاحين. قم بزيارة عيادة النخبة لفحص صحي صيفي واستمالة احترافية.",
       },
+    },
+    bookNowPage: {
+      title: "احجز الآن",
+      subtitle: "يسعدنا أنك تريد الحجز وأن تكون جزءًا من عائلتنا.",
+      chooseMethod: "اختر طريقة الحجز المفضلة لديك",
+      riyadhBranches: "فروع الرياض",
+      phoneCall: "مكالمة هاتفية",
+      whatsapp: "واتساب",
+      mobileApp: "تطبيق الجوال",
     },
     footer: {
       about: "عيادة النخبة البيطرية: شريكك الموثوق في رعاية صديقك الأليف. استمتع برعاية بيطرية متميزة لأليفك. النخبة عيادة بيطرية رائدة تقدم حلولًا شاملة لجميع احتياجاتهم الصحية، بدءًا من الفحوصات الوقائية وحتى العلاجات المتخصصة.",

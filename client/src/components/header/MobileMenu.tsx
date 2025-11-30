@@ -8,6 +8,7 @@ interface NavItem {
   label: string;
   href: string;
   onClick?: () => void;
+  standalone?: boolean;
 }
 
 interface MobileMenuProps {
@@ -45,9 +46,21 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
       {isOpen && (
         <div className="lg:hidden fixed left-0 right-0 top-20 bg-background shadow-lg border-t z-[190] max-h-[calc(100vh-5rem)] overflow-y-auto">
           <nav className="flex flex-col gap-4 px-4 sm:px-6 py-6">
-            {items.map((item) => {
+            {items.map((item, index) => {
               const active = isActive(item.href);
               const activeClasses = active ? "text-primary underline underline-offset-8 decoration-2" : "text-foreground hover:text-primary";
+              
+              if (item.standalone) {
+                return (
+                  <span
+                    key={`standalone-${index}`}
+                    data-testid="link-mobile-elite-onx"
+                    className="text-primary font-semibold py-2 block mt-4 pt-4 border-t border-muted-foreground/30 cursor-default"
+                  >
+                    {item.label}
+                  </span>
+                );
+              }
               
               return item.onClick ? (
                 <span

@@ -29,7 +29,7 @@ export default function Header() {
     { label: t.nav.blog, href: "/blog" },
     { label: t.nav.bookNow, href: "/book-now" },
     { label: t.nav.contactUs, href: "#footer", onClick: scrollToFooter },
-    { label: t.nav.eliteOnyx, href: "/elite-onyx" },
+    { label: t.nav.eliteOnx, href: "#", onClick: () => {}, standalone: true },
   ];
 
   return (
