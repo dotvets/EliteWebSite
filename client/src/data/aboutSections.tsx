@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Target, Heart, Users, CheckCircle2 } from "lucide-react";
+import { Target, Heart, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { fadeInUp } from "@/animations";
@@ -145,8 +145,8 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     image: surgicalTeam,
     imageAlt: "Elite Vet surgical expertise",
     imageTestId: "img-surgical-team",
-    reverse: true,
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
+    reverse: false,
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="space-y-6 text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
@@ -162,10 +162,6 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
             </p>
           </CardContent>
         </Card>
-        <div className="text-center text-foreground/60">
-          <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-          <p className="italic" data-testid="text-doctor-profiles-coming">Doctor profiles coming soon</p>
-        </div>
       </div>
     ),
   },
@@ -175,7 +171,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     imageAlt: "Elite Vet career opportunities",
     imageTestId: "img-career-development",
     reverse: true,
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
+    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <AnimatedContent className="space-y-6 text-center lg:text-start">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
