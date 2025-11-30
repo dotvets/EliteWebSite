@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Target, Heart, Users, Handshake, CheckCircle2 } from "lucide-react";
+import { Target, Heart, Users, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { fadeInUp } from "@/animations";
@@ -10,7 +10,6 @@ import clinicReception from "@assets/freepik__clarify-attachment-photo-img1-incr
 import vetWithDog from "@assets/Mission Section_1763032965994.png";
 import vetTeam from "@assets/Why Choose Elite Vet Section_1763032965996.png";
 import communityService from "@assets/generated_images/Veterinarian_community_service_animals_52a0c7de.png";
-import partnership from "@assets/generated_images/Veterinary_partnership_handshake_meeting_3629c555.png";
 import surgicalTeam from "@assets/generated_images/Veterinary_surgical_team_operation_82668a9f.png";
 import careerDevelopment from "@assets/generated_images/Veterinarian_professional_development_learning_3d5bf9be.png";
 
@@ -142,38 +141,6 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     ),
   },
   {
-    key: "partners",
-    image: partnership,
-    imageAlt: "Elite Vet partnerships",
-    imageTestId: "img-partnership",
-    reverse: false,
-    className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
-    content: (
-      <div className="space-y-12 text-center lg:text-start">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-partners-title">
-          {partners.title}
-        </h2>
-        <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-12">
-          {partners.items.map((partner: string, index: number) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <Card className="hover-elevate" data-testid={`card-partner-${index}`}>
-                <CardContent className="pt-12 pb-12">
-                  <div className="flex flex-col items-center gap-4">
-                    <Handshake className="w-16 h-16 text-primary" />
-                    <h3 className="text-2xl font-bold font-heading text-center" data-testid={`text-partner-name-${index}`}>
-                      {partner}
-                    </h3>
-                    <p className="text-sm text-foreground/60 text-center italic">Logo coming soon</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatedContent>
-      </div>
-    ),
-  },
-  {
     key: "doctors",
     image: surgicalTeam,
     imageAlt: "Elite Vet surgical expertise",
@@ -197,7 +164,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
         </Card>
         <div className="text-center text-foreground/60">
           <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-          <p className="italic">Doctor profiles coming soon</p>
+          <p className="italic" data-testid="text-doctor-profiles-coming">Doctor profiles coming soon</p>
         </div>
       </div>
     ),

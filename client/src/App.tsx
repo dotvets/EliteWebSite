@@ -8,6 +8,7 @@ import AnimatedServicesBackground from "@/components/AnimatedServicesBackground"
 import BackgroundMusic from "@/components/BackgroundMusic";
 import FloatingSocialMenu from "@/components/FloatingSocialMenu";
 import Header from "@/components/Header";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
@@ -37,6 +38,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
+          <ScrollToTop />
           <AnimatedServicesBackground />
           <Header />
           <BackgroundMusic />
