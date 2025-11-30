@@ -13,7 +13,7 @@ export default function Footer() {
     { 
       name: "WhatsApp", 
       icon: FaWhatsapp, 
-      url: "https://wa.me/920011626",
+      url: "https://wa.me/966920011626",
       testId: "link-whatsapp"
     },
     { 

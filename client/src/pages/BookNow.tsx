@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { fadeInUp } from "@/animations";
 
 const PHONE_NUMBER = "920011626";
-const WHATSAPP_NUMBER = "920011626";
+const WHATSAPP_NUMBER = "966920011626";
 const MOBILE_APP_URL = "https://vet.digitail.io/clinics/elite-vet-qourtobah-tel-920011626";
 
 export default function BookNow() {
@@ -27,14 +27,14 @@ export default function BookNow() {
     {
       icon: MessageCircle,
       label: t.whatsapp,
-      value: WHATSAPP_NUMBER,
+      value: "920011626",
       href: `https://wa.me/${WHATSAPP_NUMBER}`,
       testId: "link-book-whatsapp",
     },
     {
       icon: Smartphone,
       label: t.mobileApp,
-      value: MOBILE_APP_URL,
+      value: t.title,
       href: MOBILE_APP_URL,
       testId: "link-book-app",
       isExternal: true,
