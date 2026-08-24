@@ -130,10 +130,6 @@ export const translations: TranslationBase & any = {
           initials: "AS",
         },
         {
-          name: "Dr. Ahmed Mnadour",
-          initials: "AM",
-        },
-        {
           name: "Dr. Ahmed Moneer",
           initials: "AM",
         },
@@ -664,10 +660,6 @@ export const translations: TranslationBase & any = {
         {
           name: "د. أنس شوبكي",
           initials: "AS",
-        },
-        {
-          name: "د. أحمد مندور",
-          initials: "AM",
         },
         {
           name: "د. أحمد منير",

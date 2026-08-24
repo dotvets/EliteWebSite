@@ -4,7 +4,6 @@ import { TeamSlideItem } from "./TeamSlideItem";
 import { SliderNavigation } from "../hero-slider/SliderNavigation";
 import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
 import drAnasImage from "@assets/dr-anas-shobaki.png";
-import drAhmedMandourImage from "@assets/dr-ahmed-mandour.png";
 import drAhmedMounirImage from "@assets/dr-ahmed-mounir.png";
 import drShoaibImage from "@assets/dr-shoaib-husnain.png";
 import drEssamImage from "@assets/dr-essam-elmenshawy.png";
@@ -22,7 +21,6 @@ interface TeamMemberSliderProps {
 const doctorImages = [
   drKhaledImage,
   drAnasImage,
-  drAhmedMandourImage,
   drAhmedMounirImage,
   drShoaibImage,
   drEssamImage
