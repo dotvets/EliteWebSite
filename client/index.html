@@ -16,14 +16,49 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "VeterinaryCare",
-      "name": "النخبة البيطرية - Elite Vet",
-      "url": "https://www.elitevetksa.com/",
-      "telephone": "+966920011626",
-      "address": {"@type": "PostalAddress","addressLocality": "الرياض","addressRegion": "منطقة الرياض","streetAddress": "حي قرطبة، طريق الثمامة","addressCountry": "SA"},
-      "openingHours": "Mo-Su 00:00-23:59",
-      "availableService": [{"@type":"MedicalProcedure","name":"طوارئ بيطرية 24/7"},{"@type":"MedicalProcedure","name":"لقاحات وتطعيمات"},{"@type":"MedicalProcedure","name":"جراحة"},{"@type":"MedicalProcedure","name":"طب أسنان"},{"@type":"MedicalProcedure","name":"أشعة مقطعية CT Scan"},{"@type":"MedicalProcedure","name":"مختبر وتحاليل"}],
-      "foundingDate": "2013"
+      "@graph": [
+        {
+          "@type": "VeterinaryCare",
+          "@id": "https://www.elitevetksa.com/#riyadh",
+          "name": "النخبة البيطرية - Elite Vet",
+          "alternateName": "عيادة النخبة البيطرية التخصصية",
+          "url": "https://www.elitevetksa.com/",
+          "telephone": "+966920011626",
+          "foundingDate": "2013",
+          "priceRange": "$$",
+          "currenciesAccepted": "SAR",
+          "address": {"@type": "PostalAddress","addressLocality": "الرياض","addressRegion": "منطقة الرياض","streetAddress": "حي قرطبة، طريق الثمامة","addressCountry": "SA"},
+          "areaServed": [{"@type":"City","name":"الرياض"},{"@type":"City","name":"جدة"}],
+          "openingHours": "Mo-Su 00:00-23:59",
+          "sameAs": ["https://www.tiktok.com/@elitevetksa"],
+          "aggregateRating": {"@type":"AggregateRating","ratingValue":"3.8","reviewCount":"2642"},
+          "availableService": [
+            {"@type":"MedicalProcedure","name":"طوارئ بيطرية 24/7"},
+            {"@type":"MedicalProcedure","name":"لقاحات وتطعيمات"},
+            {"@type":"MedicalProcedure","name":"جراحة"},
+            {"@type":"MedicalProcedure","name":"طب أسنان"},
+            {"@type":"MedicalProcedure","name":"أشعة مقطعية CT Scan"},
+            {"@type":"MedicalProcedure","name":"مختبر وتحاليل"},
+            {"@type":"MedicalProcedure","name":"فحص مجاني يومياً 9ص-3م"}
+          ]
+        },
+        {
+          "@type": "VeterinaryCare",
+          "@id": "https://www.elitevetksa.com/#jeddah",
+          "name": "النخبة البيطرية - جدة الرويس",
+          "url": "https://www.elitevetksa.com/",
+          "telephone": "+966920011626",
+          "parentOrganization": {"@id": "https://www.elitevetksa.com/#riyadh"},
+          "address": {"@type": "PostalAddress","addressLocality": "جدة","addressRegion": "منطقة مكة المكرمة","streetAddress": "حي الرويس","addressCountry": "SA"},
+          "areaServed": [{"@type":"City","name":"جدة"}],
+          "openingHours": "Mo-Su 00:00-23:59",
+          "availableService": [
+            {"@type":"MedicalProcedure","name":"فحوصات بيطرية شاملة"},
+            {"@type":"MedicalProcedure","name":"لقاحات وتطعيمات"},
+            {"@type":"MedicalProcedure","name":"رعاية الحيوانات الأليفة والطيور والزواحف"}
+          ]
+        }
+      ]
     }
     </script>
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -33,7 +68,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <noscript>عيادة النخبة البيطرية — الرياض، حي قرطبة، طريق الثمامة. طوارئ 24/7. هاتف: 920011626. لقاحات، جراحة، أسنان، أشعة مقطعية، مختبر. منذ 2013 — وترقبونا قريباً في جدة.</noscript>
+    <noscript>عيادة النخبة البيطرية — الرياض (حي قرطبة، طريق الثمامة) وجدة (حي الرويس). طوارئ 24/7. هاتف موحد: 920011626. لقاحات، جراحة، أسنان، أشعة مقطعية، مختبر، فحص مجاني يومياً 9ص-3م. منذ 2013.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
