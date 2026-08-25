@@ -161,6 +161,11 @@ export default function Footer() {
 
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-center gap-4 text-xs mb-4">
+              <a href="/privacy.html" className="text-white/60 hover:text-white transition-colors">سياسة الخصوصية</a>
+              <span className="text-white/40">|</span>
+              <a href="/en.html" className="text-white/60 hover:text-white transition-colors">English</a>
+            </div>
             <p className="text-center text-white/70 text-sm font-body mb-3">
               © {new Date().getFullYear()} {t.copyright}
             </p>
