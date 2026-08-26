@@ -161,6 +161,14 @@ export default function Footer() {
 
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs mb-4">
+              <a href="/veterinary-clinic-riyadh.html" className="text-white/60 hover:text-white transition-colors">عيادة بيطرية في الرياض</a>
+              <a href="/emergency-vet-riyadh-24.html" className="text-white/60 hover:text-white transition-colors">طوارئ بيطرية</a>
+              <a href="/vet-hospital-qurtubah.html" className="text-white/60 hover:text-white transition-colors">مستشفى بيطري قرطبة</a>
+              <a href="/cat-vaccination-riyadh.html" className="text-white/60 hover:text-white transition-colors">تطعيم القطط</a>
+              <a href="/birds-reptiles-vet-riyadh.html" className="text-white/60 hover:text-white transition-colors">عيادة الطيور والزواحف</a>
+              <a href="/blog/choose-vet-clinic-riyadh.html" className="text-white/60 hover:text-white transition-colors">المدونة</a>
+            </div>
             <div className="flex items-center justify-center gap-4 text-xs mb-4">
               <a href="/privacy.html" className="text-white/60 hover:text-white transition-colors">سياسة الخصوصية</a>
               <span className="text-white/40">|</span>
