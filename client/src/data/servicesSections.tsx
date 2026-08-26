@@ -13,6 +13,9 @@ import {
   Phone,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  Car,
+  Dumbbell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +43,9 @@ const serviceIcons: Record<string, React.ComponentType<any>> = {
   "intensive-care": Heart,
   emergency: Ambulance,
   "home-care": Phone,
+  "physio-rehab": Dumbbell,
+  "preventive-care": ShieldCheck,
+  "pet-taxi": Car,
 };
 
 const renderServiceList = (
@@ -198,6 +204,27 @@ export const createServicesSections = (
       intro: t.homeCare.intro,
       content: () => renderServiceList(t.homeCare.services),
     },
+    {
+      key: "physio-rehab",
+      icon: serviceIcons["physio-rehab"],
+      title: t.physioRehab.title,
+      intro: t.physioRehab.intro,
+      content: () => renderServiceList(t.physioRehab.services),
+    },
+    {
+      key: "preventive-care",
+      icon: serviceIcons["preventive-care"],
+      title: t.preventiveCare.title,
+      intro: t.preventiveCare.intro,
+      content: () => renderServiceList(t.preventiveCare.services),
+    },
+    {
+      key: "pet-taxi",
+      icon: serviceIcons["pet-taxi"],
+      title: t.petTaxi.title,
+      intro: t.petTaxi.intro,
+      content: () => renderServiceList(t.petTaxi.services),
+    },
   ];
 
   const serviceGroups = [
@@ -205,6 +232,7 @@ export const createServicesSections = (
     serviceCards.slice(3, 6),
     serviceCards.slice(6, 9),
     serviceCards.slice(9, 11),
+    serviceCards.slice(11, 14),
   ];
 
   return [
@@ -326,10 +354,22 @@ export const createServicesSections = (
     },
     {
       key: "service-group-4",
-      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 md:pb-20 bg-muted/30",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
       content: (
         <ServiceGroup
           services={serviceGroups[3]}
+          expandedCards={expandedCards}
+          toggleCard={toggleCard}
+          t={t}
+        />
+      ),
+    },
+    {
+      key: "service-group-5",
+      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 md:pb-20 bg-background",
+      content: (
+        <ServiceGroup
+          services={serviceGroups[4]}
           expandedCards={expandedCards}
           toggleCard={toggleCard}
           t={t}

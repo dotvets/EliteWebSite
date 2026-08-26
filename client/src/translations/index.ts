@@ -292,6 +292,10 @@ export const translations: TranslationBase & any = {
           { title: "Viral & Bacterial Diseases", description: "Viral and bacterial infections can pose serious threats to your pet's health. Our veterinarians are skilled in diagnosing and treating a wide range of viral and bacterial diseases, including parvovirus, distemper, and feline leukemia." },
           { title: "Eye Diseases", description: "Eye problems can significantly impact your pet's vision and quality of life. Our veterinarians are experienced in diagnosing and treating various eye diseases, including cataracts, glaucoma, and corneal ulcers." },
           { title: "Brain, Spinal Injuries & Disc Herniations", description: "Neurological disorders can be complex and challenging to diagnose. Our veterinarians are skilled in diagnosing and treating a variety of neurological conditions, including brain injuries, spinal cord injuries, and disc herniations." },
+          { title: "General Examination & Health Check-up", description: "Comprehensive general examinations and routine health check-ups to monitor your pet's overall health and detect potential problems early." },
+          { title: "Puppy & Kitten Care", description: "Dedicated care programs for puppies and kittens: first check-ups, vaccination schedules, nutrition guidance, and early socialization advice." },
+          { title: "Senior Pet Care", description: "Specialized geriatric care for senior pets, including regular screening, mobility support, and management of age-related conditions." },
+          { title: "Nutrition Consultation", description: "Personalized nutrition plans and dietary counseling to keep your pet at a healthy weight and support treatment of medical conditions." },
         ],
         cta: "Book an appointment",
       },
@@ -433,6 +437,7 @@ export const translations: TranslationBase & any = {
           { title: "Rapid Response", description: "Quick assessment and immediate treatment for critical conditions." },
           { title: "Emergency Surgery", description: "Fully equipped surgical suites for emergency procedures." },
           { title: "Critical Care", description: "Advanced emergency care including trauma treatment and stabilization." },
+          { title: "Wound Treatment", description: "Professional cleaning, dressing, and treatment of wounds, with follow-up care until full recovery." },
         ],
         cta: "Emergency: 920011626",
       },
@@ -446,6 +451,36 @@ export const translations: TranslationBase & any = {
           { title: "Elderly Pet Care", description: "Specialized care for senior pets with mobility issues." },
         ],
         cta: "Schedule a home visit",
+      },
+      physioRehab: {
+        title: "Physiotherapy & Rehabilitation",
+        intro: "Elite Vet's physiotherapy and rehabilitation programs help your pet recover mobility, strength, and comfort after surgery, injury, or with chronic conditions.",
+        services: [
+          { title: "Physiotherapy Sessions", description: "Targeted physiotherapy sessions designed around your pet's condition, using safe and proven techniques." },
+          { title: "Post-Operative Rehabilitation", description: "Structured rehabilitation programs after orthopedic and soft tissue surgeries to speed up safe recovery." },
+          { title: "Mobility Improvement & Pain Management", description: "Programs to improve movement, reduce pain, and enhance quality of life for pets with joint, muscle, or neurological conditions." },
+        ],
+        cta: "Book a rehabilitation session",
+      },
+      preventiveCare: {
+        title: "Preventive Care",
+        intro: "Prevention is the best medicine. Our preventive care services protect your pet from parasites and diseases and keep them identifiable and safe all year round.",
+        services: [
+          { title: "Parasite Control", description: "Complete internal and external parasite prevention and treatment programs (fleas, ticks, and worms) tailored to your pet." },
+          { title: "Microchipping", description: "Safe and quick microchip implantation for permanent identification — essential for travel and for reuniting lost pets with their families." },
+          { title: "Preventive Health Programs", description: "Scheduled check-ups, screenings, and wellness plans that catch health issues early before they become serious." },
+        ],
+        cta: "Start a prevention plan",
+      },
+      petTaxi: {
+        title: "Pet Taxi & Transport",
+        intro: "Can't bring your pet to us? Our pet taxi service transports your pet safely and comfortably between your home and the clinic.",
+        services: [
+          { title: "Clinic Pickup & Drop-off", description: "Safe, air-conditioned transport for your pet to and from appointments, grooming, or boarding." },
+          { title: "Trained Handling", description: "Your pet travels with trained staff who know how to keep animals calm and secure during the journey." },
+          { title: "Flexible Scheduling", description: "Book transport alongside any appointment — ideal for busy owners and anxious pets." },
+        ],
+        cta: "Book pet taxi",
       },
       imageSections: {
         medical: {
@@ -849,6 +884,10 @@ export const translations: TranslationBase & any = {
           { title: "الأمراض الفيروسية والبكتيرية", description: "يمكن أن تشكل العدوى الفيروسية والبكتيرية تهديدات خطيرة لصحة حيوانك الأليف." },
           { title: "أمراض العيون", description: "يمكن أن تؤثر مشاكل العين بشكل كبير على رؤية حيوانك الأليف ونوعية حياته." },
           { title: "إصابات الدماغ والعمود الفقري والانزلاق الغضروفي", description: "يمكن أن تكون الاضطرابات العصبية معقدة وصعبة التشخيص." },
+          { title: "الكشف العام والفحص الصحي", description: "فحوصات عامة شاملة وفحص صحي دوري لمتابعة صحة حيوانك الأليف واكتشاف أي مشاكل محتملة مبكراً." },
+          { title: "رعاية الجراء والقطط الصغيرة", description: "برامج رعاية مخصصة للجراء والقطط الصغيرة: الفحوصات الأولى وجداول التطعيم وإرشادات التغذية." },
+          { title: "رعاية الحيوانات كبيرة السن", description: "رعاية متخصصة للحيوانات المسنة تشمل الفحص الدوري ودعم الحركة وإدارة الحالات المرتبطة بالتقدم في العمر." },
+          { title: "استشارات التغذية", description: "خطط تغذية شخصية واستشارات غذائية للحفاظ على وزن صحي ودعم علاج الحالات الطبية." },
         ],
         cta: "احجز موعدًا",
       },
@@ -990,6 +1029,7 @@ export const translations: TranslationBase & any = {
           { title: "استجابة سريعة", description: "تقييم سريع وعلاج فوري للحالات الحرجة." },
           { title: "جراحة طوارئ", description: "أجنحة جراحية مجهزة بالكامل للإجراءات الطارئة." },
           { title: "رعاية حرجة", description: "رعاية طوارئ متقدمة بما في ذلك علاج الصدمات والاستقرار." },
+          { title: "علاج الجروح", description: "تنظيف وتضميد وعلاج الجروح باحترافية مع رعاية متابعة حتى الشفاء التام." },
         ],
         cta: "الطوارئ: 920011626",
       },
@@ -1003,6 +1043,36 @@ export const translations: TranslationBase & any = {
           { title: "رعاية الحيوانات الأليفة المسنة", description: "رعاية متخصصة للحيوانات الأليفة الكبيرة التي تعاني من مشاكل في الحركة." },
         ],
         cta: "حدد زيارة منزلية",
+      },
+      physioRehab: {
+        title: "العلاج الطبيعي وإعادة التأهيل",
+        intro: "تساعد برامج العلاج الطبيعي وإعادة التأهيل في النخبة البيطرية حيوانك الأليف على استعادة الحركة والقوة والراحة بعد الجراحة أو الإصابة أو مع الحالات المزمنة.",
+        services: [
+          { title: "جلسات العلاج الطبيعي", description: "جلسات علاج طبيعي مصممة حسب حالة حيوانك الأليف باستخدام تقنيات آمنة ومثبتة." },
+          { title: "التأهيل بعد العمليات", description: "برامج تأهيل منظمة بعد جراحات العظام والأنسجة الرخوة لتسريع التعافي الآمن." },
+          { title: "تحسين الحركة وإدارة الألم", description: "برامج لتحسين الحركة وتخفيف الألم ورفع جودة حياة الحيوانات المصابة بحالات المفاصل أو العضلات أو الأعصاب." },
+        ],
+        cta: "احجز جلسة تأهيل",
+      },
+      preventiveCare: {
+        title: "الرعاية الوقائية",
+        intro: "الوقاية خير من العلاج. تحمي خدماتنا الوقائية حيوانك الأليف من الطفيليات والأمراض وتحافظ على سلامته طوال العام.",
+        services: [
+          { title: "مكافحة الطفيليات", description: "برامج شاملة للوقاية من الطفيليات الداخلية والخارجية (البراغيث والقراد والديدان) وعلاجها بما يناسب حيوانك الأليف." },
+          { title: "زراعة الشريحة الإلكترونية (Microchip)", description: "زراعة شريحة تعريف دائمة بأمان وسرعة — ضرورية للسفر ولإعادة الحيوانات المفقودة إلى أصحابها." },
+          { title: "برامج الرعاية الوقائية", description: "فحوصات وبرامج صحية مجدولة تكتشف المشكلات الصحية مبكراً قبل أن تتفاقم." },
+        ],
+        cta: "ابدأ خطة وقائية",
+      },
+      petTaxi: {
+        title: "نقل الحيوانات الأليفة (Pet Taxi)",
+        intro: "لا تستطيع إحضار حيوانك الأليف إلينا؟ خدمة نقل الحيوانات الأليفة لدينا توصل حيوانك بأمان وراحة بين منزلك والعيادة.",
+        services: [
+          { title: "الاستلام والتوصيل للعيادة", description: "نقل آمن ومكيّف لحيوانك الأليف من وإلى المواعيد أو العناية والتجميل أو الإيواء." },
+          { title: "تعامل مدرّب", description: "يسافر حيوانك الأليف مع طاقم مدرّب يعرف كيف يحافظ على هدوء الحيوانات وسلامتها أثناء الرحلة." },
+          { title: "مواعيد مرنة", description: "احجز النقل مع أي موعد — مثالي للمالكين المشغولين والحيوانات القلقة." },
+        ],
+        cta: "احجز نقل الحيوانات",
       },
       imageSections: {
         medical: {
