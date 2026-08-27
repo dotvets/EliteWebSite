@@ -1,9 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // put application routes here
+
+  // Legal pages — exact URLs required by TikTok Developer app (Terms of Service / Privacy Policy)
+  const legalFile = (name: string) => path.resolve(import.meta.dirname, "public", name);
+  app.get(["/TermsofService", "/TermsOfService", "/terms-of-service", "/termsofservice.html"], (_req, res) => res.sendFile(legalFile("termsofservice.html")));
+  app.get(["/PrivacyPolicy", "/privacy-policy", "/privacypolicy.html"], (_req, res) => res.sendFile(legalFile("privacypolicy.html")));
   // prefix all routes with /api
 
   // TEMP: OAuth token relay — sandbox cannot reach Google directly.
