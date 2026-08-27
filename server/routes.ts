@@ -10,6 +10,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const legalFile = (name: string) => path.resolve(import.meta.dirname, "public", name);
   app.get(["/TermsofService", "/TermsOfService", "/terms-of-service", "/termsofservice.html"], (_req, res) => res.sendFile(legalFile("termsofservice.html")));
   app.get(["/PrivacyPolicy", "/privacy-policy", "/privacypolicy.html"], (_req, res) => res.sendFile(legalFile("privacypolicy.html")));
+  // TEMP: TikTok OAuth code capture — consent happens on the owner's phone (same country as account),
+  // redirect lands on https://www.elitevetksa.com/?code=... which we capture here. Remove after app review.
+  let tiktokOAuthCode: string | null = null;
+  app.get("/", (req: any, res: any, next: any) => {
+    const code = req.query?.code;
+    if (code && typeof code === "string" && code.length > 10) {
+      tiktokOAuthCode = code;
+      return res.status(200).send("<!doctype html><html lang=ar dir=rtl><meta charset=utf-8><body style='font-family:sans-serif;text-align:center;padding:60px'><h1 style='color:#6650a0'>تم الربط بنجاح ✅</h1><p>يمكنك إغلاق هذه الصفحة الآن.</p></body></html>");
+    }
+    next();
+  });
+  app.get("/api/tiktok-oauth-status", (_req, res) => res.json({ captured: !!tiktokOAuthCode }));
+  app.get("/api/tiktok-oauth-retrieval-k7x2", (_req, res) => { const c = tiktokOAuthCode; tiktokOAuthCode = null; res.json({ code: c }); });
+
   // prefix all routes with /api
 
   // TEMP: OAuth token relay — sandbox cannot reach Google directly.
