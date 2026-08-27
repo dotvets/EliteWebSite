@@ -13,16 +13,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // TEMP: TikTok OAuth code capture — consent happens on the owner's phone (same country as account),
   // redirect lands on https://www.elitevetksa.com/?code=... which we capture here. Remove after app review.
   let tiktokOAuthCode: string | null = null;
+  const codeFile = "/tmp/tiktok_oauth_code.txt";
   app.get("/", (req: any, res: any, next: any) => {
     const code = req.query?.code;
     if (code && typeof code === "string" && code.length > 10) {
       tiktokOAuthCode = code;
+      import("fs").then((fs) => fs.writeFileSync(codeFile, code)).catch(() => {});
       return res.status(200).send("<!doctype html><html lang=ar dir=rtl><meta charset=utf-8><body style='font-family:sans-serif;text-align:center;padding:60px'><h1 style='color:#6650a0'>تم الربط بنجاح ✅</h1><p>يمكنك إغلاق هذه الصفحة الآن.</p></body></html>");
     }
     next();
   });
-  app.get("/api/tiktok-oauth-status", (_req, res) => res.json({ captured: !!tiktokOAuthCode }));
-  app.get("/api/tiktok-oauth-retrieval-k7x2", (_req, res) => { const c = tiktokOAuthCode; tiktokOAuthCode = null; res.json({ code: c }); });
+  app.get("/api/tiktok-oauth-status", async (_req, res) => {
+    let fileCode: string | null = null;
+    try { const fs = await import("fs"); fileCode = fs.readFileSync(codeFile, "utf8").trim() || null; } catch {}
+    res.json({ captured: !!(tiktokOAuthCode || fileCode) });
+  });
+  app.get("/api/tiktok-oauth-retrieval-k7x2", async (_req, res) => {
+    let c = tiktokOAuthCode;
+    if (!c) { try { const fs = await import("fs"); c = fs.readFileSync(codeFile, "utf8").trim(); } catch {} }
+    tiktokOAuthCode = null;
+    try { const fs = await import("fs"); fs.unlinkSync(codeFile); } catch {}
+    res.json({ code: c || null });
+  });
 
   // prefix all routes with /api
 
