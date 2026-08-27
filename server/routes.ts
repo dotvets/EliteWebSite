@@ -34,6 +34,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TEMP: Google API proxy — refreshes access token then calls the given Google API URL.
+  // Body: {refresh_token, client_id, client_secret, api_url, method?, payload?}
+  // Remove after use.
+  app.post("/api/gproxy", async (req: any, res: any) => {
+    try {
+      const { refresh_token, client_id, client_secret, api_url, method = "GET", payload } = req.body || {};
+      if (!refresh_token || !client_id || !client_secret || !api_url) return res.status(400).json({ error: "missing fields" });
+      const t = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ refresh_token, client_id, client_secret, grant_type: "refresh_token" }).toString(),
+      });
+      const td = await t.json();
+      if (!td.access_token) return res.status(502).json({ error: "token_refresh_failed", detail: td });
+      const r = await fetch(String(api_url), {
+        method: String(method),
+        headers: { Authorization: `Bearer ${td.access_token}`, "Content-Type": "application/json" },
+        body: payload ? JSON.stringify(payload) : undefined,
+      });
+      const txt = await r.text();
+      let jd: any; try { jd = JSON.parse(txt); } catch { jd = { raw: txt.slice(0, 500) }; }
+      return res.status(r.status).json(jd);
+    } catch (e: any) {
+      return res.status(500).json({ error: String(e?.message || e) });
+    }
+  });
+
   // use storage to perform CRUD operations on the storage interface
   // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
 
