@@ -101,15 +101,31 @@ export default function Footer() {
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                  <a 
-                    href="https://maps.app.goo.gl/SPRXB5dCgho3d9qq9"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/80 text-sm font-body hover:text-white transition-colors"
-                    data-testid="link-address"
-                  >
-                    Qurtubah gate, Al Thoumamah Rd, Qurtubah, Riyadh 13248
-                  </a>
+                  <div className="text-sm font-body">
+                    <div className="text-white/90 font-medium mb-0.5">{t.riyadhBranch}</div>
+                    <a 
+                      href="https://maps.app.goo.gl/SPRXB5dCgho3d9qq9"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/80 hover:text-white transition-colors"
+                      data-testid="link-address"
+                    >
+                      Qurtubah gate, Al Thoumamah Rd, Qurtubah, Riyadh 13248
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm font-body">
+                    <div className="text-white/90 font-medium mb-0.5">{t.jeddahBranch}</div>
+                    <a 
+                      href="/jeddah-vet-clinic.html"
+                      className="text-white/80 hover:text-white transition-colors"
+                      data-testid="link-address-jeddah"
+                    >
+                      {t.jeddahAddress}
+                    </a>
+                  </div>
                 </li>
               </ul>
             </div>
