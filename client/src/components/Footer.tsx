@@ -167,6 +167,7 @@ export default function Footer() {
               <a href="/vet-hospital-qurtubah.html" className="text-white/60 hover:text-white transition-colors">مستشفى بيطري قرطبة</a>
               <a href="/cat-vaccination-riyadh.html" className="text-white/60 hover:text-white transition-colors">تطعيم القطط</a>
               <a href="/birds-reptiles-vet-riyadh.html" className="text-white/60 hover:text-white transition-colors">عيادة الطيور والزواحف</a>
+              <a href="/jeddah-vet-clinic.html" className="text-white/60 hover:text-white transition-colors">جدة — قريباً</a>
               <a href="/blog/choose-vet-clinic-riyadh.html" className="text-white/60 hover:text-white transition-colors">المدونة</a>
             </div>
             <div className="flex items-center justify-center gap-4 text-xs mb-4">
