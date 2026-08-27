@@ -123,7 +123,7 @@ export default function Footer() {
                       className="text-white/80 hover:text-white transition-colors"
                       data-testid="link-address-jeddah"
                     >
-                      {t.jeddahAddress}
+                      Al Andalus Rd, Al Hamra, Jeddah 23323
                     </a>
                   </div>
                 </li>
