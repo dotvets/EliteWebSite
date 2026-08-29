@@ -44,3 +44,50 @@ export function arrangeSections<T extends { key: string }>(sections: T[], cfg: H
   };
   return [...visible].sort((a, b) => rank(a.key) - rank(b.key));
 }
+
+// ---------- Per-section text overrides (key "home.texts") ----------
+// Format: { "intro.title": { ar: "...", en: "..." }, ... } — deep-set onto translations.
+export type HomeTexts = Record<string, { ar?: string; en?: string }>;
+
+let textsCache: HomeTexts | null = null;
+let textsPending: Promise<HomeTexts> | null = null;
+
+export function getHomeTexts(): Promise<HomeTexts> {
+  if (textsCache) return Promise.resolve(textsCache);
+  if (!textsPending) {
+    textsPending = fetch("/api/content")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: any[]) => {
+        const row = rows.find((c) => c.key === "home.texts");
+        if (!row?.valueAr) return {};
+        try { textsCache = JSON.parse(row.valueAr) || {}; } catch { textsCache = {}; }
+        return textsCache!;
+      })
+      .catch(() => ({}));
+  }
+  return textsPending;
+}
+
+export function useHomeTexts(): HomeTexts {
+  const [texts, setTexts] = useState<HomeTexts>(textsCache || {});
+  useEffect(() => { getHomeTexts().then(setTexts); }, []);
+  return texts;
+}
+
+/** Deep-set dotted paths from overrides for the active language (non-destructive). */
+export function applyTextOverrides<T>(t: T, texts: HomeTexts, lang: "ar" | "en"): T {
+  if (!texts || !Object.keys(texts).length) return t;
+  const clone: any = JSON.parse(JSON.stringify(t));
+  for (const [path, val] of Object.entries(texts)) {
+    const v = (val as any)?.[lang];
+    if (typeof v !== "string" || !v.trim()) continue;
+    const parts = path.split(".");
+    let node = clone;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (node[parts[i]] == null || typeof node[parts[i]] !== "object") { node = null as any; break; }
+      node = node[parts[i]];
+    }
+    if (node) node[parts[parts.length - 1]] = v;
+  }
+  return clone;
+}

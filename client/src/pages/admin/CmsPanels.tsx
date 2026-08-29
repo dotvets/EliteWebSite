@@ -359,3 +359,120 @@ export function PagesPanel({ api }: { api: Api }) {
     </div>
   );
 }
+
+// ---------- Homepage section TEXT overrides (key "home.texts") ----------
+const HOME_TEXT_FIELDS: Record<string, { path: string; label: string; multi?: boolean }[]> = {
+  intro: [
+    { path: "intro.title", label: "العنوان" },
+    { path: "intro.subtitle", label: "العنوان الفرعي" },
+    { path: "intro.description", label: "الوصف", multi: true },
+    { path: "intro.readMore", label: "نص زر «اقرأ المزيد»" },
+  ],
+  services: [
+    { path: "services.title", label: "العنوان" },
+    { path: "services.description", label: "الوصف", multi: true },
+    { path: "services.readMore", label: "نص الرابط" },
+  ],
+  "why-choose": [
+    { path: "whyChoose.title", label: "العنوان" },
+    { path: "whyChoose.intro", label: "النص التمهيدي", multi: true },
+  ],
+  team: [
+    { path: "team.title", label: "العنوان" },
+    { path: "team.description", label: "الوصف", multi: true },
+  ],
+  partners: [{ path: "partners.title", label: "العنوان" }],
+  contact: [
+    { path: "contact.title", label: "العنوان" },
+    { path: "contact.description", label: "الوصف", multi: true },
+  ],
+};
+
+export function HomeTextsEditor({ api }: { api: Api }) {
+  const toast = useToast();
+  const [texts, setTexts] = useState<Record<string, { ar?: string; en?: string }>>({});
+  const [open, setOpen] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    api("/api/content").then((rows: any[]) => {
+      const row = rows.find((x) => x.key === "home.texts");
+      if (row?.valueAr) { try { setTexts(JSON.parse(row.valueAr) || {}); } catch {} }
+      setLoaded(true);
+    });
+  }, []);
+
+  const setField = (path: string, lang: "ar" | "en", v: string) =>
+    setTexts((prev) => ({ ...prev, [path]: { ...prev[path], [lang]: v } }));
+
+  const save = async () => {
+    setSaving(true);
+    // prune empty entries
+    const clean: typeof texts = {};
+    for (const [k, v] of Object.entries(texts)) {
+      const ar = (v.ar || "").trim(), en = (v.en || "").trim();
+      if (ar || en) clean[k] = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
+    }
+    await api("/api/admin/content/home.texts", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ valueAr: JSON.stringify(clean), type: "json", section: "home" }) });
+    setTexts(clean);
+    setSaving(false);
+    toast("✅ حُفظت النصوص — تظهر على الرئيسية فور التحديث");
+  };
+
+  if (!loaded) return <div style={A.card}>جارٍ التحميل…</div>;
+
+  return (
+    <div style={{ ...A.card, marginTop: 16 }}>
+      <h3>نصوص أقسام الرئيسية</h3>
+      <p style={{ color: "#888", fontSize: 13 }}>
+        اترك الحقل فارغاً ليبقى النص الافتراضي. ما تكتبه هنا يتجاوز النص الافتراضي على الموقع العام (لكل لغة على حدة).
+      </p>
+      {Object.entries(HOME_TEXT_FIELDS).map(([secKey, fields]) => {
+        const label = HOME_SECTIONS.find((s) => s.key === secKey)?.label || secKey;
+        const isOpen = open === secKey;
+        const filled = fields.filter((f) => (texts[f.path]?.ar || "").trim() || (texts[f.path]?.en || "").trim()).length;
+        return (
+          <div key={secKey} style={{ border: "1px solid #eee", borderRadius: 10, marginTop: 10, overflow: "hidden" }}>
+            <button
+              style={{ ...A.btnGhost, width: "100%", textAlign: "right", display: "flex", justifyContent: "space-between", border: "none", borderRadius: 0, padding: "12px 14px" }}
+              onClick={() => setOpen(isOpen ? null : secKey)}
+            >
+              <b>{label}</b>
+              <span style={{ color: "#888", fontSize: 12 }}>{filled ? `${filled} حقل معدّل` : "افتراضي"} {isOpen ? "▲" : "▼"}</span>
+            </button>
+            {isOpen && (
+              <div style={{ padding: 14, borderTop: "1px solid #f0f0f0" }}>
+                {fields.map((f) => (
+                  <div key={f.path} style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{f.label}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div>
+                        <div style={{ fontSize: 11, color: "#999" }}>عربي</div>
+                        {f.multi ? (
+                          <textarea style={{ ...A.input, minHeight: 70 }} dir="rtl" value={texts[f.path]?.ar || ""} onChange={(e) => setField(f.path, "ar", e.target.value)} />
+                        ) : (
+                          <input style={A.input} dir="rtl" value={texts[f.path]?.ar || ""} onChange={(e) => setField(f.path, "ar", e.target.value)} />
+                        )}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: "#999" }}>English</div>
+                        {f.multi ? (
+                          <textarea style={{ ...A.input, minHeight: 70 }} dir="ltr" value={texts[f.path]?.en || ""} onChange={(e) => setField(f.path, "en", e.target.value)} />
+                        ) : (
+                          <input style={A.input} dir="ltr" value={texts[f.path]?.en || ""} onChange={(e) => setField(f.path, "en", e.target.value)} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <button style={{ ...A.btn, marginTop: 16 }} disabled={saving} onClick={save}>{saving ? "جارٍ الحفظ…" : "حفظ النصوص"}</button>
+    </div>
+  );
+}
+

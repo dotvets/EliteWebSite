@@ -5,11 +5,12 @@ import ECGAnimation from "@/components/ECGAnimation";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
 import PageLayout from "@/components/PageLayout";
 import { createHomeSections } from "@/data/homeSections";
-import { useHomeSectionsConfig, arrangeSections } from "@/hooks/useHomeSections";
+import { useHomeSectionsConfig, arrangeSections, useHomeTexts, applyTextOverrides } from "@/hooks/useHomeSections";
 
 export default function Home() {
   const { language } = useLanguage();
-  const t = translations[language];
+  const homeTexts = useHomeTexts();
+  const t = applyTextOverrides(translations[language], homeTexts, language);
 
   const cfg = useHomeSectionsConfig();
   const sections = arrangeSections(createHomeSections(t), cfg);
