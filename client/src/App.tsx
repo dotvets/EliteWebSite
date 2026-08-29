@@ -17,6 +17,8 @@ import BookNow from "@/pages/BookNow";
 import ContactUs from "@/pages/ContactUs";
 import EliteOnyx from "@/pages/EliteOnyx";
 import NotFound from "@/pages/not-found";
+import AdminLogin from "@/pages/admin/Login";
+import AdminDashboard from "@/pages/admin/Dashboard";
 
 function Router() {
   return (
@@ -28,6 +30,8 @@ function Router() {
       <Route path="/book-now" component={BookNow} />
       <Route path="/contact-us" component={ContactUs} />
       <Route path="/elite-onyx" component={EliteOnyx} />
+      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

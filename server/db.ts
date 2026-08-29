@@ -5,11 +5,12 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// DB is optional at boot: public site works without it; admin/booking APIs
+// report a clean error until DATABASE_URL is configured.
+export const dbEnabled = !!process.env.DATABASE_URL;
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool: Pool = new Pool({
+  connectionString: process.env.DATABASE_URL || "postgres://localhost:5432/placeholder",
+});
+
 export const db = drizzle({ client: pool, schema });

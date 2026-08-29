@@ -1,4 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -15,6 +17,15 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({ extended: false }));
+
+const MemoryStore = createMemoryStore(session);
+app.use(session({
+  store: new MemoryStore({ checkPeriod: 86400000 }),
+  secret: process.env.SESSION_SECRET || "elite-onx-change-me",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 3600 * 1000 },
+}));
 
 // Canonical host enforcement: any *.onrender.com subdomain permanently
 // redirects to the official domain so staging/exposed copies can never

@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import PageLayout from "@/components/PageLayout";
+import BookingForm from "@/components/BookingForm";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { Card } from "@/components/ui/card";
@@ -107,6 +108,7 @@ export default function BookNow() {
             })}
           </AnimatedContent>
         </div>
+      <div style={{marginTop:40}}><BookingForm /></div>
       </section>
     </PageLayout>
   );
