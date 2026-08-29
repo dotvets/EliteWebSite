@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import ServicesPanel from "./ServicesPanel";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -20,6 +21,17 @@ const api = async (url: string, opts?: any) => {
   const r = await fetch(url, { credentials: "include", ...opts });
   if (r.status === 401) throw new Error("unauthorized");
   return r.json();
+};
+
+
+const payLabel = (s: string) => ({ paid: "مدفوع", pending: "بانتظار الدفع", failed: "فشل الدفع", cancelled: "ملغي", refunded: "مسترد", unpaid: "غير مدفوع" } as any)[s] || s;
+const payBadge = (s: string): React.CSSProperties => {
+  const colors: Record<string, [string, string]> = {
+    paid: ["#e8f8ee", "#1a7f37"], pending: ["#fff7e0", "#8a6d00"], failed: ["#fdecec", "#c00"],
+    cancelled: ["#f0f0f0", "#666"], refunded: ["#e0f0ff", "#1565c0"], unpaid: ["#f0f0f0", "#666"],
+  };
+  const [bg, fg] = colors[s] || ["#f0f0f0", "#666"];
+  return { background: bg, color: fg, borderRadius: 6, padding: "2px 10px", fontSize: 12, fontWeight: 700 };
 };
 
 export default function AdminDashboard() {
@@ -71,7 +83,7 @@ export default function AdminDashboard() {
   };
 
   const tabs: [string, string][] = [
-    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["messages", "الرسائل"],
+    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"], ["messages", "الرسائل"],
     ["content", "محتوى الموقع"], ["media", "مكتبة الصور"],
   ];
 
@@ -93,16 +105,22 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {tab === "services" && <ServicesPanel api={api} />}
+
         {tab === "bookings" && (
           <div style={S.card}>
             <h3>الحجوزات ({bookings.length})</h3>
             <table style={S.table as any}>
-              <thead><tr><th style={S.th}>الاسم</th><th style={S.th}>الجوال</th><th style={S.th}>الخدمة</th><th style={S.th}>التاريخ</th><th style={S.th}>الدفع</th><th style={S.th}>الحالة</th><th style={S.th}></th></tr></thead>
+              <thead><tr><th style={S.th}>الاسم</th><th style={S.th}>الجوال</th><th style={S.th}>الخدمة</th><th style={S.th}>السعر</th><th style={S.th}>الفرع</th><th style={S.th}>التاريخ</th><th style={S.th}>الدفع</th><th style={S.th}>مرجع الدفع</th><th style={S.th}>الحالة</th><th style={S.th}></th></tr></thead>
               <tbody>
                 {bookings.map((b) => (
                   <tr key={b.id}>
                     <td style={S.td}>{b.name}</td><td style={S.td}>{b.phone}</td><td style={S.td}>{b.service || "—"}</td>
-                    <td style={S.td}>{b.preferredDate || "—"}</td><td style={S.td}>{b.paymentStatus}</td><td style={S.td}>{b.status}</td>
+                    <td style={S.td}>{b.amount ? `${b.amount} ريال` : "—"}</td><td style={S.td}>{b.branch || "—"}</td>
+                    <td style={S.td}>{b.preferredDate || "—"}</td>
+                    <td style={S.td}><span style={payBadge(b.paymentStatus)}>{payLabel(b.paymentStatus)}</span></td>
+                    <td style={{ ...S.td, fontSize: 11, color: "#999" }}>{b.invoiceId ? `#${b.invoiceId}` : "—"}</td>
+                    <td style={S.td}>{b.status}</td>
                     <td style={S.td}>
                       <select defaultValue={b.status} onChange={(e) => setBookingStatus(b.id, e.target.value)}>
                         {["new", "confirmed", "completed", "cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}

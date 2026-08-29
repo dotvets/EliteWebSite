@@ -26,6 +26,7 @@ export const bookings = pgTable("bookings", {
   email: text("email"),
   petType: text("pet_type"),
   service: text("service"),
+  serviceId: text("service_id"),
   branch: text("branch"),
   preferredDate: text("preferred_date"),
   notes: text("notes"),
@@ -74,4 +75,34 @@ export const adminUsers = pgTable("admin_users", {
   passwordHash: text("password_hash").notNull(),
   role: text("role").notNull().default("admin"),
   createdAt: text("created_at").notNull().default(sql`now()::text`),
+});
+
+// ===== Services Management (dynamic booking services) =====
+
+export const services = pgTable("services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nameAr: text("name_ar").notNull(),
+  nameEn: text("name_en").notNull(),
+  descriptionAr: text("description_ar"),
+  descriptionEn: text("description_en"),
+  price: text("price").notNull(),
+  currency: text("currency").notNull().default("SAR"),
+  isActive: text("is_active").notNull().default("true"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+// ===== Payment records (linked to bookings) =====
+
+export const payments = pgTable("payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: text("booking_id").notNull(),
+  invoiceId: text("invoice_id"),
+  paymentId: text("payment_id"),
+  amount: text("amount"),
+  currency: text("currency").default("SAR"),
+  status: text("status").notNull().default("pending"), // pending | paid | failed | cancelled | refunded
+  method: text("method"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
 });

@@ -59,6 +59,32 @@ CREATE TABLE IF NOT EXISTS admin_users (
   role text NOT NULL DEFAULT 'admin',
   created_at text NOT NULL DEFAULT now()::text
 );
+
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS service_id text;
+CREATE TABLE IF NOT EXISTS services (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  name_ar text NOT NULL,
+  name_en text NOT NULL,
+  description_ar text,
+  description_en text,
+  price text NOT NULL,
+  currency text NOT NULL DEFAULT 'SAR',
+  is_active text NOT NULL DEFAULT 'true',
+  created_at text NOT NULL DEFAULT now()::text,
+  updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS payments (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  booking_id text NOT NULL,
+  invoice_id text,
+  payment_id text,
+  amount text,
+  currency text DEFAULT 'SAR',
+  status text NOT NULL DEFAULT 'pending',
+  method text,
+  created_at text NOT NULL DEFAULT now()::text,
+  updated_at text NOT NULL DEFAULT now()::text
+);
 `;
 
 export async function ensureSchema() {
