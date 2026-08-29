@@ -140,11 +140,14 @@ CREATE TABLE IF NOT EXISTS activity_log (
 
 export async function ensureSchema() {
   if (!process.env.DATABASE_URL) {
-    console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive");
+console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive");
     return false;
   }
   try {
     await pool.query(DDL);
+    for (const t of ["team_members", "testimonials", "offers", "blog_posts"]) {
+      await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`);
+    }
     console.log("[db] schema ensured");
     return true;
   } catch (e: any) {

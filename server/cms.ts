@@ -46,7 +46,8 @@ function collection(app: Express, opts: { route: string; publicRoute?: string; t
   if (publicRoute) {
     app.get(publicRoute, async (_req, res) => {
       const rows = await db.select().from(table).where(eq(table.published, "true")).orderBy(table.sortOrder ?? desc(table.createdAt));
-      res.json(rows);
+      const nowIso = new Date().toISOString();
+      res.json(rows.filter((r: any) => !r.publishAt || r.publishAt <= nowIso));
     });
   }
 }

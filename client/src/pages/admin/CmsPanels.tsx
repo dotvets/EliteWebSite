@@ -9,7 +9,7 @@ const BRANCH_OPTS: [string, string][] = [["الرياض — قرطبة", "الر
 export const TeamPanel = ({ api }: { api: Api }) => (
   <CollectionManager api={api} route="team" title="الفريق / الأطباء" orderable
     listCols={[{ key: "nameAr", label: "الاسم" }, { key: "positionAr", label: "المنصب" }, { key: "branch", label: "الفرع" }]}
-    defaultItem={{ nameAr: "", nameEn: "", positionAr: "", positionEn: "", specialty: "", bioAr: "", bioEn: "", photo: "", experience: "", certifications: "", languages: "", branch: "", email: "", published: "true", featured: "false", sortOrder: "0" }}
+    defaultItem={{ nameAr: "", nameEn: "", positionAr: "", positionEn: "", specialty: "", bioAr: "", bioEn: "", photo: "", experience: "", certifications: "", languages: "", branch: "", email: "", publishAt: "", published: "true", featured: "false", sortOrder: "0" }}
     fields={[
       { key: "name", label: "الاسم", type: "bi", bi: ["nameAr", "nameEn"] },
       { key: "position", label: "المنصب", type: "bi", bi: ["positionAr", "positionEn"] },
@@ -21,13 +21,14 @@ export const TeamPanel = ({ api }: { api: Api }) => (
       { key: "languages", label: "اللغات", type: "text" },
       { key: "branch", label: "الفرع", type: "select", options: BRANCH_OPTS },
       { key: "email", label: "البريد (إن كان يُعرض علناً)", type: "text" },
+      { key: "publishAt", label: "موعد النشر المجدول (اختياري — يظهر تلقائياً في هذا الموعد)", type: "datetime" },
     ]} />
 );
 
 export const TestimonialsPanel = ({ api }: { api: Api }) => (
   <CollectionManager api={api} route="testimonials" title="آراء العملاء" orderable
     listCols={[{ key: "customerAr", label: "العميل" }, { key: "textAr", label: "الرأي" }, { key: "rating", label: "التقييم" }]}
-    defaultItem={{ customerAr: "", customerEn: "", textAr: "", textEn: "", rating: "5", image: "", branch: "", published: "true", featured: "false", sortOrder: "0" }}
+    defaultItem={{ customerAr: "", customerEn: "", textAr: "", textEn: "", rating: "5", image: "", branch: "", publishAt: "", published: "true", featured: "false", sortOrder: "0" }}
     fields={[
       { key: "customer", label: "اسم العميل", type: "bi", bi: ["customerAr", "customerEn"] },
       { key: "text", label: "نص الرأي", type: "bi", bi: ["textAr", "textEn"], textarea: true },
@@ -40,7 +41,7 @@ export const TestimonialsPanel = ({ api }: { api: Api }) => (
 export const OffersPanel = ({ api }: { api: Api }) => (
   <CollectionManager api={api} route="offers" title="العروض والتخفيضات"
     listCols={[{ key: "titleAr", label: "العرض" }, { key: "discount", label: "الخصم" }, { key: "endDate", label: "الانتهاء" }]}
-    defaultItem={{ titleAr: "", titleEn: "", descriptionAr: "", descriptionEn: "", image: "", discount: "", startDate: "", endDate: "", cta: "", ctaUrl: "", published: "true", featured: "false" }}
+    defaultItem={{ titleAr: "", titleEn: "", descriptionAr: "", descriptionEn: "", image: "", discount: "", startDate: "", endDate: "", cta: "", ctaUrl: "", publishAt: "", published: "true", featured: "false" }}
     fields={[
       { key: "title", label: "عنوان العرض", type: "bi", bi: ["titleAr", "titleEn"] },
       { key: "description", label: "الوصف", type: "bi", bi: ["descriptionAr", "descriptionEn"], textarea: true },
