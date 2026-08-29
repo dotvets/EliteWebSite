@@ -16,6 +16,19 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// Canonical host enforcement: any *.onrender.com subdomain permanently
+// redirects to the official domain so staging/exposed copies can never
+// be indexed or mistaken for the official site.
+const CANONICAL_HOST = "www.elitevetksa.com";
+app.use((req, res, next) => {
+  const host = (req.headers.host || "").toLowerCase();
+  if (host.endsWith(".onrender.com")) {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
