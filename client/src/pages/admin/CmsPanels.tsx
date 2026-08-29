@@ -290,6 +290,8 @@ const HOME_SECTIONS: { key: string; label: string }[] = [
   { key: "services", label: "الخدمات" },
   { key: "why-choose", label: "لماذا النخبة" },
   { key: "team", label: "الفريق" },
+  { key: "offers", label: "العروض (من قاعدة البيانات)" },
+  { key: "testimonials", label: "آراء العملاء (من قاعدة البيانات)" },
   { key: "partners", label: "الشركاء" },
   { key: "contact", label: "نموذج التواصل" },
 ];
