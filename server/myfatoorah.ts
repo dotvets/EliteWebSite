@@ -1,8 +1,9 @@
 // MyFatoorah integration — Test mode by default.
 // Env: MYFATOORAH_API_KEY, MYFATOORAH_MODE ("test" | "live"), SITE_URL
+// Saudi accounts must use the api-sa endpoint.
 const BASE = () =>
   process.env.MYFATOORAH_MODE === "live"
-    ? "https://api.myfatoorah.com"
+    ? (process.env.MYFATOORAH_BASE_URL || "https://api-sa.myfatoorah.com")
     : "https://apitest.myfatoorah.com";
 
 function configured() {
