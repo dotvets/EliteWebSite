@@ -179,6 +179,7 @@ export const blogPosts = pgTable("blog_posts", {
   author: text("author"),
   category: text("category"),
   tags: text("tags"),
+  publishAt: text("publish_at"),
   publishedAt: text("published_at"),
   metaTitleAr: text("meta_title_ar"),
   metaTitleEn: text("meta_title_en"),
