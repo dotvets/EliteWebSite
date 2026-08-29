@@ -145,7 +145,7 @@ console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive")
   }
   try {
     await pool.query(DDL);
-    for (const t of ["team_members", "testimonials", "offers", "blog_posts"]) {
+    for (const t of ["team_members", "testimonials", "offers", "blog_posts", "branches"]) {
       await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`);
     }
     console.log("[db] schema ensured");
