@@ -3,17 +3,22 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaSnapchat, FaXTwitter } from "react-icons/fa6";
 import logoImage from "@assets/Elite final logo_1762859223489.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useBootstrap, bsVal } from "@/hooks/useBootstrap";
 import { translations } from "@/translations";
 
 export default function Footer() {
   const { language } = useLanguage();
   const t = translations[language].footer;
+  const bs = useBootstrap();
+  const phone = bsVal(bs, "phone", language, "920011626");
+  const whatsapp = bsVal(bs, "whatsapp", language, "966920011626");
+  const email = bsVal(bs, "email", language, "info@elitevetksa.com");
 
   const socialLinks = [
     { 
       name: "WhatsApp", 
       icon: FaWhatsapp, 
-      url: "https://wa.me/966920011626",
+      url: `https://wa.me/${whatsapp}`,
       testId: "link-whatsapp"
     },
     { 
@@ -82,7 +87,7 @@ export default function Footer() {
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 flex-shrink-0" />
                   <a 
-                    href="tel:920011626"
+                    href={`tel:${phone}`}
                     className="text-white/80 text-sm font-body hover:text-white transition-colors"
                     data-testid="link-call"
                   >
@@ -92,11 +97,11 @@ export default function Footer() {
                 <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 flex-shrink-0" />
                   <a 
-                    href="mailto:info@elitevetksa.com"
+                    href={`mailto:${email}`}
                     className="text-white/80 text-sm font-body hover:text-white transition-colors"
                     data-testid="link-email"
                   >
-                    info@elitevetksa.com
+                    {email}
                   </a>
                 </li>
                 <li className="flex items-start gap-3">

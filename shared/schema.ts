@@ -106,3 +106,122 @@ export const payments = pgTable("payments", {
   createdAt: text("created_at").notNull().default(sql`now()::text`),
   updatedAt: text("updated_at").notNull().default(sql`now()::text`),
 });
+
+// ===== CMS collections (admin dashboard upgrade) =====
+
+export const teamMembers = pgTable("team_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nameAr: text("name_ar").notNull(),
+  nameEn: text("name_en"),
+  positionAr: text("position_ar"),
+  positionEn: text("position_en"),
+  specialty: text("specialty"),
+  bioAr: text("bio_ar"),
+  bioEn: text("bio_en"),
+  photo: text("photo"),
+  experience: text("experience"),
+  certifications: text("certifications"),
+  languages: text("languages"),
+  branch: text("branch"),
+  email: text("email"),
+  published: text("published").notNull().default("true"),
+  featured: text("featured").notNull().default("false"),
+  sortOrder: text("sort_order").notNull().default("0"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const testimonials = pgTable("testimonials", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerAr: text("customer_ar").notNull(),
+  customerEn: text("customer_en"),
+  textAr: text("text_ar").notNull(),
+  textEn: text("text_en"),
+  rating: text("rating").default("5"),
+  image: text("image"),
+  branch: text("branch"),
+  published: text("published").notNull().default("true"),
+  featured: text("featured").notNull().default("false"),
+  sortOrder: text("sort_order").notNull().default("0"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const offers = pgTable("offers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  titleAr: text("title_ar").notNull(),
+  titleEn: text("title_en"),
+  descriptionAr: text("description_ar"),
+  descriptionEn: text("description_en"),
+  image: text("image"),
+  discount: text("discount"),
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  cta: text("cta"),
+  ctaUrl: text("cta_url"),
+  published: text("published").notNull().default("true"),
+  featured: text("featured").notNull().default("false"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const blogPosts = pgTable("blog_posts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(),
+  titleAr: text("title_ar").notNull(),
+  titleEn: text("title_en"),
+  contentAr: text("content_ar"),
+  contentEn: text("content_en"),
+  coverImage: text("cover_image"),
+  author: text("author"),
+  category: text("category"),
+  tags: text("tags"),
+  publishedAt: text("published_at"),
+  metaTitleAr: text("meta_title_ar"),
+  metaTitleEn: text("meta_title_en"),
+  metaDescAr: text("meta_desc_ar"),
+  metaDescEn: text("meta_desc_en"),
+  published: text("published").notNull().default("false"),
+  featured: text("featured").notNull().default("false"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const branches = pgTable("branches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nameAr: text("name_ar").notNull(),
+  nameEn: text("name_en"),
+  addressAr: text("address_ar"),
+  addressEn: text("address_en"),
+  mapsUrl: text("maps_url"),
+  phone: text("phone"),
+  whatsapp: text("whatsapp"),
+  hours: text("hours"),
+  emergency: text("emergency").default("false"),
+  image: text("image"),
+  published: text("published").notNull().default("true"),
+  sortOrder: text("sort_order").notNull().default("0"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const seoMeta = pgTable("seo_meta", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  path: text("path").notNull().unique(), // e.g. "/", "/about", "/services"
+  titleAr: text("title_ar"),
+  titleEn: text("title_en"),
+  descAr: text("desc_ar"),
+  descEn: text("desc_en"),
+  ogImage: text("og_image"),
+  canonical: text("canonical"),
+  robots: text("robots").default("index,follow"),
+  updatedAt: text("updated_at").notNull().default(sql`now()::text`),
+});
+
+export const activityLog = pgTable("activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  action: text("action").notNull(), // e.g. "تحديث خدمة", "إضافة عضو فريق"
+  entity: text("entity"),
+  entityId: text("entity_id"),
+  createdAt: text("created_at").notNull().default(sql`now()::text`),
+});

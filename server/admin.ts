@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { db, dbEnabled } from "./db";
 import { bookings, messages, siteContent, mediaFiles, adminUsers, services, payments } from "@shared/schema";
 import { registerServiceRoutes } from "./services";
+import { registerCmsRoutes, logActivity } from "./cms";
 import { eq, desc, and } from "drizzle-orm";
 import crypto from "crypto";
 import { sendNotification, bookingEmailHtml } from "./email";
@@ -27,6 +28,7 @@ export function registerAdminRoutes(app: Express) {
     return;
   }
   registerServiceRoutes(app);
+  registerCmsRoutes(app);
   // ---------- Auth ----------
   app.post("/api/admin/login", async (req, res) => {
     const { username, password } = req.body || {};

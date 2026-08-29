@@ -85,6 +85,57 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at text NOT NULL DEFAULT now()::text,
   updated_at text NOT NULL DEFAULT now()::text
 );
+CREATE TABLE IF NOT EXISTS team_members (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  name_ar text NOT NULL, name_en text, position_ar text, position_en text,
+  specialty text, bio_ar text, bio_en text, photo text, experience text,
+  certifications text, languages text, branch text, email text,
+  published text NOT NULL DEFAULT 'true', featured text NOT NULL DEFAULT 'false',
+  sort_order text NOT NULL DEFAULT '0',
+  created_at text NOT NULL DEFAULT now()::text, updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS testimonials (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_ar text NOT NULL, customer_en text, text_ar text NOT NULL, text_en text,
+  rating text DEFAULT '5', image text, branch text,
+  published text NOT NULL DEFAULT 'true', featured text NOT NULL DEFAULT 'false',
+  sort_order text NOT NULL DEFAULT '0',
+  created_at text NOT NULL DEFAULT now()::text, updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS offers (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  title_ar text NOT NULL, title_en text, description_ar text, description_en text,
+  image text, discount text, start_date text, end_date text, cta text, cta_url text,
+  published text NOT NULL DEFAULT 'true', featured text NOT NULL DEFAULT 'false',
+  created_at text NOT NULL DEFAULT now()::text, updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug text NOT NULL UNIQUE, title_ar text NOT NULL, title_en text,
+  content_ar text, content_en text, cover_image text, author text, category text, tags text,
+  published_at text, meta_title_ar text, meta_title_en text, meta_desc_ar text, meta_desc_en text,
+  published text NOT NULL DEFAULT 'false', featured text NOT NULL DEFAULT 'false',
+  created_at text NOT NULL DEFAULT now()::text, updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS branches (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  name_ar text NOT NULL, name_en text, address_ar text, address_en text,
+  maps_url text, phone text, whatsapp text, hours text, emergency text DEFAULT 'false',
+  image text, published text NOT NULL DEFAULT 'true', sort_order text NOT NULL DEFAULT '0',
+  created_at text NOT NULL DEFAULT now()::text, updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS seo_meta (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  path text NOT NULL UNIQUE, title_ar text, title_en text, desc_ar text, desc_en text,
+  og_image text, canonical text, robots text DEFAULT 'index,follow',
+  updated_at text NOT NULL DEFAULT now()::text
+);
+CREATE TABLE IF NOT EXISTS activity_log (
+  id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+  action text NOT NULL, entity text, entity_id text,
+  created_at text NOT NULL DEFAULT now()::text
+);
+
 `;
 
 export async function ensureSchema() {

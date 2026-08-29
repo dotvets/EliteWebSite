@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import ServicesPanel from "./ServicesPanel";
+import { ToastProvider } from "./ui";
+import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, SettingsPanel, SeoPanel, ActivityPanel, MediaPanel, GlobalSearch } from "./CmsPanels";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -48,7 +50,8 @@ export default function AdminDashboard() {
     try {
       const me = await api("/api/admin/me");
       if (!me.authenticated) return setLocation("/admin");
-      setStats(await api("/api/admin/stats"));
+      const [s1, s2] = await Promise.all([api("/api/admin/stats"), api("/api/admin/stats2").catch(() => null)]);
+      setStats({ ...s1, ...s2 });
       setBookings(await api("/api/admin/bookings"));
       setMsgs(await api("/api/admin/messages"));
       setContent(await api("/api/content"));
@@ -83,11 +86,15 @@ export default function AdminDashboard() {
   };
 
   const tabs: [string, string][] = [
-    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"], ["messages", "الرسائل"],
-    ["content", "محتوى الموقع"], ["media", "مكتبة الصور"],
+    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"],
+    ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
+    ["blog", "المدونة"], ["branches", "الفروع"],
+    ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["media", "مكتبة الصور"],
+    ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"],
   ];
 
   return (
+    <ToastProvider>
     <div style={S.wrap}>
       <div style={S.side}>
         <h2 style={{ padding: "0 24px 20px", fontSize: 18 }}>🐾 لوحة النخبة</h2>
@@ -99,13 +106,25 @@ export default function AdminDashboard() {
       <div style={S.main}>
         {tab === "stats" && stats && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 16 }}>
-            {[["إجمالي الحجوزات", stats.bookingsTotal], ["حجوزات جديدة", stats.bookingsNew], ["مدفوعة", stats.bookingsPaid], ["الرسائل", stats.messagesTotal], ["غير مقروءة", stats.messagesUnread]].map(([l, v]) => (
+            {[["إجمالي الحجوزات", stats.bookingsTotal], ["حجوزات جديدة", stats.bookingsNew], ["مدفوعة", stats.bookingsPaid],
+              ["الخدمات", stats.services], ["الفريق", stats.team], ["آراء العملاء", stats.testimonials],
+              ["العروض", stats.offers], ["المقالات", stats.blog], ["الفروع", stats.branches],
+              ["ملفات الوسائط", stats.media], ["الرسائل", stats.messagesTotal]].filter(([, v]) => v !== undefined && v !== null).map(([l, v]) => (
               <div key={String(l)} style={S.stat}><div style={{ fontSize: 32, fontWeight: 800, color: "#6650a0" }}>{String(v)}</div><div style={{ color: "#888" }}>{l}</div></div>
             ))}
           </div>
         )}
 
+        <GlobalSearch api={api} onNavigate={(t) => setTab(t)} />
         {tab === "services" && <ServicesPanel api={api} />}
+        {tab === "team" && <TeamPanel api={api} />}
+        {tab === "testimonials" && <TestimonialsPanel api={api} />}
+        {tab === "offers" && <OffersPanel api={api} />}
+        {tab === "blog" && <BlogPanel api={api} />}
+        {tab === "branches" && <BranchesPanel api={api} />}
+        {tab === "seo" && <SeoPanel api={api} />}
+        {tab === "settings" && <SettingsPanel api={api} />}
+        {tab === "activity" && <ActivityPanel api={api} />}
 
         {tab === "bookings" && (
           <div style={S.card}>
@@ -169,22 +188,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {tab === "media" && (
-          <div style={S.card}>
-            <h3>مكتبة الصور ({media.length})</h3>
-            <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && uploadMedia(e.target.files[0])} />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12, marginTop: 16 }}>
-              {media.map((m) => (
-                <div key={m.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
-                  <img src={`/api/media/${m.id}`} style={{ width: "100%", borderRadius: 6 }} />
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 4, wordBreak: "break-all" }}>{m.filename}</div>
-                  <code style={{ fontSize: 11 }}>/api/media/{m.id}</code>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {tab === "media" && <MediaPanel api={api} uploadMedia={uploadMedia} />}
       </div>
     </div>
+    </ToastProvider>
   );
 }

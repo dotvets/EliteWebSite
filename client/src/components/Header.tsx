@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { useScrollHeader } from "./header/useScrollHeader";
+import { useBootstrap, bsVal } from "@/hooks/useBootstrap";
 import { Logo } from "./header/Logo";
 import { DesktopNav } from "./header/DesktopNav";
 import { LanguageToggle } from "./header/LanguageToggle";
@@ -14,6 +15,8 @@ export default function Header() {
   const isScrolled = useScrollHeader();
   const { language } = useLanguage();
   const t = translations[language].header;
+  const bs = useBootstrap();
+  const phone = bsVal(bs, "phone", language, "920011626");
 
   const scrollToFooter = () => {
     const footer = document.querySelector('footer');
@@ -46,9 +49,9 @@ export default function Header() {
 
           <div className="hidden lg:flex items-center gap-4">
             <LanguageToggle />
-            <a href="tel:920011626">
+            <a href={`tel:${phone}`}>
               <Button data-testid="button-book-appointment" size="default" className="font-mono text-lg">
-                <AnimatedPhoneNumber number="920011626" />
+                <AnimatedPhoneNumber number={phone} />
               </Button>
             </a>
           </div>
