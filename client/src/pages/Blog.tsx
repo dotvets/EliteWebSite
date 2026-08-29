@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import PageLayout from "@/components/PageLayout";
@@ -9,6 +10,10 @@ export default function Blog() {
   const t = translations[language].blogPage;
 
   const sections = createBlogSections(t);
+  const [posts, setPosts] = useState<any[]>([]);
+  useEffect(() => {
+    fetch("/api/public/blog").then((r) => (r.ok ? r.json() : [])).then(setPosts).catch(() => {});
+  }, []);
 
   return (
     <PageLayout dataTestId="page-blog">
@@ -27,6 +32,22 @@ export default function Blog() {
           </AnimatedContent>
         </div>
       </section>
+
+      {/* DB-managed posts (admin Blog panel) */}
+      {posts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {posts.map((p) => (
+            <article key={p.id} className="bg-card rounded-2xl shadow-md overflow-hidden border border-border">
+              {p.coverImage && <img src={p.coverImage} alt="" className="w-full h-44 object-cover" loading="lazy" />}
+              <div className="p-5">
+                <h2 className="text-xl font-bold font-heading text-primary mb-2">{(language === "ar" ? p.titleAr : p.titleEn) || p.titleAr}</h2>
+                <p className="text-foreground/70 text-sm line-clamp-4 whitespace-pre-line">{((language === "ar" ? p.contentAr : p.contentEn) || p.contentAr || "").slice(0, 400)}</p>
+                <div className="mt-3 text-xs text-muted-foreground">{p.author || ""} {p.publishedAt ? "• " + String(p.publishedAt).slice(0, 10) : ""}</div>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
 
       {/* Blog Sections */}
       {sections.map(({ key, className, content }, index) => {

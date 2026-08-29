@@ -6,7 +6,7 @@ import { fadeInUp } from "@/animations";
 import { SectionHeader } from "@/components/SectionHeader";
 import { CountingNumber } from "@/components/CountingNumber";
 import { BenefitCard } from "@/components/BenefitCard";
-import { TeamMemberSlider } from "@/components/team-slider/TeamMemberSlider";
+import DbTeamSlider from "@/components/team-slider/DbTeamSlider";
 import { PartnerCarousel } from "@/components/partner-carousel/PartnerCarousel";
 import { ContactForm } from "@/components/ContactForm";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
@@ -174,7 +174,7 @@ export const createHomeSections = (t: Translation) => [
         />
 
         <AnimatedContent variant="fadeInUp" className="mt-8">
-          <TeamMemberSlider members={t.team.members} />
+          <DbTeamSlider fallbackMembers={t.team.members} />
         </AnimatedContent>
       </div>
     ),

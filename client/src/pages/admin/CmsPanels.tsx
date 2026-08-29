@@ -282,3 +282,80 @@ export function GlobalSearch({ api, onNavigate }: { api: Api; onNavigate: (tab: 
     </div>
   );
 }
+
+// ---------- Homepage section manager (visibility + order, real effect on /) ----------
+const HOME_SECTIONS: { key: string; label: string }[] = [
+  { key: "hero", label: "الهيرو (الفيديو الرئيسي)" },
+  { key: "intro", label: "المقدمة / من نحن" },
+  { key: "services", label: "الخدمات" },
+  { key: "why-choose", label: "لماذا النخبة" },
+  { key: "team", label: "الفريق" },
+  { key: "partners", label: "الشركاء" },
+  { key: "contact", label: "نموذج التواصل" },
+];
+
+export function PagesPanel({ api }: { api: Api }) {
+  const toast = useToast();
+  const [cfg, setCfg] = useState<{ hidden: string[]; order: string[]; heroHidden: boolean }>({ hidden: [], order: [], heroHidden: false });
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    api("/api/content").then((rows: any[]) => {
+      const row = rows.find((x) => x.key === "home.sections");
+      if (row?.valueAr) { try { setCfg({ hidden: [], order: [], heroHidden: false, ...JSON.parse(row.valueAr) }); } catch {} }
+    });
+  }, []);
+
+  const orderedKeys = () => {
+    const keys = HOME_SECTIONS.filter((s) => s.key !== "hero").map((s) => s.key);
+    if (!cfg.order.length) return keys;
+    return [...keys].sort((a, b) => {
+      const ia = cfg.order.indexOf(a), ib = cfg.order.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+  };
+
+  const toggle = (key: string) =>
+    setCfg({ ...cfg, hidden: cfg.hidden.includes(key) ? cfg.hidden.filter((k) => k !== key) : [...cfg.hidden, key] });
+
+  const move = (key: string, dir: number) => {
+    const keys = orderedKeys();
+    const i = keys.indexOf(key);
+    const j = i + dir;
+    if (j < 0 || j >= keys.length) return;
+    const next = [...keys]; [next[i], next[j]] = [next[j], next[i]];
+    setCfg({ ...cfg, order: next });
+  };
+
+  const save = async () => {
+    setSaving(true);
+    await api("/api/admin/content/home.sections", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ valueAr: JSON.stringify(cfg), type: "json", section: "home" }) });
+    setSaving(false);
+    toast("✅ حُفظ — الترتيب/الإخفاء يظهر على الرئيسية فور التحديث");
+  };
+
+  return (
+    <div style={A.card}>
+      <h3>الصفحة الرئيسية — الأقسام</h3>
+      <p style={{ color: "#888", fontSize: 13 }}>إظهار/إخفاء وترتيب أقسام الصفحة الرئيسية. التأثير حقيقي ومباشر على الموقع العام.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+        <b>الهيرو (الفيديو)</b>
+        <button style={cfg.heroHidden ? A.btnGhost : A.btn} onClick={() => setCfg({ ...cfg, heroHidden: !cfg.heroHidden })}>{cfg.heroHidden ? "مخفي — إظهار" : "ظاهر — إخفاء"}</button>
+      </div>
+      {orderedKeys().map((key) => {
+        const s = HOME_SECTIONS.find((x) => x.key === key)!;
+        const hidden = cfg.hidden.includes(key);
+        return (
+          <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0", opacity: hidden ? 0.5 : 1 }}>
+            <b>{s.label}</b>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button style={A.btnGhost} onClick={() => move(key, -1)}>▲</button>
+              <button style={A.btnGhost} onClick={() => move(key, 1)}>▼</button>
+              <button style={hidden ? A.btnGhost : A.btn} onClick={() => toggle(key)}>{hidden ? "مخفي — إظهار" : "ظاهر — إخفاء"}</button>
+            </div>
+          </div>
+        );
+      })}
+      <button style={{ ...A.btn, marginTop: 16 }} disabled={saving} onClick={save}>{saving ? "جارٍ الحفظ…" : "حفظ ترتيب الأقسام"}</button>
+    </div>
+  );
+}

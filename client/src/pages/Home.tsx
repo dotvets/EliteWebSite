@@ -5,16 +5,18 @@ import ECGAnimation from "@/components/ECGAnimation";
 import HeartbeatDivider from "@/components/HeartbeatDivider";
 import PageLayout from "@/components/PageLayout";
 import { createHomeSections } from "@/data/homeSections";
+import { useHomeSectionsConfig, arrangeSections } from "@/hooks/useHomeSections";
 
 export default function Home() {
   const { language } = useLanguage();
   const t = translations[language];
 
-  const sections = createHomeSections(t);
+  const cfg = useHomeSectionsConfig();
+  const sections = arrangeSections(createHomeSections(t), cfg);
 
   return (
     <PageLayout dataTestId="page-home">
-      <HeroVideo />
+      {!cfg.heroHidden && <HeroVideo />}
       <ECGAnimation />
       
       {/* Mapped Sections */}

@@ -33,7 +33,7 @@ export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
 
   const membersWithImages = members.map((member, index) => ({
     ...member,
-    image: doctorImages[index]
+    image: member.image || doctorImages[index]
   }));
 
   return (

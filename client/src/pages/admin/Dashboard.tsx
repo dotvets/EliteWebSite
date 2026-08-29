@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import ServicesPanel from "./ServicesPanel";
 import { ToastProvider } from "./ui";
-import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, SettingsPanel, SeoPanel, ActivityPanel, MediaPanel, GlobalSearch } from "./CmsPanels";
+import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, SettingsPanel, SeoPanel, ActivityPanel, MediaPanel, GlobalSearch, PagesPanel } from "./CmsPanels";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
   const tabs: [string, string][] = [
     ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"],
-    ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
+    ["pages", "الصفحات"], ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
     ["blog", "المدونة"], ["branches", "الفروع"],
     ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["media", "مكتبة الصور"],
     ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"],
@@ -117,6 +117,7 @@ export default function AdminDashboard() {
 
         <GlobalSearch api={api} onNavigate={(t) => setTab(t)} />
         {tab === "services" && <ServicesPanel api={api} />}
+        {tab === "pages" && <PagesPanel api={api} />}
         {tab === "team" && <TeamPanel api={api} />}
         {tab === "testimonials" && <TestimonialsPanel api={api} />}
         {tab === "offers" && <OffersPanel api={api} />}
