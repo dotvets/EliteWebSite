@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import ServiceGroup from "@/components/ServiceGroup";
 import ServiceImageBlock from "@/components/ServiceImageBlock";
+import { siteImage } from "@/lib/siteImages";
 import heroBackgroundImg from "@assets/freepik__img1-make-background-fully-white-remove-shadows-re__83842_1763051566185.png";
 import medicalSpecialtiesImg from "@assets/stock_images/veterinarian_examini_bffcd340.jpg";
 import surgeryImg from "@assets/stock_images/veterinary_surgery_o_7559b1f2.jpg";
@@ -244,7 +245,7 @@ export const createServicesSections = (
           <div
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: `url(${heroBackgroundImg})`,
+              backgroundImage: `url(${siteImage("img.services.herobg", heroBackgroundImg)})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -291,7 +292,7 @@ export const createServicesSections = (
       className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceImageBlock
-          image={medicalSpecialtiesImg}
+          image={siteImage("img.services.medical", medicalSpecialtiesImg)}
           imageAlt="Elite Vet medical specialties"
           imageTestId="img-section-medical"
           title={t.imageSections.medical.title}
@@ -317,7 +318,7 @@ export const createServicesSections = (
       className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceImageBlock
-          image={surgeryImg}
+          image={siteImage("img.services.surgery", surgeryImg)}
           imageAlt="Surgical procedures at Elite Vet"
           imageTestId="img-section-surgery"
           title={t.imageSections.surgery.title}
@@ -343,7 +344,7 @@ export const createServicesSections = (
       className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
       content: (
         <ServiceImageBlock
-          image={diagnosticImg}
+          image={siteImage("img.services.diagnostic", diagnosticImg)}
           imageAlt="Diagnostic services"
           imageTestId="img-section-diagnostic"
           title={t.imageSections.emergency.title}
