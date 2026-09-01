@@ -170,6 +170,7 @@ export default function ImagesPanel({ api }: { api: Api }) {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename: `${key.replace(/\W+/g, "-")}-${Date.now()}`, mimeType, dataBase64 }),
       });
+      if (!up || !up.id) throw new Error("upload_failed");
       const url = `/api/media/${up.id}`;
       await api(`/api/admin/content/${encodeURIComponent(key)}`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
