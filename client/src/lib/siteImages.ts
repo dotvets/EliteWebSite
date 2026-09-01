@@ -25,7 +25,11 @@ async function fetchOverrides(): Promise<void> {
 
 /** Resolve an image key to its override URL, or the bundled fallback. */
 export function siteImage(key: string, fallback: string): string {
-  return overrides[key] || fallback;
+  const v = overrides[key];
+  // guard against corrupted rows (e.g. "/api/media/undefined") — always fall back safely
+  if (!v || typeof v !== "string" || v.includes("undefined")) return fallback;
+  if (!/^(https?:\/\/|\/|data:image\/)/.test(v)) return fallback;
+  return v;
 }
 
 /** Call once near the app root: loads overrides and re-renders when ready. */
