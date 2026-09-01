@@ -8,8 +8,9 @@ import { SliderIndicators } from "./SliderIndicators";
 import heroImage1 from "@assets/generated_images/Veterinarian_examining_golden_retriever_66fcde95.png";
 import heroImage2 from "@assets/freepik__img1i-want-you-to-make-the-attached-image-more-bea__64912_1762857524224.png";
 import heroImage3 from "@assets/generated_images/Happy_pet_owner_with_cat_0ee67349.png";
+import { siteImage } from "@/lib/siteImages";
 
-const images = [heroImage1, heroImage2, heroImage3];
+const images = [siteImage("img.hero.slide1", heroImage1), siteImage("img.hero.slide2", heroImage2), siteImage("img.hero.slide3", heroImage3)];
 
 export default function HeroSlider() {
   const { language } = useLanguage();
