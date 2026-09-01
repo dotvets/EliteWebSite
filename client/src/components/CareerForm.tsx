@@ -51,9 +51,14 @@ interface CareerFormTranslations {
   toast: {
     title: string;
     description: string;
+    errorTitle: string;
+    errorDescription: string;
   };
   qualificationsTitle?: string;
 }
+
+const WEB3FORMS_ACCESS_KEY = "69bdf1b9-18fe-4870-bf80-a2e98a17ad5f";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 interface CareerFormProps {
   translations: CareerFormTranslations;
@@ -98,19 +103,50 @@ export function CareerForm({ translations: t }: CareerFormProps) {
   const onSubmit = async (data: CareerFormData) => {
     try {
       setIsSubmitting(true);
-      console.log("Career application submitted:", data);
-      
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      toast({
-        title: t.toast.title,
-        description: t.toast.description,
+
+      const formData = new FormData();
+      formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+      formData.append("fullName", data.fullName);
+      formData.append("email", data.email);
+      formData.append("phone", data.phone);
+      formData.append("position", data.position);
+      formData.append("startDate", data.startDate);
+      formData.append("experience", data.experience);
+      formData.append("education", data.education);
+      if (data.certifications) formData.append("certifications", data.certifications);
+      if (data.interests) formData.append("interests", data.interests);
+      if (data.coverLetter) formData.append("coverLetter", data.coverLetter);
+      const resumeFile = (data.resume as FileList | undefined)?.[0];
+      if (resumeFile) formData.append("resume", resumeFile);
+
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: formData,
       });
-      
-      form.reset();
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast({
+          title: t.toast.title,
+          description: t.toast.description,
+        });
+        form.reset();
+      } else {
+        toast({
+          variant: "destructive",
+          title: t.toast.errorTitle,
+          description: t.toast.errorDescription,
+        });
+      }
       setIsSubmitting(false);
     } catch (error) {
       console.error("Error in career application:", error);
+      toast({
+        variant: "destructive",
+        title: t.toast.errorTitle,
+        description: t.toast.errorDescription,
+      });
       setIsSubmitting(false);
     }
   };
