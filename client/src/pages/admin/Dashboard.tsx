@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import ServicesPanel from "./ServicesPanel";
 import { ToastProvider } from "./ui";
 import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, SettingsPanel, SeoPanel, ActivityPanel, MediaPanel, GlobalSearch, PagesPanel, HomeTextsEditor } from "./CmsPanels";
+import ImagesPanel from "./ImagesPanel";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -89,7 +90,7 @@ export default function AdminDashboard() {
     ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"],
     ["pages", "الصفحات"], ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
     ["blog", "المدونة"], ["branches", "الفروع"],
-    ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["media", "مكتبة الصور"],
+    ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["images", "صور الموقع"], ["media", "مكتبة الصور"],
     ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"],
   ];
 
@@ -190,6 +191,7 @@ export default function AdminDashboard() {
         )}
 
         {tab === "media" && <MediaPanel api={api} uploadMedia={uploadMedia} />}
+        {tab === "images" && <ImagesPanel api={api} />}
       </div>
     </div>
     </ToastProvider>
