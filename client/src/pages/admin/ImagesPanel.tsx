@@ -164,6 +164,7 @@ export default function ImagesPanel({ api }: { api: Api }) {
       return;
     }
     setBusyKey(key);
+    const previousUrl = overrides[key] || null;
     try {
       const { dataBase64, mimeType } = await fileToOptimizedBase64(file);
       const up = await api("/api/admin/media", {
@@ -172,14 +173,25 @@ export default function ImagesPanel({ api }: { api: Api }) {
       });
       if (!up || !up.id) throw new Error("upload_failed");
       const url = `/api/media/${up.id}`;
-      await api(`/api/admin/content/${encodeURIComponent(key)}`, {
+      const saved = await api(`/api/admin/content/${encodeURIComponent(key)}`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ valueAr: url, valueEn: url, type: "image", section: "site-images" }),
       });
+      if (!saved || saved.ok !== true) throw new Error("save_failed");
+      // update preview instantly, then clean up the replaced media file
+      setOverrides((o) => ({ ...o, [key]: url }));
+      const oldMatch = previousUrl?.match(/^\/api\/media\/([\w-]+)$/);
+      if (oldMatch && oldMatch[1] !== up.id) {
+        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
+      }
       toast(`تم استبدال «${label}» — ستظهر بالموقع مباشرة`);
       await load();
     } catch (e: any) {
-      toast(e?.message === "large" ? "الصورة كبيرة جدًا حتى بعد التحسين — جرّب صورة أصغر" : "فشل استبدال الصورة");
+      const msg = e?.message === "large" ? "الصورة كبيرة جدًا حتى بعد التحسين — جرّب صورة أصغر"
+        : e?.message === "upload_failed" ? "فشل رفع الصورة إلى المكتبة — حاول مرة أخرى"
+        : e?.message === "save_failed" ? "رُفعت الصورة لكن فشل حفظ الربط — حاول مرة أخرى"
+        : "فشل استبدال الصورة";
+      toast(msg);
     }
     setBusyKey(null);
   };
@@ -187,8 +199,12 @@ export default function ImagesPanel({ api }: { api: Api }) {
   const reset = async (key: string, label: string) => {
     if (!window.confirm(`استعادة الصورة الافتراضية لـ «${label}»؟`)) return;
     setBusyKey(key);
+    const previousUrl = overrides[key] || null;
     try {
       await api(`/api/admin/content/${encodeURIComponent(key)}`, { method: "DELETE" });
+      setOverrides((o) => { const n = { ...o }; delete n[key]; return n; });
+      const oldMatch = previousUrl?.match(/^\/api\/media\/([\w-]+)$/);
+      if (oldMatch) api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
       toast("تمت الاستعادة للافتراضية");
       await load();
     } catch {
