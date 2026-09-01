@@ -104,8 +104,8 @@ export function CareerForm({ translations: t }: CareerFormProps) {
     try {
       setIsSubmitting(true);
 
+      // collect every form field via FormData, then convert to a plain JSON object
       const formData = new FormData();
-      formData.append("access_key", WEB3FORMS_ACCESS_KEY);
       formData.append("fullName", data.fullName);
       formData.append("email", data.email);
       formData.append("phone", data.phone);
@@ -113,16 +113,33 @@ export function CareerForm({ translations: t }: CareerFormProps) {
       formData.append("startDate", data.startDate);
       formData.append("experience", data.experience);
       formData.append("education", data.education);
-      if (data.certifications) formData.append("certifications", data.certifications);
-      if (data.interests) formData.append("interests", data.interests);
-      if (data.coverLetter) formData.append("coverLetter", data.coverLetter);
+      formData.append("certifications", data.certifications || "");
+      formData.append("interests", data.interests || "");
+      formData.append("coverLetter", data.coverLetter || "");
+      const payload: Record<string, any> = Object.fromEntries(formData.entries());
+
+      // keep the CV in the payload: base64 data URL (JSON-safe), with the original filename
       const resumeFile = (data.resume as FileList | undefined)?.[0];
-      if (resumeFile) formData.append("resume", resumeFile);
+      if (resumeFile) {
+        payload.resume_filename = resumeFile.name;
+        if (resumeFile.size <= 3_000_000) {
+          payload.resume = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("read_failed"));
+            reader.readAsDataURL(resumeFile);
+          });
+        } else {
+          payload.resume = `(file too large to attach: ${resumeFile.name})`;
+        }
+      }
+
+      payload.access_key = WEB3FORMS_ACCESS_KEY;
 
       const response = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: formData,
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
       });
       const result = await response.json();
 
