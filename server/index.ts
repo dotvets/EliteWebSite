@@ -12,6 +12,7 @@ declare module 'http' {
   }
 }
 app.use(express.json({
+  limit: "12mb", // media uploads arrive as base64 JSON payloads (server caps at ~1.8MB per file after optimization)
   verify: (req, _res, buf) => {
     req.rawBody = buf;
   }
