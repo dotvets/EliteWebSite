@@ -5,6 +5,7 @@ import PageLayout from "@/components/PageLayout";
 import { HeroImage } from "@/components/hero-video/HeroImage";
 import { createAboutSections } from "@/data/aboutSections";
 import heroImage from "@assets/freepik__img1i-want-you-to-make-the-attached-image-more-bea__64912_1762857524224.png";
+import { siteImage } from "@/lib/siteImages";
 
 export default function About() {
   const { language } = useLanguage();
@@ -16,7 +17,7 @@ export default function About() {
   return (
     <PageLayout dataTestId="page-about">
       <HeroImage 
-        image={heroImage} 
+        image={siteImage("img.about.hero", heroImage)} 
         title={t.hero.title}
         alt={t.hero.title}
       />
