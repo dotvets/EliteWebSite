@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaSnapchat, FaXTwitter } from "react-icons/fa6";
 import logoImage from "@assets/Elite final logo_1762859223489.jpg";
+import { siteImage } from "@/lib/siteImages";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBootstrap, bsVal } from "@/hooks/useBootstrap";
 import { translations } from "@/translations";
@@ -69,7 +70,7 @@ export default function Footer() {
             <div>
               <div className="mb-6 bg-white rounded-lg p-4 inline-block">
                 <img
-                  src={logoImage}
+                  src={siteImage("img.footer.logo", logoImage)}
                   alt="Elite Vet Logo"
                   className="h-20 w-auto"
                   data-testid="img-footer-logo"
@@ -144,6 +145,8 @@ export default function Footer() {
                   <div className="text-sm font-body">
                     <div className="text-white/90 font-medium">{t.hours}</div>
                     <div className="text-white/70 mt-1">{t.daily}</div>
+                    <div className="text-white/90 font-medium mt-2">{t.hoursWeekend}</div>
+                    <div className="text-white/70 mt-1">{t.daysWeekend}</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
