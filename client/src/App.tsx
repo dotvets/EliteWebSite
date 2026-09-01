@@ -4,8 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { useSiteImageOverrides } from "@/lib/siteImages";
 import AnimatedServicesBackground from "@/components/AnimatedServicesBackground";
-import BackgroundMusic from "@/components/BackgroundMusic";
 import FloatingSocialMenu from "@/components/FloatingSocialMenu";
 import Header from "@/components/Header";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -37,20 +37,20 @@ function Router() {
   );
 }
 
-// Public-site chrome (header, music, social float) — hidden on admin pages.
+// Public-site chrome (header, social float) — hidden on admin pages.
 function SiteChrome() {
   const [loc] = useLocation();
   if (loc.startsWith("/admin")) return null;
   return (
     <>
       <Header />
-      <BackgroundMusic />
       <FloatingSocialMenu />
     </>
   );
 }
 
 function App() {
+  useSiteImageOverrides();
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
