@@ -46,9 +46,14 @@ type ContactFormProps = {
     toast: {
       title: string;
       description: string;
+      errorTitle: string;
+      errorDescription: string;
     };
   };
 };
+
+const WEB3FORMS_ACCESS_KEY = "2eeabe96-20f3-4b1d-86e1-ee0a7a2e7784";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 export function ContactForm({ translations: t }: ContactFormProps) {
   const { toast } = useToast();
@@ -78,25 +83,43 @@ export function ContactForm({ translations: t }: ContactFormProps) {
   const onSubmit = async (data: ContactFormData) => {
     try {
       setIsSubmitting(true);
-      console.log("Contact form submitted:", data);
-      
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      console.log("About to show toast with title:", t.toast.title);
-      const toastResult = toast({
-        title: t.toast.title,
-        description: t.toast.description,
+
+      const formData = new FormData();
+      formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+      formData.append("name", data.name);
+      formData.append("phone", data.phone);
+      formData.append("email", data.email);
+      formData.append("message", data.message);
+      const payload = { ...Object.fromEntries(formData.entries()), access_key: WEB3FORMS_ACCESS_KEY };
+
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
       });
-      console.log("Toast created with ID:", toastResult.id);
-      
-      console.log("Resetting form...");
-      form.reset();
-      console.log("Form reset complete");
-      
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast({
+          title: t.toast.title,
+          description: t.toast.description,
+        });
+        form.reset();
+      } else {
+        toast({
+          variant: "destructive",
+          title: t.toast.errorTitle,
+          description: t.toast.errorDescription,
+        });
+      }
       setIsSubmitting(false);
-      console.log("Submission complete");
     } catch (error) {
       console.error("Error in form submission:", error);
+      toast({
+        variant: "destructive",
+        title: t.toast.errorTitle,
+        description: t.toast.errorDescription,
+      });
       setIsSubmitting(false);
     }
   };
