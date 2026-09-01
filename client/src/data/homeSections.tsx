@@ -9,6 +9,7 @@ import { BenefitCard } from "@/components/BenefitCard";
 import DbTeamSlider from "@/components/team-slider/DbTeamSlider";
 import { PartnerCarousel } from "@/components/partner-carousel/PartnerCarousel";
 import { ContactForm } from "@/components/ContactForm";
+import { siteImage } from "@/lib/siteImages";
 import introImage from "@assets/generated_images/Veterinarian_holding_small_dog_1111faba.png";
 import vetsvanLogo from "@assets/Partners_vetsvan_1764085956349.png";
 import wadiQortubaLogo from "@assets/Partners_wadi qourtobah_1764085956355.jpg";
@@ -19,10 +20,10 @@ const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
 const benefitIcons = [Clock, StethoscopeIcon, Wrench, Heart];
 
 const partnerLogos = [
-  { name: "VetsVan", image: vetsvanLogo, width: "w-56" },
-  { name: "Wadi Qortuba", image: wadiQortubaLogo, width: "w-48" },
-  { name: "Walaaa Plus", image: walaaaPlusLogo, width: "w-56" },
-  { name: "Wazen", image: wazenLogo, width: "w-44" },
+  { name: "VetsVan", image: siteImage("img.partners.vetsvan", vetsvanLogo), width: "w-56" },
+  { name: "Wadi Qortuba", image: siteImage("img.partners.wadiqortuba", wadiQortubaLogo), width: "w-48" },
+  { name: "Walaaa Plus", image: siteImage("img.partners.walaaaplus", walaaaPlusLogo), width: "w-56" },
+  { name: "Wazen", image: siteImage("img.partners.wazen", wazenLogo), width: "w-44" },
 ];
 
 interface Translation {
@@ -38,7 +39,7 @@ export const createHomeSections = (t: Translation) => [
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <AnimatedContent variant="slideRight">
             <img
-              src={introImage}
+              src={siteImage("img.home.intro", introImage)}
               alt="Veterinarian with dog"
               className="rounded-xl shadow-lg w-full h-auto"
               data-testid="img-intro"
