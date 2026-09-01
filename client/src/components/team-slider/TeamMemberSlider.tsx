@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTeamSlider } from "./useTeamSlider";
 import { TeamSlideItem } from "./TeamSlideItem";
 import { SliderNavigation } from "../hero-slider/SliderNavigation";
+import { siteImage } from "@/lib/siteImages";
 import drKhaledImage from "@assets/dr-khaled-abu-elnasser.png";
 import drAnasImage from "@assets/dr-anas-shobaki.png";
 import drAhmedMounirImage from "@assets/dr-ahmed-mounir.png";
@@ -19,11 +20,11 @@ interface TeamMemberSliderProps {
 }
 
 const doctorImages = [
-  drKhaledImage,
-  drAnasImage,
-  drAhmedMounirImage,
-  drShoaibImage,
-  drEssamImage
+  siteImage("img.doctors.drkhaled", drKhaledImage),
+  siteImage("img.doctors.dranas", drAnasImage),
+  siteImage("img.doctors.drahmedmounir", drAhmedMounirImage),
+  siteImage("img.doctors.drshoaib", drShoaibImage),
+  siteImage("img.doctors.dressam", drEssamImage)
 ];
 
 export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
