@@ -255,6 +255,8 @@ export const translations: TranslationBase & any = {
         toast: {
           title: "Application Submitted!",
           description: "Thank you for your interest. We'll review your application and get back to you soon.",
+          errorTitle: "Submission Failed",
+          errorDescription: "Something went wrong while sending your application. Please try again.",
         },
       },
     },
@@ -561,6 +563,8 @@ export const translations: TranslationBase & any = {
       toast: {
         title: "Message Sent!",
         description: "Thank you for contacting us. We'll get back to you soon.",
+        errorTitle: "Sending Failed",
+        errorDescription: "Something went wrong while sending your message. Please try again.",
       },
 
     },
@@ -579,8 +583,10 @@ export const translations: TranslationBase & any = {
       call: "Call: 920011626",
       emergency: "Emergency: 920011626",
       workingHours: "Working Hours",
-      hours: "09:00 AM - 10:00 PM",
-      daily: "Daily",
+      hours: "12:00 PM – 9:00 PM",
+      daily: "Sunday – Thursday",
+      hoursWeekend: "9:00 AM – 10:00 PM",
+      daysWeekend: "Friday & Saturday",
       emergencyServices: "24/7 Emergency Services",
       stayInTouch: "Stay In Touch",
       riyadhBranch: "Riyadh Branch — Qurtubah:",
@@ -824,6 +830,8 @@ export const translations: TranslationBase & any = {
         toast: {
           title: "تم إرسال الطلب!",
           description: "شكرًا لاهتمامك. سنقوم بمراجعة طلبك والتواصل معك قريبًا.",
+          errorTitle: "فشل الإرسال",
+          errorDescription: "حدث خطأ أثناء إرسال طلبك. يرجى المحاولة مرة أخرى.",
         },
       },
     },
@@ -851,6 +859,8 @@ export const translations: TranslationBase & any = {
       toast: {
         title: "تم إرسال الرسالة!",
         description: "شكرًا لتواصلك معنا. سنتواصل معك قريبًا.",
+        errorTitle: "فشل الإرسال",
+        errorDescription: "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى.",
       },
     },
     servicesPage: {
@@ -1145,8 +1155,10 @@ export const translations: TranslationBase & any = {
       call: "اتصل على: 920011626",
       emergency: "للطوارئ: 920011626",
       workingHours: "مواعيد العمل",
-      hours: "من الـ ٩ صباحًا إلى الـ١٠ مساًء",
-      daily: "يوميًا",
+      hours: "١٢:٠٠ م – ٩:٠٠ م",
+      daily: "الأحد – الخميس",
+      hoursWeekend: "٩:٠٠ ص – ١٠:٠٠ م",
+      daysWeekend: "الجمعة والسبت",
       emergencyServices: "خدمات طوارئ ٢٤ ساعة",
       stayInTouch: "تابعنا",
       riyadhBranch: "فرع الرياض — حي قرطبة:",
