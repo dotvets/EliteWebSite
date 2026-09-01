@@ -6,6 +6,7 @@ import { fadeInUp } from "@/animations";
 import { IconCard } from "@/components/IconCard";
 import { FeatureCard } from "@/components/FeatureCard";
 import { CareerForm } from "@/components/CareerForm";
+import { siteImage } from "@/lib/siteImages";
 import clinicReception from "@assets/freepik__clarify-attachment-photo-img1-increase-clarity-and__22061_1763027414442.png";
 import vetWithDog from "@assets/Mission Section_1763032965994.png";
 import vetTeam from "@assets/Why Choose Elite Vet Section_1763032965996.png";
@@ -20,7 +21,7 @@ interface Translation {
 export const createAboutSections = (t: Translation, partners: Translation) => [
   {
     key: "who-we-are",
-    image: clinicReception,
+    image: siteImage("img.about.reception", clinicReception),
     imageAlt: "Elite Vet modern clinic reception",
     imageTestId: "img-clinic-reception",
     reverse: false,
@@ -38,7 +39,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "vision-mission",
-    image: vetWithDog,
+    image: siteImage("img.about.vetwithdog", vetWithDog),
     imageAlt: "Elite Vet caring for pets",
     imageTestId: "img-vet-with-dog",
     reverse: true,
@@ -66,7 +67,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "why-choose",
-    image: vetTeam,
+    image: siteImage("img.about.vetteam", vetTeam),
     imageAlt: "Elite Vet professional team",
     imageTestId: "img-vet-team",
     reverse: false,
@@ -108,7 +109,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "csr",
-    image: communityService,
+    image: siteImage("img.about.community", communityService),
     imageAlt: "Elite Vet community service",
     imageTestId: "img-community-service",
     reverse: true,
@@ -142,7 +143,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "doctors",
-    image: surgicalTeam,
+    image: siteImage("img.about.surgical", surgicalTeam),
     imageAlt: "Elite Vet surgical expertise",
     imageTestId: "img-surgical-team",
     reverse: false,
@@ -167,7 +168,7 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
   },
   {
     key: "careers-intro",
-    image: careerDevelopment,
+    image: siteImage("img.about.career", careerDevelopment),
     imageAlt: "Elite Vet career opportunities",
     imageTestId: "img-career-development",
     reverse: true,
