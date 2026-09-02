@@ -33,7 +33,7 @@ export function SlideItem({ image, title, subtitle, ctaText, index }: SlideItemP
           >
             {subtitle}
           </p>
-          <Link href="/book-now">
+          <Link href="/book-now#booking-section">
             <Button
               size="default"
               className="bg-primary/20 backdrop-blur-md border-2 border-white/30 text-white hover:bg-primary/30 sm:min-h-10"
