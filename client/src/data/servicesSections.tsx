@@ -441,7 +441,7 @@ export const ServiceCard = ({
             asChild
             data-testid={`button-book-${service.key}`}
           >
-            <Link href="/book-now">{t.ui.bookNow}</Link>
+            <Link href="/book-now#booking-section">{t.ui.bookNow}</Link>
           </Button>
           <Button
             variant="outline"
