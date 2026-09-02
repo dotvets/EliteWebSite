@@ -39,9 +39,8 @@ export default function BookNow() {
       icon: Smartphone,
       label: t.mobileApp,
       value: t.title,
-      href: MOBILE_APP_URL,
+      href: "#booking-section",
       testId: "link-book-app",
-      isExternal: true,
     },
   ];
 
@@ -86,8 +85,6 @@ export default function BookNow() {
                 <motion.div key={index} variants={fadeInUp}>
                   <a
                     href={option.href}
-                    target={option.isExternal ? "_blank" : undefined}
-                    rel={option.isExternal ? "noopener noreferrer" : undefined}
                     data-testid={option.testId}
                     className="block"
                   >
@@ -111,7 +108,7 @@ export default function BookNow() {
             })}
           </AnimatedContent>
         </div>
-      <div style={{marginTop:40}}>{showExternal ? <BookingEmbed code={embed} /> : <BookingForm />}</div>
+      <div id="booking-section" style={{marginTop:40}}>{showExternal ? <BookingEmbed code={embed} /> : <BookingForm />}</div>
       </section>
     </PageLayout>
   );
