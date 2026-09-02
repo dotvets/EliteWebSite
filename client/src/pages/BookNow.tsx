@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import PageLayout from "@/components/PageLayout";
@@ -18,6 +19,19 @@ export default function BookNow() {
   const { language } = useLanguage();
   const t = translations[language].bookNowPage;
   const { mode, embed } = useBookingSource();
+
+  // Deep-link support: /book-now#booking-section scrolls straight to the form/widget
+  useEffect(() => {
+    if (window.location.hash !== "#booking-section") return;
+    let tries = 0;
+    const scroll = () => {
+      const el = document.getElementById("booking-section");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      else if (++tries < 25) setTimeout(scroll, 200);
+    };
+    const t = setTimeout(scroll, 150);
+    return () => clearTimeout(t);
+  }, []);
   const showExternal = mode === "external" && embed.trim().length > 0;
 
   const bookingOptions = [
@@ -85,6 +99,12 @@ export default function BookNow() {
                 <motion.div key={index} variants={fadeInUp}>
                   <a
                     href={option.href}
+                    onClick={(e) => {
+                      if (option.href.startsWith("#")) {
+                        e.preventDefault();
+                        document.getElementById(option.href.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
+                    }}
                     data-testid={option.testId}
                     className="block"
                   >
