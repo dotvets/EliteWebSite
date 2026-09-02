@@ -27,14 +27,18 @@ const doctorImages = [
   siteImage("img.doctors.dressam", drEssamImage)
 ];
 
+const doctorKeys = ["drkhaled", "dranas", "drahmedmounir", "drshoaib", "dressam"];
+
 export function TeamMemberSlider({ members }: TeamMemberSliderProps) {
   const { language } = useLanguage();
   
   const { emblaRef, selectedIndex, scrollPrev, scrollNext, scrollTo } = useTeamSlider({ language });
 
+  // Single source of truth: Website Images dashboard overrides (img.doctors.*)
+  // take priority; then the team-member photo from the CMS; then the bundled default.
   const membersWithImages = members.map((member, index) => ({
     ...member,
-    image: member.image || doctorImages[index]
+    image: siteImage(`img.doctors.${doctorKeys[index]}`, member.image || doctorImages[index])
   }));
 
   return (
