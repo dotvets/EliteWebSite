@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaSnapchat, FaXTwitter } from "react-icons/fa6";
 import logoImage from "@assets/Elite final logo_1762859223489.jpg";
 import { siteImage } from "@/lib/siteImages";
+import { useWorkingHours, groupSchedule } from "@/lib/workingHours";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBootstrap, bsVal } from "@/hooks/useBootstrap";
 import { translations } from "@/translations";
@@ -14,6 +15,7 @@ export default function Footer() {
   const phone = bsVal(bs, "phone", language, "920011626");
   const whatsapp = bsVal(bs, "whatsapp", language, "966920011626");
   const email = bsVal(bs, "email", language, "info@elitevetksa.com");
+  const hoursGroups = groupSchedule(useWorkingHours(), language);
 
   const socialLinks = [
     { 
@@ -143,10 +145,12 @@ export default function Footer() {
                 <li className="flex items-start gap-3">
                   <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <div className="text-sm font-body">
-                    <div className="text-white/90 font-medium">{t.hours}</div>
-                    <div className="text-white/70 mt-1">{t.daily}</div>
-                    <div className="text-white/90 font-medium mt-2">{t.hoursWeekend}</div>
-                    <div className="text-white/70 mt-1">{t.daysWeekend}</div>
+                    {hoursGroups.map((g, i) => (
+                      <div key={i} className={i > 0 ? "mt-2" : undefined}>
+                        <div className="text-white/90 font-medium">{g.time}</div>
+                        <div className="text-white/70 mt-1">{g.days}</div>
+                      </div>
+                    ))}
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
