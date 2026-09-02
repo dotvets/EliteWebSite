@@ -4,6 +4,7 @@ import ServicesPanel from "./ServicesPanel";
 import { ToastProvider } from "./ui";
 import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, SettingsPanel, SeoPanel, ActivityPanel, MediaPanel, GlobalSearch, PagesPanel, HomeTextsEditor } from "./CmsPanels";
 import ImagesPanel from "./ImagesPanel";
+import BookingPanel from "./BookingPanel";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -87,7 +88,7 @@ export default function AdminDashboard() {
   };
 
   const tabs: [string, string][] = [
-    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["services", "الخدمات"],
+    ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["bookingSettings", "إعدادات الحجز"], ["services", "الخدمات"],
     ["pages", "الصفحات"], ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
     ["blog", "المدونة"], ["branches", "الفروع"],
     ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["images", "صور الموقع"], ["media", "مكتبة الصور"],
@@ -192,6 +193,7 @@ export default function AdminDashboard() {
 
         {tab === "media" && <MediaPanel api={api} uploadMedia={uploadMedia} />}
         {tab === "images" && <ImagesPanel api={api} />}
+        {tab === "bookingSettings" && <BookingPanel api={api} />}
       </div>
     </div>
     </ToastProvider>
