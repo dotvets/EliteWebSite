@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import PageLayout from "@/components/PageLayout";
 import BookingForm from "@/components/BookingForm";
+import BookingEmbed, { useBookingSource } from "@/components/BookingEmbed";
 import { SectionHeader } from "@/components/SectionHeader";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,8 @@ const MOBILE_APP_URL = "https://vet.digitail.io/clinics/elite-vet-qourtobah-tel-
 export default function BookNow() {
   const { language } = useLanguage();
   const t = translations[language].bookNowPage;
+  const { mode, embed } = useBookingSource();
+  const showExternal = mode === "external" && embed.trim().length > 0;
 
   const bookingOptions = [
     {
@@ -108,7 +111,7 @@ export default function BookNow() {
             })}
           </AnimatedContent>
         </div>
-      <div style={{marginTop:40}}><BookingForm /></div>
+      <div style={{marginTop:40}}>{showExternal ? <BookingEmbed code={embed} /> : <BookingForm />}</div>
       </section>
     </PageLayout>
   );
