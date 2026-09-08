@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -37,6 +38,29 @@ function Router() {
   );
 }
 
+// Track SPA route changes as GA4 page views. Internal admin pages are excluded.
+function AnalyticsPageView() {
+  const [loc] = useLocation();
+
+  useEffect(() => {
+    if (loc.startsWith("/admin")) return;
+
+    const gtag = (
+      window as Window & { gtag?: (...args: unknown[]) => void }
+    ).gtag;
+
+    if (!gtag) return;
+
+    gtag("event", "page_view", {
+      page_path: loc,
+      page_location: window.location.href,
+      page_title: document.title,
+    });
+  }, [loc]);
+
+  return null;
+}
+
 // Public-site chrome (header, social float) — hidden on admin pages.
 function SiteChrome() {
   const [loc] = useLocation();
@@ -56,6 +80,7 @@ function App() {
       <LanguageProvider>
         <TooltipProvider>
           <ScrollToTop />
+          <AnalyticsPageView />
           <AnimatedServicesBackground />
           <SiteChrome />
           <Toaster />
