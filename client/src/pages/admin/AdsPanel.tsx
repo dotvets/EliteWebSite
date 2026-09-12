@@ -43,6 +43,13 @@ async function fileToOptimizedBase64(file: File): Promise<{ dataBase64: string; 
   throw new Error("large");
 }
 
+function normalizeLink(value: string) {
+  const link = value.trim();
+  if (!link) return "";
+  if (/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(link)) return link;
+  return `https://${link}`;
+}
+
 function AdImageCard({
   title,
   subtitle,
@@ -115,7 +122,9 @@ export default function AdsPanel({ api }: { api: Api }) {
   const toast = useToast();
   const [valueAr, setValueAr] = useState("");
   const [valueEn, setValueEn] = useState("");
+  const [link, setLink] = useState("");
   const [busy, setBusy] = useState<Lang | null>(null);
+  const [linkBusy, setLinkBusy] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -123,8 +132,10 @@ export default function AdsPanel({ api }: { api: Api }) {
     try {
       const rows: any[] = await api("/api/content");
       const row = rows.find((item) => item.key === "ads.floating");
+      const linkRow = rows.find((item) => item.key === "ads.floating.link");
       setValueAr(row?.valueAr || "");
       setValueEn(row?.valueEn || "");
+      setLink(linkRow?.valueAr || linkRow?.valueEn || "");
     } catch {
       toast("تعذر تحميل بيانات الإعلان");
     }
@@ -153,6 +164,30 @@ export default function AdsPanel({ api }: { api: Api }) {
     });
 
     if (!result || result.ok !== true) throw new Error("save_failed");
+  };
+
+  const saveLink = async () => {
+    setLinkBusy(true);
+    try {
+      const normalized = normalizeLink(link);
+      if (!normalized) {
+        await api(`/api/admin/content/${encodeURIComponent("ads.floating.link")}`, { method: "DELETE" });
+        setLink("");
+        toast("تم حذف رابط الإعلان");
+      } else {
+        const result = await api(`/api/admin/content/${encodeURIComponent("ads.floating.link")}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ valueAr: normalized, valueEn: normalized, type: "text", section: "ads" }),
+        });
+        if (!result?.ok) throw new Error("save_failed");
+        setLink(normalized);
+        toast("تم حفظ رابط الإعلان");
+      }
+    } catch {
+      toast("فشل حفظ رابط الإعلان");
+    }
+    setLinkBusy(false);
   };
 
   const upload = async (lang: Lang, file: File) => {
@@ -236,6 +271,25 @@ export default function AdsPanel({ api }: { api: Api }) {
         <h3 style={{ margin: "0 0 6px" }}>Ads</h3>
         <div style={{ color: "#777", fontSize: 13 }}>
           ارفع صورة الإعلان العربية وصورة الإعلان الإنجليزية. سيظهر الإعلان أسفل يسار الموقع، والصورة تتغير تلقائيًا حسب لغة الموقع.
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 18, padding: 16, border: "1px solid #eee", borderRadius: 12, background: "#fff" }}>
+        <h4 style={{ margin: "0 0 6px" }}>رابط الإعلان</h4>
+        <div style={{ color: "#888", fontSize: 12, marginBottom: 10 }}>
+          عند إضافة رابط، الضغط على صورة الإعلان سيفتح هذا الرابط. اتركه فارغًا إذا كنت لا تريد الصورة قابلة للضغط.
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <input
+            style={{ ...A.input, flex: "1 1 320px", marginBottom: 0 }}
+            value={link}
+            onChange={(event) => setLink(event.target.value)}
+            placeholder="https://example.com أو /book-now"
+            dir="ltr"
+          />
+          <button style={{ ...A.btn, opacity: linkBusy ? 0.6 : 1 }} disabled={linkBusy} onClick={saveLink}>
+            {linkBusy ? "جاري الحفظ…" : "حفظ الرابط"}
+          </button>
         </div>
       </div>
 
