@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useSiteImageOverrides } from "@/lib/siteImages";
 import AnimatedServicesBackground from "@/components/AnimatedServicesBackground";
 import FloatingSocialMenu from "@/components/FloatingSocialMenu";
+import FloatingAd from "@/components/FloatingAd";
 import Header from "@/components/Header";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
@@ -61,7 +62,7 @@ function AnalyticsPageView() {
   return null;
 }
 
-// Public-site chrome (header, social float) — hidden on admin pages.
+// Public-site chrome (header, social float, floating ad) — hidden on admin pages.
 function SiteChrome() {
   const [loc] = useLocation();
   if (loc.startsWith("/admin")) return null;
@@ -69,6 +70,7 @@ function SiteChrome() {
     <>
       <Header />
       <FloatingSocialMenu />
+      <FloatingAd />
     </>
   );
 }
