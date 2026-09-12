@@ -11,6 +11,7 @@ type ContentRow = {
 export default function FloatingAd() {
   const { language } = useLanguage();
   const [ad, setAd] = useState<ContentRow | null>(null);
+  const [link, setLink] = useState("");
   const [closed, setClosed] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -22,10 +23,16 @@ export default function FloatingAd() {
       .then((res) => (res.ok ? res.json() : []))
       .then((rows: ContentRow[]) => {
         if (cancelled || !Array.isArray(rows)) return;
-        setAd(rows.find((row) => row.key === "ads.floating") || null);
+        const adRow = rows.find((row) => row.key === "ads.floating") || null;
+        const linkRow = rows.find((row) => row.key === "ads.floating.link") || null;
+        setAd(adRow);
+        setLink((linkRow?.valueAr || linkRow?.valueEn || "").trim());
       })
       .catch(() => {
-        if (!cancelled) setAd(null);
+        if (!cancelled) {
+          setAd(null);
+          setLink("");
+        }
       });
 
     return () => {
@@ -46,11 +53,30 @@ export default function FloatingAd() {
     [ad, language],
   );
 
+  const isExternalLink = /^https?:\/\//i.test(link);
+
   useEffect(() => {
     setImageFailed(false);
   }, [imageUrl]);
 
   if (closed || !imageUrl || imageFailed || typeof document === "undefined") return null;
+
+  const image = (
+    <img
+      src={imageUrl}
+      alt=""
+      onError={() => setImageFailed(true)}
+      style={{
+        display: "block",
+        width: "100%",
+        height: "auto",
+        maxHeight: isMobile ? "72vh" : "min(520px, calc(100vh - 80px))",
+        objectFit: "contain",
+        borderRadius: 14,
+        boxShadow: "0 12px 34px rgba(0,0,0,.22)",
+      }}
+    />
+  );
 
   return createPortal(
     <div
@@ -68,20 +94,18 @@ export default function FloatingAd() {
       }}
     >
       <div style={{ position: "relative", width: "100%" }}>
-        <img
-          src={imageUrl}
-          alt=""
-          onError={() => setImageFailed(true)}
-          style={{
-            display: "block",
-            width: "100%",
-            height: "auto",
-            maxHeight: isMobile ? "72vh" : "min(520px, calc(100vh - 80px))",
-            objectFit: "contain",
-            borderRadius: 14,
-            boxShadow: "0 12px 34px rgba(0,0,0,.22)",
-          }}
-        />
+        {link ? (
+          <a
+            href={link}
+            target={isExternalLink ? "_blank" : undefined}
+            rel={isExternalLink ? "noopener noreferrer" : undefined}
+            aria-label={language === "ar" ? "فتح رابط الإعلان" : "Open advertisement link"}
+            style={{ display: "block", width: "100%", cursor: "pointer" }}
+          >
+            {image}
+          </a>
+        ) : image}
+
         <button
           type="button"
           aria-label={language === "ar" ? "إغلاق الإعلان" : "Close advertisement"}
