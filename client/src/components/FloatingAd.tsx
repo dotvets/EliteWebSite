@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type ContentRow = {
@@ -12,6 +13,7 @@ export default function FloatingAd() {
   const [ad, setAd] = useState<ContentRow | null>(null);
   const [closed, setClosed] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +33,14 @@ export default function FloatingAd() {
     };
   }, []);
 
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
   const imageUrl = useMemo(
     () => (language === "ar" ? ad?.valueAr : ad?.valueEn) || "",
     [ad, language],
@@ -40,19 +50,24 @@ export default function FloatingAd() {
     setImageFailed(false);
   }, [imageUrl]);
 
-  if (closed || !imageUrl || imageFailed) return null;
+  if (closed || !imageUrl || imageFailed || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
       style={{
         position: "fixed",
-        left: 18,
-        bottom: 18,
-        zIndex: 60,
-        width: "min(320px, calc(100vw - 36px))",
+        left: isMobile ? 12 : 20,
+        bottom: isMobile ? 12 : 20,
+        zIndex: 2147483000,
+        width: isMobile ? "calc(100vw - 24px)" : "min(380px, calc(100vw - 40px))",
+        maxWidth: isMobile ? 420 : 380,
+        display: "block",
+        visibility: "visible",
+        opacity: 1,
+        pointerEvents: "auto",
       }}
     >
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", width: "100%" }}>
         <img
           src={imageUrl}
           alt=""
@@ -61,7 +76,7 @@ export default function FloatingAd() {
             display: "block",
             width: "100%",
             height: "auto",
-            maxHeight: "min(430px, calc(100vh - 80px))",
+            maxHeight: isMobile ? "72vh" : "min(520px, calc(100vh - 80px))",
             objectFit: "contain",
             borderRadius: 14,
             boxShadow: "0 12px 34px rgba(0,0,0,.22)",
@@ -75,24 +90,26 @@ export default function FloatingAd() {
             position: "absolute",
             top: 8,
             right: 8,
-            width: 32,
-            height: 32,
+            width: isMobile ? 36 : 34,
+            height: isMobile ? 36 : 34,
             borderRadius: "50%",
             border: "none",
             background: "rgba(0,0,0,.72)",
             color: "#fff",
-            fontSize: 22,
-            lineHeight: "32px",
+            fontSize: isMobile ? 24 : 22,
+            lineHeight: isMobile ? "36px" : "34px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             padding: 0,
+            zIndex: 2,
           }}
         >
           ×
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
