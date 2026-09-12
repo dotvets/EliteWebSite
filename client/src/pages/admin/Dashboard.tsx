@@ -6,6 +6,7 @@ import { TeamPanel, TestimonialsPanel, OffersPanel, BlogPanel, BranchesPanel, Se
 import ImagesPanel from "./ImagesPanel";
 import BookingPanel from "./BookingPanel";
 import HoursPanel from "./HoursPanel";
+import AdsPanel from "./AdsPanel";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -92,7 +93,7 @@ export default function AdminDashboard() {
     ["stats", "الرئيسية"], ["bookings", "الحجوزات"], ["bookingSettings", "إعدادات الحجز"], ["hours", "مواعيد العمل"], ["services", "الخدمات"],
     ["pages", "الصفحات"], ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
     ["blog", "المدونة"], ["branches", "الفروع"],
-    ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["images", "صور الموقع"], ["media", "مكتبة الصور"],
+    ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["images", "صور الموقع"], ["ads", "Ads"], ["media", "مكتبة الصور"],
     ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"],
   ];
 
@@ -194,6 +195,7 @@ export default function AdminDashboard() {
 
         {tab === "media" && <MediaPanel api={api} uploadMedia={uploadMedia} />}
         {tab === "images" && <ImagesPanel api={api} />}
+        {tab === "ads" && <AdsPanel api={api} />}
         {tab === "bookingSettings" && <BookingPanel api={api} />}
         {tab === "hours" && <HoursPanel api={api} />}
       </div>
