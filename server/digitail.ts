@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import type { Express, Request, Response } from "express";
 import { pool } from "./db";
+import { requireAdmin } from "./admin";
 
 const DIGITAIL_AUTHORIZE_URL = "https://vet.digitail.io/oauth/authorize";
 const DIGITAIL_TOKEN_URL = "https://vet.digitail.io/oauth/token";
@@ -116,7 +117,7 @@ async function digitailApi(path: string, clinicId?: string) {
 }
 
 export function registerDigitailRoutes(app: Express) {
-  app.get("/api/digitail/connect", (req: Request, res: Response) => {
+  app.get("/api/digitail/connect", requireAdmin, (req: Request, res: Response) => {
     try {
       const verifier = randomString(48);
       const state = randomString(32);
@@ -138,7 +139,7 @@ export function registerDigitailRoutes(app: Express) {
     }
   });
 
-  app.get("/api/digitail/callback", async (req: Request, res: Response) => {
+  app.get("/api/digitail/callback", requireAdmin, async (req: Request, res: Response) => {
     try {
       const code = typeof req.query.code === "string" ? req.query.code : "";
       const state = typeof req.query.state === "string" ? req.query.state : "";
@@ -156,14 +157,14 @@ export function registerDigitailRoutes(app: Express) {
     }
   });
 
-  app.get("/api/digitail/status", async (_req, res) => {
+  app.get("/api/digitail/status", requireAdmin, async (_req, res) => {
     try {
       const connection = await loadConnection();
       res.json({ connected: !!connection, expiresAt: connection?.access_token_expires_at || null });
     } catch (error: any) { res.status(500).json({ error: "digitail_status_failed", message: error?.message || String(error) }); }
   });
 
-  app.post("/api/digitail/refresh", async (_req, res) => {
+  app.post("/api/digitail/refresh", requireAdmin, async (_req, res) => {
     try {
       const connection = await loadConnection();
       if (!connection) return res.status(404).json({ error: "digitail_not_connected" });
@@ -178,7 +179,7 @@ export function registerDigitailRoutes(app: Express) {
 
   // Returns the clinics available to the currently authorized Digitail user.
   // This is intentionally a backend endpoint so the OAuth token never reaches the browser.
-  app.get("/api/digitail/clinics", async (_req, res) => {
+  app.get("/api/digitail/clinics", requireAdmin, async (_req, res) => {
     try {
       const data = await digitailApi("/auth/me?include=multipleClinic");
       res.json(data);
@@ -188,17 +189,19 @@ export function registerDigitailRoutes(app: Express) {
     }
   });
 
-  // Generic read-only API tester. Example: /api/digitail/test?clinicId=703&path=/appointments
-  // Only relative API paths are accepted; callers cannot proxy arbitrary external URLs.
-  app.get("/api/digitail/test", async (req, res) => {
+  // Sandbox-only, read-only smoke test. Do not turn this into a generic API proxy.
+  const sandboxClinicIds = new Set(["703", "704"]);
+  const sandboxTestPath = "/appointments";
+  app.get("/api/digitail/test", requireAdmin, async (req, res) => {
     try {
       const clinicId = typeof req.query.clinicId === "string" ? req.query.clinicId.trim() : "";
-      let apiPath = typeof req.query.path === "string" ? req.query.path.trim() : "/appointments";
-      if (!apiPath.startsWith("/")) apiPath = `/${apiPath}`;
-      if (apiPath.includes("://") || apiPath.startsWith("//")) return res.status(400).json({ error: "invalid_api_path" });
-      if (apiPath.includes("?") && !apiPath.startsWith("/")) return res.status(400).json({ error: "invalid_api_path" });
-      const data = await digitailApi(apiPath, clinicId || undefined);
-      res.json({ clinicId: clinicId || null, path: apiPath, data });
+      if (!sandboxClinicIds.has(clinicId)) return res.status(400).json({ error: "invalid_sandbox_clinic_id" });
+
+      const requestedPath = typeof req.query.path === "string" ? req.query.path.trim() : sandboxTestPath;
+      if (requestedPath !== sandboxTestPath) return res.status(400).json({ error: "unsupported_test_endpoint" });
+
+      const data = await digitailApi(sandboxTestPath, clinicId);
+      res.json({ clinicId, path: sandboxTestPath, data });
     } catch (error: any) {
       console.error("[digitail] API test failed:", error?.message || error);
       res.status(error?.status || 502).json({ error: "digitail_api_test_failed", details: error?.details || error?.message || String(error) });

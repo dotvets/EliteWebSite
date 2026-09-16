@@ -14,10 +14,16 @@ Configure these on the server/deployment platform; do not commit secrets:
 
 ## Endpoints
 
-- `GET /api/digitail/connect` — starts OAuth and redirects to Digitail.
-- `GET /api/digitail/callback` — validates state/PKCE and stores encrypted tokens.
-- `GET /api/digitail/status` — reports whether a connection exists and its access-token expiry.
-- `POST /api/digitail/refresh` — refreshes the connection and replaces the single-use refresh token.
+- `GET /api/digitail/connect` — admin-session protected; starts OAuth and redirects to Digitail.
+- `GET /api/digitail/callback` — requires the initiating admin session; validates state/PKCE and stores encrypted tokens.
+- `GET /api/digitail/status` — admin-session protected; reports whether a connection exists and its access-token expiry.
+- `POST /api/digitail/refresh` — admin-session protected; refreshes the connection and replaces the single-use refresh token.
+- `GET /api/digitail/clinics` — admin-session protected; returns clinics available to the connected user.
+- `GET /api/digitail/test?clinicId=703|704` — admin-session protected sandbox smoke test, limited to the read-only `/appointments` endpoint.
+
+## Digitail verification before production
+
+This repository does not contain official Digitail OAuth documentation. Before enabling production, verify with Digitail that the authorization and token URLs, scopes, the exact redirect URI, and every authorization parameter (including whether `client_secret` belongs in the authorization URL) match their current requirements. The implementation has intentionally not changed those parameters based on assumptions.
 
 ## Setup order
 
