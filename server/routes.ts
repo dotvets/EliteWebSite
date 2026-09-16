@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import path from "path";
+import { registerDigitailRoutes } from "./digitail";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // put application routes here
@@ -92,6 +93,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ error: String(e?.message || e) });
     }
   });
+
+  // Digitail OAuth + clinic discovery + clinic-scoped API test
+  registerDigitailRoutes(app);
 
   // Admin, bookings, payments, content, media APIs
   const { ensureSchema } = await import("./migrate");
