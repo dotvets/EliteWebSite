@@ -130,17 +130,30 @@ CREATE TABLE IF NOT EXISTS seo_meta (
   og_image text, canonical text, robots text DEFAULT 'index,follow',
   updated_at text NOT NULL DEFAULT now()::text
 );
+CREATE TABLE IF NOT EXISTS digitail_connections (
+  id varchar PRIMARY KEY,
+  access_token_enc text NOT NULL,
+  refresh_token_enc text NOT NULL,
+  access_token_expires_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 CREATE TABLE IF NOT EXISTS activity_log (
   id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
   action text NOT NULL, entity text, entity_id text,
   created_at text NOT NULL DEFAULT now()::text
 );
-
+CREATE TABLE IF NOT EXISTS digitail_connections (
+  id varchar PRIMARY KEY,
+  access_token_enc text NOT NULL,
+  refresh_token_enc text NOT NULL,
+  access_token_expires_at timestamptz NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 `;
 
 export async function ensureSchema() {
   if (!process.env.DATABASE_URL) {
-console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive");
+    console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive");
     return false;
   }
   try {

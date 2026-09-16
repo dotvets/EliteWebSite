@@ -16,7 +16,7 @@ declare module "express-session" {
   }
 }
 
-function requireAdmin(req: Request, res: Response, next: NextFunction) {
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (req.session?.adminId) return next();
   return res.status(401).json({ error: "unauthorized" });
 }
