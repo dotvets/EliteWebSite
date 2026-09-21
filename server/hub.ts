@@ -310,10 +310,11 @@ export function registerHubRoutes(app: Express) {
 
       const { value, source } = await cached(`services:${clinic.digitail_clinic_id}`, TTL_SERVICES, async () => {
         const data = await digitailApi(`/visit-types?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`);
-        return (data?.data || []).filter((v: any) => v?.is_visible !== false).map(shapeService);
+        const all = data?.data || [];
+        return { total_upstream: all.length, services: all.filter((v: any) => v?.is_visible !== false).map(shapeService) };
       });
       res.set("Cache-Control", `public, max-age=${TTL_SERVICES}`);
-      res.json({ clinic: shapeClinic(clinic), services: value, cache: source });
+      res.json({ clinic: shapeClinic(clinic), services: (value as any).services, total_upstream: (value as any).total_upstream, cache: source });
     } catch (error: any) {
       safeError(res, error, "hub_services_failed");
     }
@@ -373,16 +374,23 @@ export function registerHubRoutes(app: Express) {
 
       const serviceId = typeof req.query.serviceId === "string" && /^\d+$/.test(req.query.serviceId) ? req.query.serviceId : null;
       const doctorId = typeof req.query.doctorId === "string" && /^[a-zA-Z0-9_-]+$/.test(req.query.doctorId) ? req.query.doctorId : null;
+      // Digitail requires visit_type_id OR duration (live-verified 422 otherwise).
+      const durationRaw = typeof req.query.duration === "string" ? Number(req.query.duration) : NaN;
+      const duration = Number.isInteger(durationRaw) && durationRaw >= 5 && durationRaw <= 240 ? durationRaw : null;
+      if (!serviceId && !duration) {
+        return res.status(400).json({ error: "service_or_duration_required" });
+      }
 
       const slug = (clinic.config_json || {}).slug;
       if (!slug) return res.status(503).json({ error: "clinic_availability_unconfigured" });
 
-      const cacheKey = `avail:${slug}:${from}:${to}:${serviceId || ""}:${doctorId || ""}`;
+      const cacheKey = `avail:${slug}:${from}:${to}:${serviceId || ""}:${doctorId || ""}:${duration || ""}`;
       const { value, source } = await cached(cacheKey, TTL_AVAILABILITY, async () => {
         const params = new URLSearchParams();
         params.set("filter[start_date]", from);
         params.set("filter[end_date]", to);
         if (serviceId) params.set("filter[visit_type_id]", serviceId);
+        else if (duration) params.set("filter[duration]", String(duration));
         if (doctorId) params.set("filter[vet_slug]", doctorId);
         const data = await digitailApi(`/public/clinics/${encodeURIComponent(slug)}/vets-timeslots?${params.toString()}`);
         return { data: data?.data || [], meta: data?.meta || {} };
