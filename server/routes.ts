@@ -103,6 +103,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerAdminRoutes } = await import("./admin");
   registerAdminRoutes(app);
 
+  // Phase 1: read-only Group Booking Hub (public widget endpoints, gated by
+  // hub_brands.booking_enabled — ship dark until UX sign-off).
+  const { registerHubRoutes } = await import("./hub");
+  registerHubRoutes(app);
+
   const httpServer = createServer(app);
 
   return httpServer;

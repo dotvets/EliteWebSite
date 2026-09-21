@@ -156,6 +156,41 @@ CREATE TABLE IF NOT EXISTS digitail_connections_v2 (
   scopes text,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+-- Phase 1 (master document Part 3.2 + 5.2): brand/clinic config + read cache.
+-- Additive only; every table carries created_at.
+CREATE TABLE IF NOT EXISTS hub_brands (
+  brand varchar PRIMARY KEY,
+  display_name_ar text NOT NULL,
+  display_name_en text NOT NULL,
+  theme_json jsonb NOT NULL DEFAULT '{}',
+  default_locale varchar NOT NULL DEFAULT 'ar',
+  booking_enabled boolean NOT NULL DEFAULT false,
+  messaging_enabled boolean NOT NULL DEFAULT false,
+  payment_mode varchar NOT NULL DEFAULT 'off',
+  config_json jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS hub_clinics (
+  id varchar PRIMARY KEY,              -- "{brand}:{digitailClinicId}"
+  brand varchar NOT NULL REFERENCES hub_brands(brand),
+  digitail_clinic_id integer NOT NULL,
+  name_ar text NOT NULL,
+  name_en text NOT NULL,
+  booking_enabled boolean NOT NULL DEFAULT false,
+  payment_mode varchar,
+  deposit_amount_halalas integer,
+  slot_hold_minutes integer NOT NULL DEFAULT 15,
+  timezone varchar NOT NULL DEFAULT 'Asia/Riyadh',
+  config_json jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS hub_read_cache (
+  cache_key varchar PRIMARY KEY,
+  payload_json jsonb NOT NULL,
+  fetched_at timestamptz NOT NULL DEFAULT now(),
+  ttl_seconds integer NOT NULL DEFAULT 3600,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
 `;
 
 export async function ensureSchema() {
@@ -184,6 +219,20 @@ export async function ensureSchema() {
       );
     } catch (e: any) {
       console.error("[db] digitail_connections_v2 migration skipped:", e?.message);
+    }
+    // Phase 1: seed brand config (idempotent). booking_enabled stays FALSE —
+    // the hub ships dark until UX sign-off (master document Part 5.2).
+    // Contact fallbacks live in config_json, never hardcoded in the widget.
+    try {
+      await pool.query(
+        `INSERT INTO hub_brands (brand, display_name_ar, display_name_en, config_json) VALUES
+           ('elite',   'عيادات النخبة البيطرية', 'Elite Vet Clinics', '{"whatsapp":"966920011626"}'),
+           ('drpaws',  'عيادات دكتور باوز',      'Dr Paws Clinics',   '{}'),
+           ('vetsvan', 'فيتس فان',               'Vetsvan',           '{}')
+         ON CONFLICT (brand) DO NOTHING`,
+      );
+    } catch (e: any) {
+      console.error("[db] hub_brands seed skipped:", e?.message);
     }
     console.log("[db] schema ensured");
     return true;
