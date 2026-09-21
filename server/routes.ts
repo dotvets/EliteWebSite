@@ -108,6 +108,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerHubRoutes } = await import("./hub");
   registerHubRoutes(app);
 
+  // Phase 2: booking write path (OTP identity, state machine, sweeper).
+  const { registerHubBookingRoutes } = await import("./hubBookings");
+  registerHubBookingRoutes(app);
+
   const httpServer = createServer(app);
 
   return httpServer;

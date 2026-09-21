@@ -160,6 +160,12 @@ async function loadConnection() {
   return getConnection(config.env, config.connectionScope);
 }
 
+// Public accessor for rare flows that need a raw token (e.g. multipart pet
+// creation fallback in hubBookings.ts). Token never leaves the server.
+export async function getValidAccessTokenPublic(): Promise<string> {
+  return getValidAccessToken();
+}
+
 async function getValidAccessToken(): Promise<string> {
   const connection = await loadConnection();
   if (!connection) throw new Error("Digitail is not connected");
@@ -172,29 +178,98 @@ async function getValidAccessToken(): Promise<string> {
   return tokens.access_token;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2 (master document Part 9.3): unified Digitail request helper with
+// timeout (≤8s), backoff retries for idempotent GETs only, and a circuit
+// breaker on repeated upstream failure. POSTs are NEVER auto-retried upstream
+// (idempotency is owned by the booking layer — Part 6.1).
+// ---------------------------------------------------------------------------
+const REQUEST_TIMEOUT_MS = 8000;
+const CB_FAILURE_THRESHOLD = 5; // consecutive failures to open the circuit
+const CB_OPEN_MS = 60_000;
+let cbConsecutiveFailures = 0;
+let cbOpenedAt = 0;
+
+export class DigitailCircuitOpenError extends Error {
+  status = 503;
+  constructor() {
+    super("Digitail temporarily unavailable (circuit open)");
+  }
+}
+
+export function digitailCircuitState() {
+  const open = cbConsecutiveFailures >= CB_FAILURE_THRESHOLD && Date.now() - cbOpenedAt < CB_OPEN_MS;
+  return { open, consecutiveFailures: cbConsecutiveFailures };
+}
+
+function cbSuccess() {
+  cbConsecutiveFailures = 0;
+}
+function cbFailure() {
+  cbConsecutiveFailures += 1;
+  if (cbConsecutiveFailures >= CB_FAILURE_THRESHOLD) cbOpenedAt = Date.now();
+}
+
+function cbGuard() {
+  if (cbConsecutiveFailures >= CB_FAILURE_THRESHOLD && Date.now() - cbOpenedAt < CB_OPEN_MS) {
+    throw new DigitailCircuitOpenError();
+  }
+}
+
+export async function digitailRequest(method: "GET" | "POST", path: string, body?: any, clinicId?: string) {
+  const token = await getValidAccessToken();
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (clinicId) headers["X-ClinicId"] = clinicId;
+
+  const maxAttempts = method === "GET" ? 2 : 1;
+  let lastError: any;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    cbGuard();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    let response: globalThis.Response;
+    try {
+      response = await fetch(`${config.apiBaseUrl}${path}`, {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+    } catch (cause: any) {
+      clearTimeout(timer);
+      cbFailure();
+      lastError = new Error(`Digitail API request failed: ${cause?.name === "AbortError" ? "timeout" : "network error"}`, { cause });
+      continue; // retry (GET only; loop exits after 1 attempt for POST)
+    }
+    clearTimeout(timer);
+    const text = await response.text();
+    let data: any;
+    try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 2000) }; }
+    if (!response.ok) {
+      // 5xx counts toward the circuit breaker; 4xx is a caller error, not upstream health.
+      if (response.status >= 500) {
+        cbFailure();
+      } else {
+        cbSuccess();
+      }
+      const error = new Error(`Digitail API request failed (${response.status})`);
+      (error as any).status = response.status;
+      (error as any).details = data;
+      lastError = error;
+      if (response.status >= 500 && attempt < maxAttempts) continue;
+      throw error;
+    }
+    cbSuccess();
+    return data;
+  }
+  throw lastError;
+}
+
 // Exported for the Phase 1 read-only hub (server/hub.ts). Restriction of the
 // public smoke-test surface stays at the /api/digitail/test route level.
 export async function digitailApi(path: string, clinicId?: string) {
-  const token = await getValidAccessToken();
-  const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
-  if (clinicId) headers["X-ClinicId"] = clinicId;
-
-  let response: globalThis.Response;
-  try {
-    response = await fetch(`${config.apiBaseUrl}${path}`, { headers });
-  } catch (cause: any) {
-    throw new Error("Digitail API request failed: network error", { cause });
-  }
-  const text = await response.text();
-  let data: any;
-  try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 2000) }; }
-  if (!response.ok) {
-    const error = new Error(`Digitail API request failed (${response.status})`);
-    (error as any).status = response.status;
-    (error as any).details = data;
-    throw error;
-  }
-  return data;
+  return digitailRequest("GET", path, undefined, clinicId);
 }
 
 export function registerDigitailRoutes(app: Express) {
