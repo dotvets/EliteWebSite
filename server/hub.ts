@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import type { Express, Request, Response } from "express";
 import { pool, dbEnabled } from "./db";
 import { requireAdmin } from "./admin";
@@ -52,6 +53,9 @@ function publicRateLimit(req: Request, res: Response): boolean {
   bucket.count += 1;
   res.set("X-RateLimit-Limit", String(PUBLIC_RATE_LIMIT));
   res.set("X-RateLimit-Remaining", String(Math.max(0, PUBLIC_RATE_LIMIT - bucket.count)));
+  // TEMP-DIAG (remove after rate-limit verification): salted hash of the bucket
+  // key so we can attribute responses to buckets without exposing client IPs.
+  res.set("X-RateLimit-Bucket", crypto.createHash("sha256").update(`hub-rl:${key}:${process.env.SESSION_SECRET || ""}`).digest("hex").slice(0, 8));
   if (bucket.count > PUBLIC_RATE_LIMIT) {
     res.status(429).json({ error: "rate_limited", retry_after_seconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) });
     return false;
