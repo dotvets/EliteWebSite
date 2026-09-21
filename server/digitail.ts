@@ -289,13 +289,9 @@ export function registerDigitailRoutes(app: Express) {
           category = first?.id ?? first?.name ?? null;
         } catch {}
         if (category === null) {
-          try {
-            const made = await digitailRequest("POST", "/visit-type-categories", { clinic_id: clinicId, name: "General" });
-            category = made?.data?.id ?? made?.data?.name ?? null;
-          } catch (e: any) {
-            results.push({ clinicId, ok: false, stage: "category_create", status: e?.status, details: JSON.stringify(e?.details || e?.message).slice(0, 400) });
-            continue;
-          }
+          // No categories exist and category creation is not exposed via the API
+          // (live-verified 404). Try a free-form string before giving up.
+          category = "General";
         }
         const created = await digitailRequest("POST", "/visit-types", {
           clinic_id: clinicId,
