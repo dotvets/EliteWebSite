@@ -121,7 +121,10 @@ function safeError(res: Response, error: any, code: string) {
 async function syncClinicsFromDigitail() {
   const config = resolveDigitailConfig();
   const me = await digitailApi(`/auth/me?include=multipleClinic`);
-  const clinics: Array<{ id: number; name: string; slug: string; logo?: string }> = me?.data?.multipleClinic || [];
+  // Live response carries the clinic list under `clinics` (verified 2026-09-21);
+  // keep `multipleClinic` as a fallback alias.
+  const clinics: Array<{ id: number; name: string; slug: string; logo?: string }> =
+    me?.data?.multipleClinic || me?.data?.clinics || [];
 
   // Brand assignment is CONFIG, not code: HUB_CLINIC_BRAND_MAP='{"3010":"elite",...}'.
   // Unknown clinics fall back to the connection scope as brand (sandbox scope "elite").
