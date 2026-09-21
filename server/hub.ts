@@ -50,6 +50,8 @@ function publicRateLimit(req: Request, res: Response): boolean {
     ipBuckets.set(key, bucket);
   }
   bucket.count += 1;
+  res.set("X-RateLimit-Limit", String(PUBLIC_RATE_LIMIT));
+  res.set("X-RateLimit-Remaining", String(Math.max(0, PUBLIC_RATE_LIMIT - bucket.count)));
   if (bucket.count > PUBLIC_RATE_LIMIT) {
     res.status(429).json({ error: "rate_limited", retry_after_seconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) });
     return false;
