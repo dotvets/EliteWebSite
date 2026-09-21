@@ -30,8 +30,19 @@ setInterval(() => {
   });
 }, 60_000).unref();
 
+function clientIp(req: Request): string {
+  // Behind Cloudflare + Render, the socket peer varies (proxy pool) — derive the
+  // real client IP from trusted CDN/proxy headers instead (live-verified:
+  // peer-IP keying never accumulates, so the limiter must key on the client IP).
+  const cf = req.headers["cf-connecting-ip"];
+  if (typeof cf === "string" && cf.trim()) return cf.trim();
+  const xff = req.headers["x-forwarded-for"];
+  if (typeof xff === "string" && xff.trim()) return xff.split(",")[0].trim();
+  return req.ip || req.socket.remoteAddress || "unknown";
+}
+
 function publicRateLimit(req: Request, res: Response): boolean {
-  const key = req.ip || req.socket.remoteAddress || "unknown";
+  const key = clientIp(req);
   const now = Date.now();
   let bucket = ipBuckets.get(key);
   if (!bucket || bucket.resetAt < now) {
