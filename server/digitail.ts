@@ -2,20 +2,26 @@ import crypto from "crypto";
 import type { Express, Request, Response } from "express";
 import { pool } from "./db";
 import { requireAdmin } from "./admin";
+import {
+  resolveDigitailConfig,
+  digitailConnectionId,
+  publicDigitailConfig,
+  requireTokenUrl,
+  type DigitailConfig,
+} from "./digitailConfig";
+import { redactSecrets, redactErrorMessage } from "./redact";
 
-const DIGITAIL_AUTHORIZE_URL = "https://vet.digitail.io/oauth/authorize";
-const DIGITAIL_TOKEN_URL = "https://vet.digitail.io/oauth/token";
-const DIGITAIL_API_BASE_URL = "https://vet.digitail.io/api/v1";
+// Phase 0 (master document Part 4): all Digitail endpoints are resolved from
+// DIGITAIL_ENV + optional overrides — nothing is hardcoded per environment.
+const config: DigitailConfig = resolveDigitailConfig();
+const CONNECTION_ID = digitailConnectionId(config);
+
 const TOKEN_ALGORITHM = "aes-256-gcm";
 
 function required(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Missing environment variable: ${name}`);
   return value;
-}
-
-function redirectUri(): string {
-  return process.env.DIGITAIL_REDIRECT_URI || "https://www.elitevetksa.com/api/digitail/callback";
 }
 
 function encryptionKey(): Buffer {
@@ -49,41 +55,109 @@ function createCodeChallenge(verifier: string): string {
   return crypto.createHash("sha256").update(verifier).digest("base64url");
 }
 
-async function exchangeCode(code: string, verifier: string) {
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: required("DIGITAIL_CLIENT_ID"),
-    client_secret: required("DIGITAIL_CLIENT_SECRET"),
-    redirect_uri: redirectUri(),
-    code_verifier: verifier,
-    code,
-  });
-  const response = await fetch(DIGITAIL_TOKEN_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
-  const data = await response.json();
-  if (!response.ok || !data.access_token || !data.refresh_token) throw new Error(`Digitail token exchange failed (${response.status}): ${JSON.stringify(data)}`);
-  return data as { access_token: string; refresh_token: string; expires_in: number; token_type: string };
+// Map Digitail OAuth error codes to safe, actionable admin-facing messages.
+// Never include the upstream response body verbatim (it may echo request data).
+function oauthErrorMessage(status: number, data: any): string {
+  const code = typeof data?.error === "string" ? data.error : "";
+  switch (code) {
+    case "invalid_client":
+      return (
+        `Digitail rejected the client credentials (invalid_client, HTTP ${status}). ` +
+        `Verify DIGITAIL_ENV matches the credentials in use and that Digitail has whitelisted this environment.`
+      );
+    case "invalid_grant":
+      return `Digitail rejected the authorization code or refresh token (invalid_grant, HTTP ${status}). Restart the OAuth flow.`;
+    case "invalid_request":
+      return `Digitail rejected the OAuth request shape (invalid_request, HTTP ${status}). Check redirect URI and PKCE parameters.`;
+    default:
+      return `Digitail token endpoint returned HTTP ${status}${code ? ` (${code})` : ""}.`;
+  }
 }
 
-async function refreshTokens(refreshToken: string) {
-  const body = new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken, client_id: required("DIGITAIL_CLIENT_ID"), client_secret: required("DIGITAIL_CLIENT_SECRET") });
-  const response = await fetch(DIGITAIL_TOKEN_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
-  const data = await response.json();
-  if (!response.ok || !data.access_token || !data.refresh_token) throw new Error(`Digitail token refresh failed (${response.status}): ${JSON.stringify(data)}`);
-  return data as { access_token: string; refresh_token: string; expires_in: number; token_type: string };
+interface TokenSet {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  token_type: string;
 }
 
-async function saveTokens(tokens: { access_token: string; refresh_token: string; expires_in: number }) {
-  await pool.query(
-    `INSERT INTO digitail_connections (id, access_token_enc, refresh_token_enc, access_token_expires_at, updated_at)
-     VALUES ('default', $1, $2, NOW() + ($3::text || ' seconds')::interval, NOW())
-     ON CONFLICT (id) DO UPDATE SET access_token_enc = EXCLUDED.access_token_enc, refresh_token_enc = EXCLUDED.refresh_token_enc, access_token_expires_at = EXCLUDED.access_token_expires_at, updated_at = NOW()`,
-    [encrypt(tokens.access_token), encrypt(tokens.refresh_token), tokens.expires_in],
+async function postTokenRequest(body: URLSearchParams, operation: string): Promise<TokenSet> {
+  const tokenUrl = requireTokenUrl(config);
+  let response: globalThis.Response;
+  try {
+    response = await fetch(tokenUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+  } catch (cause: any) {
+    throw new Error(`Digitail ${operation} failed: network error contacting token endpoint`, { cause });
+  }
+  let data: any;
+  try {
+    data = await response.json();
+  } catch (cause: any) {
+    throw new Error(`Digitail ${operation} failed: non-JSON response (HTTP ${response.status})`, { cause });
+  }
+  if (!response.ok || !data.access_token || !data.refresh_token) {
+    throw new Error(`Digitail ${operation} failed: ${oauthErrorMessage(response.status, data)}`);
+  }
+  return data as TokenSet;
+}
+
+async function exchangeCode(code: string, verifier: string): Promise<TokenSet> {
+  return postTokenRequest(
+    new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: required("DIGITAIL_CLIENT_ID"),
+      client_secret: required("DIGITAIL_CLIENT_SECRET"),
+      redirect_uri: config.redirectUri,
+      code_verifier: verifier,
+      code,
+    }),
+    "token exchange",
   );
 }
 
-async function loadConnection() {
-  const result = await pool.query(`SELECT access_token_enc, refresh_token_enc, access_token_expires_at FROM digitail_connections WHERE id = 'default' LIMIT 1`);
+async function refreshTokens(refreshToken: string): Promise<TokenSet> {
+  return postTokenRequest(
+    new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      client_id: required("DIGITAIL_CLIENT_ID"),
+      client_secret: required("DIGITAIL_CLIENT_SECRET"),
+    }),
+    "token refresh",
+  );
+}
+
+// Multi-connection storage (master document Part 3.1): digitail_connections_v2,
+// keyed "{env}:{connection_scope}". All token reads/writes go through this helper —
+// single-global-row assumptions are a defect.
+async function saveTokens(tokens: TokenSet) {
+  await pool.query(
+    `INSERT INTO digitail_connections_v2 (id, env, connection_scope, access_token_enc, refresh_token_enc, access_token_expires_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, NOW() + ($6::text || ' seconds')::interval, NOW())
+     ON CONFLICT (id) DO UPDATE SET
+       access_token_enc = EXCLUDED.access_token_enc,
+       refresh_token_enc = EXCLUDED.refresh_token_enc,
+       access_token_expires_at = EXCLUDED.access_token_expires_at,
+       updated_at = NOW()`,
+    [CONNECTION_ID, config.env, config.connectionScope, encrypt(tokens.access_token), encrypt(tokens.refresh_token), tokens.expires_in],
+  );
+}
+
+export async function getConnection(env: string, scope: string) {
+  const result = await pool.query(
+    `SELECT id, env, connection_scope, access_token_enc, refresh_token_enc, access_token_expires_at
+     FROM digitail_connections_v2 WHERE id = $1 LIMIT 1`,
+    [`${env}:${scope}`],
+  );
   return result.rows[0] || null;
+}
+
+async function loadConnection() {
+  return getConnection(config.env, config.connectionScope);
 }
 
 async function getValidAccessToken(): Promise<string> {
@@ -94,7 +168,7 @@ async function getValidAccessToken(): Promise<string> {
   if (expiresAt > Date.now() + 60_000) return decrypt(connection.access_token_enc);
 
   const tokens = await refreshTokens(decrypt(connection.refresh_token_enc));
-  await saveTokens(tokens);
+  await saveTokens(tokens); // refresh-token rotation: always store the newly returned pair
   return tokens.access_token;
 }
 
@@ -103,7 +177,12 @@ async function digitailApi(path: string, clinicId?: string) {
   const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
   if (clinicId) headers["X-ClinicId"] = clinicId;
 
-  const response = await fetch(`${DIGITAIL_API_BASE_URL}${path}`, { headers });
+  let response: globalThis.Response;
+  try {
+    response = await fetch(`${config.apiBaseUrl}${path}`, { headers });
+  } catch (cause: any) {
+    throw new Error("Digitail API request failed: network error", { cause });
+  }
   const text = await response.text();
   let data: any;
   try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 2000) }; }
@@ -125,17 +204,18 @@ export function registerDigitailRoutes(app: Express) {
       const session = req.session as any;
       session.digitailOAuth = { verifier, state, createdAt: Date.now() };
 
-      const url = new URL(DIGITAIL_AUTHORIZE_URL);
+      const url = new URL(config.authorizeUrl);
       url.searchParams.set("response_type", "code");
       url.searchParams.set("client_id", required("DIGITAIL_CLIENT_ID"));
+      // client_secret IS expected in the authorization request — confirmed by Digitail.
       url.searchParams.set("client_secret", required("DIGITAIL_CLIENT_SECRET"));
-      url.searchParams.set("redirect_uri", redirectUri());
+      url.searchParams.set("redirect_uri", config.redirectUri);
       url.searchParams.set("state", state);
       url.searchParams.set("code_challenge", challenge);
       url.searchParams.set("code_challenge_method", "S256");
       res.redirect(url.toString());
     } catch (error: any) {
-      res.status(500).json({ error: "digitail_config_error", message: error?.message || String(error) });
+      res.status(500).json({ error: "digitail_config_error", message: redactErrorMessage(error) });
     }
   });
 
@@ -152,16 +232,52 @@ export function registerDigitailRoutes(app: Express) {
       await saveTokens(tokens);
       res.status(200).send("<!doctype html><html><head><meta charset='utf-8'><title>Digitail Connected</title></head><body style='font-family:sans-serif;text-align:center;padding:60px'><h1>Digitail connected successfully</h1><p>You can close this window.</p></body></html>");
     } catch (error: any) {
-      console.error("[digitail] OAuth callback failed:", error?.message || error);
-      res.status(500).json({ error: "digitail_oauth_failed", message: error?.message || String(error) });
+      console.error("[digitail] OAuth callback failed:", redactErrorMessage(error));
+      res.status(500).json({ error: "digitail_oauth_failed", message: redactErrorMessage(error) });
     }
   });
 
   app.get("/api/digitail/status", requireAdmin, async (_req, res) => {
     try {
       const connection = await loadConnection();
-      res.json({ connected: !!connection, expiresAt: connection?.access_token_expires_at || null });
-    } catch (error: any) { res.status(500).json({ error: "digitail_status_failed", message: error?.message || String(error) }); }
+      res.json({
+        connected: !!connection,
+        expiresAt: connection?.access_token_expires_at || null,
+        ...publicDigitailConfig(config),
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: "digitail_status_failed", message: redactErrorMessage(error) });
+    }
+  });
+
+  // Phase 0 addition: operational health for admins — env, resolved hosts, DB reachability,
+  // and per-connection token presence/expiry. Never exposes token or secret values.
+  app.get("/api/digitail/health", requireAdmin, async (_req, res) => {
+    const health: Record<string, any> = { ...publicDigitailConfig(config) };
+    try {
+      await pool.query("SELECT 1");
+      health.database = "up";
+    } catch {
+      health.database = "down";
+    }
+    try {
+      const result = await pool.query(
+        `SELECT id, env, connection_scope, access_token_expires_at, updated_at FROM digitail_connections_v2 ORDER BY id`,
+      );
+      health.connections = result.rows.map((row: any) => ({
+        id: row.id,
+        env: row.env,
+        connectionScope: row.connection_scope,
+        tokenExpiresAt: row.access_token_expires_at,
+        tokenExpired: new Date(row.access_token_expires_at).getTime() <= Date.now(),
+        updatedAt: row.updated_at,
+      }));
+      res.json(health);
+    } catch (error: any) {
+      health.connections = null;
+      health.connectionsError = redactErrorMessage(error);
+      res.status(500).json(health);
+    }
   });
 
   app.post("/api/digitail/refresh", requireAdmin, async (_req, res) => {
@@ -172,8 +288,8 @@ export function registerDigitailRoutes(app: Express) {
       await saveTokens(tokens);
       res.json({ refreshed: true, expiresIn: tokens.expires_in });
     } catch (error: any) {
-      console.error("[digitail] token refresh failed:", error?.message || error);
-      res.status(502).json({ error: "digitail_refresh_failed", message: error?.message || String(error) });
+      console.error("[digitail] token refresh failed:", redactErrorMessage(error));
+      res.status(502).json({ error: "digitail_refresh_failed", message: redactErrorMessage(error) });
     }
   });
 
@@ -184,8 +300,8 @@ export function registerDigitailRoutes(app: Express) {
       const data = await digitailApi("/auth/me?include=multipleClinic");
       res.json(data);
     } catch (error: any) {
-      console.error("[digitail] clinic discovery failed:", error?.message || error);
-      res.status(error?.status || 502).json({ error: "digitail_clinic_discovery_failed", details: error?.details || error?.message || String(error) });
+      console.error("[digitail] clinic discovery failed:", redactErrorMessage(error));
+      res.status(error?.status || 502).json({ error: "digitail_clinic_discovery_failed", details: redactSecrets(JSON.stringify(error?.details || error?.message || String(error))) });
     }
   });
 
@@ -203,8 +319,8 @@ export function registerDigitailRoutes(app: Express) {
       const data = await digitailApi(sandboxTestPath, clinicId);
       res.json({ clinicId, path: sandboxTestPath, data });
     } catch (error: any) {
-      console.error("[digitail] API test failed:", error?.message || error);
-      res.status(error?.status || 502).json({ error: "digitail_api_test_failed", details: error?.details || error?.message || String(error) });
+      console.error("[digitail] API test failed:", redactErrorMessage(error));
+      res.status(error?.status || 502).json({ error: "digitail_api_test_failed", details: redactSecrets(JSON.stringify(error?.details || error?.message || String(error))) });
     }
   });
 }
