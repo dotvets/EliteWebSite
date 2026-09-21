@@ -109,9 +109,11 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function safeError(res: Response, error: any, code: string) {
   console.error(`[hub] ${code}:`, redactErrorMessage(error));
   const status = Number(error?.status) || 502;
+  const upstreamDetails = error?.details ? redactSecrets(JSON.stringify(error.details)).slice(0, 500) : undefined;
   res.status(status === 401 || status === 403 ? 502 : status).json({
     error: code,
     details: redactSecrets(String(error?.message || "upstream error")).slice(0, 300),
+    ...(upstreamDetails ? { upstream: upstreamDetails } : {}),
   });
 }
 
