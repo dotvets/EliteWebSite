@@ -19,8 +19,8 @@ Environment defaults:
 
 | | sandbox | production |
 |---|---|---|
-| authorize | `https://developer.digitail.io/authorize` ✅ confirmed | `https://vet.digitail.io/oauth/authorize` ✅ |
-| token | **NONE — not confirmed by Digitail** (OPEN-Q below). Set `DIGITAIL_TOKEN_URL` explicitly once confirmed. | `https://vet.digitail.io/oauth/token` ✅ |
+| authorize | `https://developer.digitail.io/oauth/authorize` ✅ confirmed | `https://vet.digitail.io/oauth/authorize` ✅ |
+| token | `https://developer.digitail.io/oauth/token` ✅ confirmed (same URL for both grants) | `https://vet.digitail.io/oauth/token` ✅ |
 | API base | `https://developer.digitail.io/api/v1` ✅ | `https://vet.digitail.io/api/v1` ✅ |
 
 On boot the server validates `DIGITAIL_ENV` and the required variables and **fails fast**
@@ -33,20 +33,20 @@ Slack thread `#elitevet` (2026-09-17 → 2026-09-21) and email thread
 "Elite Vet Group - Digitail API Request" (2026-08-31 → 2026-09-14), plus a live
 screen-share meeting (week of 2026-09-21).
 
-- Sandbox authorization URL: `GET https://developer.digitail.io/authorize` — **confirmed by George in Slack, 2026-09-21** ("the tokens and flow we're looking at here is meant to interact with the sandbox version of our app first … GET developer.digitail.io/authorize").
+- Sandbox authorization URL: `GET https://developer.digitail.io/oauth/authorize` — **confirmed by George in Slack, 2026-09-21** ("here's the full sandbox set … authorize: GET developer.digitail.io/oauth/authorize"). Note: an earlier message the same day gave `…/authorize` without `/oauth`; George corrected it: "The authorize URL I sent earlier was missing the /oauth segment. It's /oauth/authorize, my bad on that." The corrected value is authoritative.
 - Sandbox API base: `https://developer.digitail.io/api/v1` — confirmed (email 2026-09-08 + docs).
 - Production authorize/token/API base: `https://vet.digitail.io/oauth/authorize`, `/oauth/token`, `/api/v1` — confirmed (docs + email).
-- `client_secret` IS expected in the authorization request — do not remove it.
+- `client_secret` is NOT sent on the authorize GET — George, 2026-09-21: "With PKCE the authorize step never needs it, and it ends up in browser history and proxy logs that way. Send it only on the token POST." This SUPERSEDES the earlier instruction to keep it on the authorize request. We send it on both token grants (`authorization_code` + `refresh_token`) exactly as specified.
 - Same OAuth client credentials for both environments; the environment is chosen by base URL. The earlier `invalid_client` error was caused by hitting the production authorize URL for a sandbox flow.
 - Access model: the OAuth connection inherits the authorizing user's clinic permissions; one group-access user covers all group clinics. `GET /auth/me?include=multipleClinic` lists them.
 - **Production gate**: the live API only accepts the OAuth handshake initiated from a publicly accessible, Digitail-whitelisted URL. Localhost/Postman works for sandbox only. Whitelisting must be requested from Digitail before any production attempt.
 - Recommended production identity: a dedicated least-privilege "API user" in the clinic group (George's recommendation), not a personal staff account.
 - Rate limit: 200 requests/minute.
 
-### OPEN-Q (never guess)
-- **Sandbox token endpoint**: not published in documentation.digitail.io and not stated in the
-  support thread. Until Digitail confirms it, set `DIGITAIL_TOKEN_URL` explicitly for sandbox;
-  the code refuses token exchange with a clear error rather than inventing a URL.
+### Resolved OPEN-Q
+- **Sandbox token endpoint** ✅ RESOLVED 2026-09-21 (George, Slack): `POST https://developer.digitail.io/oauth/token`
+  — same URL covers both grants (`authorization_code` with code/redirect_uri/client_id/client_secret/code_verifier;
+  `refresh_token` with refresh_token/client_id/client_secret). Production uses the same two paths on the production host.
 
 ## Connection storage (multi-connection)
 
@@ -82,7 +82,7 @@ literal configured secret values are scrubbed before anything reaches the logs.
 
 ## Setup order
 
-1. Add the Digitail/encryption environment variables to the deployment (plus `DIGITAIL_ENV`, and `DIGITAIL_TOKEN_URL` for sandbox until the endpoint is confirmed).
+1. Add the Digitail/encryption environment variables to the deployment (`DIGITAIL_ENV` optional — defaults to sandbox; overrides optional).
 2. Ask Digitail to whitelist the exact `DIGITAIL_REDIRECT_URI` for the OAuth client (done for the value above).
 3. Deploy this branch to a test environment.
 4. Open `/api/digitail/connect` in a browser and complete Digitail authorization.

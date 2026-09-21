@@ -9,6 +9,8 @@
 // so the sandbox has NO default token URL — it must be supplied via DIGITAIL_TOKEN_URL
 // until Digitail confirms it (tracked as OPEN-Q #6 in the master document).
 
+// Sandbox token endpoint confirmed 2026-09-21 (POST https://developer.digitail.io/oauth/token,
+// same URL for authorization_code and refresh_token grants).
 export type DigitailEnv = "sandbox" | "production";
 
 export interface DigitailConfig {
@@ -26,9 +28,11 @@ const ENV_DEFAULTS: Record<
   { authorizeUrl: string; tokenUrl: string | null; apiBaseUrl: string }
 > = {
   sandbox: {
-    // Confirmed by Digitail support (George Roman) — see docs/DIGITAIL_OAUTH.md.
-    authorizeUrl: "https://developer.digitail.io/authorize",
-    tokenUrl: null, // NOT confirmed — supply DIGITAIL_TOKEN_URL explicitly; do not invent.
+    // Confirmed by Digitail (George Roman, Slack, 2026-09-21) — see docs/DIGITAIL_OAUTH.md.
+    // NOTE: an earlier message gave authorize as ".../authorize" without /oauth; George corrected
+    // it to ".../oauth/authorize" the same day ("my bad on that"). The corrected value is below.
+    authorizeUrl: "https://developer.digitail.io/oauth/authorize",
+    tokenUrl: "https://developer.digitail.io/oauth/token", // confirmed same URL for both grants
     apiBaseUrl: "https://developer.digitail.io/api/v1",
   },
   production: {
