@@ -207,8 +207,9 @@ export function registerDigitailRoutes(app: Express) {
       const url = new URL(config.authorizeUrl);
       url.searchParams.set("response_type", "code");
       url.searchParams.set("client_id", required("DIGITAIL_CLIENT_ID"));
-      // client_secret IS expected in the authorization request — confirmed by Digitail.
-      url.searchParams.set("client_secret", required("DIGITAIL_CLIENT_SECRET"));
+      // client_secret is deliberately NOT sent on the authorize GET (Digitail/George, 2026-09-21:
+      // "With PKCE the authorize step never needs it... Send it only on the token POST." — supersedes
+      // the earlier instruction; we send it on both token grants).
       url.searchParams.set("redirect_uri", config.redirectUri);
       url.searchParams.set("state", state);
       url.searchParams.set("code_challenge", challenge);
