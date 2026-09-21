@@ -191,6 +191,105 @@ CREATE TABLE IF NOT EXISTS hub_read_cache (
   ttl_seconds integer NOT NULL DEFAULT 3600,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+-- Phase 2 (master document Part 3.3): booking write path + OTP identity.
+-- Dependency order: hub_customers before hub_pets/hub_bookings.
+CREATE TABLE IF NOT EXISTS hub_customers (
+  id varchar PRIMARY KEY,              -- uuid — THE identity; stable even if phone changes
+  phone varchar NOT NULL UNIQUE,       -- E.164 verified CONTACT field, not identity
+  name text,
+  locale varchar NOT NULL DEFAULT 'ar',
+  pdpl_consent_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS hub_pets (
+  id varchar PRIMARY KEY,
+  customer_id varchar NOT NULL REFERENCES hub_customers(id),
+  brand varchar NOT NULL,
+  digitail_patient_id varchar,
+  digitail_parent_id varchar,
+  name text NOT NULL,
+  species varchar NOT NULL,
+  breed text,
+  sex varchar,
+  date_of_birth date,
+  weight_kg numeric,
+  microchip_number varchar,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS hub_bookings (
+  id varchar PRIMARY KEY,
+  brand varchar NOT NULL,
+  clinic_id varchar NOT NULL REFERENCES hub_clinics(id),
+  digitail_appointment_id varchar,
+  status varchar NOT NULL,             -- held | pending_payment | confirmed | failed | cancelled | expired | completed | no_show
+  idempotency_key varchar NOT NULL UNIQUE,
+  customer_id varchar REFERENCES hub_customers(id),
+  customer_name text NOT NULL,
+  customer_phone varchar NOT NULL,
+  customer_phone_verified boolean NOT NULL DEFAULT false,
+  pet_id varchar REFERENCES hub_pets(id),
+  pet_snapshot_json jsonb NOT NULL,
+  service_json jsonb NOT NULL,
+  hold_expires_at timestamptz,
+  payment_id varchar,
+  locale varchar NOT NULL DEFAULT 'ar',
+  source_json jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_bookings_status_idx ON hub_bookings (status, hold_expires_at);
+CREATE INDEX IF NOT EXISTS hub_bookings_phone_idx ON hub_bookings (customer_phone, created_at);
+CREATE TABLE IF NOT EXISTS hub_payments (
+  id varchar PRIMARY KEY,
+  booking_id varchar NOT NULL REFERENCES hub_bookings(id),
+  provider varchar NOT NULL DEFAULT 'myfatoorah',
+  provider_invoice_id varchar,
+  amount_halalas integer NOT NULL,
+  currency varchar NOT NULL DEFAULT 'SAR',
+  status varchar NOT NULL,
+  idempotency_key varchar NOT NULL UNIQUE,
+  raw_webhook_json jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS hub_notifications (
+  id varchar PRIMARY KEY,
+  booking_id varchar REFERENCES hub_bookings(id),
+  kind varchar NOT NULL,
+  channel varchar NOT NULL,
+  to_phone varchar NOT NULL,
+  template_key varchar NOT NULL,
+  payload_json jsonb NOT NULL DEFAULT '{}',
+  status varchar NOT NULL,
+  provider_message_id varchar,
+  attempt_count integer NOT NULL DEFAULT 0,
+  scheduled_at timestamptz NOT NULL,
+  sent_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_notifications_due_idx ON hub_notifications (status, scheduled_at);
+CREATE TABLE IF NOT EXISTS hub_audit_log (
+  id varchar PRIMARY KEY,
+  actor varchar NOT NULL,
+  action varchar NOT NULL,
+  entity varchar NOT NULL,
+  entity_id varchar NOT NULL,
+  meta_json jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_audit_entity_idx ON hub_audit_log (entity, entity_id);
+CREATE TABLE IF NOT EXISTS hub_otp_codes (
+  id varchar PRIMARY KEY,
+  phone varchar NOT NULL,
+  code_hash varchar NOT NULL,
+  expires_at timestamptz NOT NULL,
+  attempts integer NOT NULL DEFAULT 0,
+  consumed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_otp_phone_idx ON hub_otp_codes (phone, created_at);
 `;
 
 export async function ensureSchema() {
