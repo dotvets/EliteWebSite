@@ -317,7 +317,7 @@ export function registerDigitailRoutes(app: Express) {
       const requestedPath = typeof req.query.path === "string" ? req.query.path.trim() : sandboxTestPath;
       if (requestedPath !== sandboxTestPath) return res.status(400).json({ error: "unsupported_test_endpoint" });
 
-      const data = await digitailApi(sandboxTestPath, clinicId);
+      const data = await digitailApi(`${sandboxTestPath}?filter%5Bclinic_id%5D=${encodeURIComponent(clinicId)}`, clinicId);
       res.json({ clinicId, path: sandboxTestPath, data });
     } catch (error: any) {
       console.error("[digitail] API test failed:", redactErrorMessage(error));
