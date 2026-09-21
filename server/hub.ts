@@ -208,6 +208,68 @@ export function registerHubRoutes(app: Express) {
     }
   });
 
+  // ---- Admin: feature-flag management (Part 5.2 gate + Part 5.4 rollback) ----
+  app.patch("/api/hub/admin/brands/:brand", requireAdmin, async (req, res) => {
+    try {
+      const brandParam = String(req.params.brand || "");
+      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      const allowed = ["booking_enabled", "messaging_enabled", "payment_mode"] as const;
+      const updates: string[] = [];
+      const values: any[] = [];
+      for (const key of allowed) {
+        if (key in (req.body || {})) {
+          if (key === "payment_mode") {
+            if (!["off", "optional", "required_deposit"].includes(String(req.body[key]))) {
+              return res.status(400).json({ error: "invalid_payment_mode" });
+            }
+          } else if (typeof req.body[key] !== "boolean") {
+            return res.status(400).json({ error: `invalid_${key}` });
+          }
+          values.push(req.body[key]);
+          updates.push(`${key} = $${values.length}`);
+        }
+      }
+      if (!updates.length) return res.status(400).json({ error: "no_fields" });
+      values.push(brandParam);
+      const r = await pool.query(`UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode`, values);
+      if (!r.rows[0]) return res.status(404).json({ error: "unknown_brand" });
+      res.json({ updated: r.rows[0] });
+    } catch (error: any) {
+      safeError(res, error, "hub_brand_update_failed");
+    }
+  });
+
+  app.patch("/api/hub/admin/clinics/:clinicId", requireAdmin, async (req, res) => {
+    try {
+      const clinicId = String(req.params.clinicId || "");
+      if (!/^[a-z][a-z0-9_-]{0,31}:\d+$/.test(clinicId)) return res.status(400).json({ error: "invalid_clinic_id" });
+      const body = req.body || {};
+      const updates: string[] = [];
+      const values: any[] = [];
+      if ("booking_enabled" in body) {
+        if (typeof body.booking_enabled !== "boolean") return res.status(400).json({ error: "invalid_booking_enabled" });
+        values.push(body.booking_enabled);
+        updates.push(`booking_enabled = $${values.length}`);
+      }
+      if ("name_ar" in body || "name_en" in body) {
+        for (const k of ["name_ar", "name_en"] as const) {
+          if (k in body) {
+            if (typeof body[k] !== "string" || !body[k].trim() || body[k].length > 200) return res.status(400).json({ error: `invalid_${k}` });
+            values.push(body[k].trim());
+            updates.push(`${k} = $${values.length}`);
+          }
+        }
+      }
+      if (!updates.length) return res.status(400).json({ error: "no_fields" });
+      values.push(clinicId);
+      const r = await pool.query(`UPDATE hub_clinics SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING id, brand, booking_enabled, name_ar, name_en`, values);
+      if (!r.rows[0]) return res.status(404).json({ error: "unknown_clinic" });
+      res.json({ updated: r.rows[0] });
+    } catch (error: any) {
+      safeError(res, error, "hub_clinic_update_failed");
+    }
+  });
+
   // ---- Admin: upstream budget observability ----
   app.get("/api/hub/admin/upstream-stats", requireAdmin, (_req, res) => {
     res.json(upstreamStats());
