@@ -172,7 +172,9 @@ async function getValidAccessToken(): Promise<string> {
   return tokens.access_token;
 }
 
-async function digitailApi(path: string, clinicId?: string) {
+// Exported for the Phase 1 read-only hub (server/hub.ts). Restriction of the
+// public smoke-test surface stays at the /api/digitail/test route level.
+export async function digitailApi(path: string, clinicId?: string) {
   const token = await getValidAccessToken();
   const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
   if (clinicId) headers["X-ClinicId"] = clinicId;
