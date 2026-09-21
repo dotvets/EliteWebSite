@@ -281,13 +281,23 @@ export function registerDigitailRoutes(app: Express) {
     const results: any[] = [];
     for (const clinicId of [703, 704]) {
       try {
+        // Discover the clinic's visit-type category first (required field).
+        let category: any = null;
+        try {
+          const cats = await digitailRequest("GET", `/visit-type-categories?filter%5Bclinic_id%5D=${clinicId}`);
+          const first = (cats?.data || [])[0];
+          category = first?.id ?? first?.name ?? null;
+        } catch {}
         const created = await digitailRequest("POST", "/visit-types", {
           clinic_id: clinicId,
           name: "General Checkup (Hub E2E)",
           duration: 30,
           is_visible: true,
+          is_notifiable: true,
+          color: "#6650a0",
+          ...(category !== null ? { category } : {}),
         });
-        results.push({ clinicId, ok: true, id: created?.data?.id });
+        results.push({ clinicId, ok: true, id: created?.data?.id, categoryUsed: category });
       } catch (e: any) {
         results.push({ clinicId, ok: false, status: e?.status, details: JSON.stringify(e?.details || e?.message).slice(0, 400) });
       }
