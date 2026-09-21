@@ -273,6 +273,28 @@ export async function digitailApi(path: string, clinicId?: string) {
 }
 
 export function registerDigitailRoutes(app: Express) {
+  // TEMP-SANDBOX-SETUP (remove after Phase 2 sandbox data is prepared):
+  // admin-only probe to create a visit type in sandbox clinics 703/704 so the
+  // Phase 2 E2E (hold→OTP→confirm) has bookable data. Returns raw upstream
+  // results including 422 field errors for diagnosis.
+  app.post("/api/digitail/sandbox-setup", requireAdmin, async (_req, res) => {
+    const results: any[] = [];
+    for (const clinicId of [703, 704]) {
+      try {
+        const created = await digitailRequest("POST", "/visit-types", {
+          clinic_id: clinicId,
+          name: "General Checkup (Hub E2E)",
+          duration: 30,
+          is_visible: true,
+        });
+        results.push({ clinicId, ok: true, id: created?.data?.id });
+      } catch (e: any) {
+        results.push({ clinicId, ok: false, status: e?.status, details: JSON.stringify(e?.details || e?.message).slice(0, 400) });
+      }
+    }
+    res.json({ results });
+  });
+
   app.get("/api/digitail/connect", requireAdmin, (req: Request, res: Response) => {
     try {
       const verifier = randomString(48);
