@@ -3,6 +3,8 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { assertDigitailBootConfig } from "./digitailConfig";
+import { redactSecrets } from "./redact";
 
 const app = express();
 
@@ -64,7 +66,8 @@ app.use((req, res, next) => {
         logLine = logLine.slice(0, 79) + "…";
       }
 
-      log(logLine);
+      // Phase 0 (master document Part 4.2 item 3): never let token material reach logs.
+      log(redactSecrets(logLine));
     }
   });
 
@@ -72,6 +75,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Phase 0 (master document Part 4.2 item 1): boot-time Digitail config validation.
+  // Fail fast on an unknown DIGITAIL_ENV or missing required variables — before
+  // the server accepts any traffic.
+  try {
+    const digitailConfig = assertDigitailBootConfig();
+    log(`[digitail] config validated: env=${digitailConfig.env} scope=${digitailConfig.connectionScope}`);
+  } catch (err: any) {
+    console.error(redactSecrets(err?.message || String(err)));
+    process.exit(1);
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

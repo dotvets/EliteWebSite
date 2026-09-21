@@ -1,4 +1,5 @@
 import { pool } from "./db";
+import { resolveDigitailConfig, digitailConnectionId } from "./digitailConfig";
 
 // Bootstrap tables on startup (idempotent) — avoids external migration access.
 const DDL = `
@@ -142,11 +143,17 @@ CREATE TABLE IF NOT EXISTS activity_log (
   action text NOT NULL, entity text, entity_id text,
   created_at text NOT NULL DEFAULT now()::text
 );
-CREATE TABLE IF NOT EXISTS digitail_connections (
+-- Group Booking Hub Phase 0 (master document Part 3.1 + Addendum A2):
+-- multi-connection storage keyed "{env}:{connection_scope}".
+-- connection_scope is NOT a brand — group-level connections are supported.
+CREATE TABLE IF NOT EXISTS digitail_connections_v2 (
   id varchar PRIMARY KEY,
+  env varchar NOT NULL,
+  connection_scope varchar NOT NULL,
   access_token_enc text NOT NULL,
   refresh_token_enc text NOT NULL,
   access_token_expires_at timestamptz NOT NULL,
+  scopes text,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 `;
@@ -160,6 +167,23 @@ export async function ensureSchema() {
     await pool.query(DDL);
     for (const t of ["team_members", "testimonials", "offers", "blog_posts", "branches"]) {
       await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`);
+    }
+    // Phase 0: migrate the legacy single 'default' Digitail connection into
+    // digitail_connections_v2 under the current "{env}:{scope}" identity.
+    // Tokens stay encrypted exactly as they were — copied byte-for-byte, never re-encrypted.
+    // The legacy table is intentionally KEPT (Addendum A12: additive-first; removal only
+    // in a later dedicated migration after explicit approval).
+    try {
+      const id = digitailConnectionId(resolveDigitailConfig());
+      await pool.query(
+        `INSERT INTO digitail_connections_v2 (id, env, connection_scope, access_token_enc, refresh_token_enc, access_token_expires_at, updated_at)
+         SELECT $1, $2, $3, access_token_enc, refresh_token_enc, access_token_expires_at, updated_at
+         FROM digitail_connections WHERE id = 'default'
+         ON CONFLICT (id) DO NOTHING`,
+        [id, id.split(":")[0], id.split(":").slice(1).join(":")],
+      );
+    } catch (e: any) {
+      console.error("[db] digitail_connections_v2 migration skipped:", e?.message);
     }
     console.log("[db] schema ensured");
     return true;
