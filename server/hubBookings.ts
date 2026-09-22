@@ -568,10 +568,17 @@ export function registerHubBookingRoutes(app: Express) {
       const q = await pool.query(`SELECT status, COUNT(*)::int AS c FROM hub_notifications GROUP BY status`);
       const counts: Record<string, number> = {};
       for (const r of q.rows) counts[r.status] = r.c;
+      const recon = await pool.query(`SELECT created_at FROM hub_audit_log WHERE action = 'recon.completed' ORDER BY created_at DESC LIMIT 1`);
       res.json({
         db: "up",
         digitail: digitailCircuitState(),
         messaging: { provider: (process.env.MESSAGING_PROVIDER || "stub").toLowerCase(), whatsapp_enabled: whatsappEnabled() },
+        myfatoorah: {
+          configured: !!process.env.MYFATOORAH_API_KEY,
+          mode: process.env.MYFATOORAH_MODE || "test",
+          webhook_configured: !!process.env.MYFATOORAH_WEBHOOK_SECRET,
+          reconciliation_last_run: recon.rows[0]?.created_at || null,
+        },
         notifications: counts,
         sweeper: { enabled: sweeperEnabled(), lastRun: sweeperLastRun?.toISOString() || null, intervalMs: SWEEP_INTERVAL_MS },
       });
