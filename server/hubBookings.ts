@@ -448,91 +448,20 @@ export function registerHubBookingRoutes(app: Express) {
     try {
       const b = await loadBookingForWrite(req, res);
       if (!b) return;
-
-      if (b.status === "confirmed" && b.digitail_appointment_id) {
-        return res.json({ confirmed: true, ref: referenceCode(b.brand, b.id), idempotent: true });
-      }
-      if (b.status !== "held") return res.status(409).json({ error: `invalid_state_${b.status}` });
-      if (!b.customer_phone_verified) return res.status(400).json({ error: "otp_required" });
-      if (b.hold_expires_at && new Date(b.hold_expires_at).getTime() < Date.now()) {
-        await pool.query(`UPDATE hub_bookings SET status = 'expired', updated_at = NOW() WHERE id = $1`, [b.id]);
-        return res.status(410).json({ error: "hold_expired" });
-      }
-
-      const clinic = await getClinicRow(b.clinic_id);
-      const svc = b.service_json || {};
-      const day = new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: clinic?.timezone || "Asia/Riyadh" }).slice(0, 10);
-      const slug = (clinic?.config_json || {}).slug;
-
-      // (1) Re-check upstream availability immediately before creation.
-      if (slug) {
-        const slots = await fetchDaySlots(slug, day, svc.service_id, svc.duration_minutes || 30);
-        if (!slotMatches(slots, svc.starts_at)) {
-          await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1`, [b.id]);
-          await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "slot_taken_at_confirm", clinic: b.clinic_id });
-          return res.status(409).json({ error: "slot_taken", alternatives: nearestAlternatives(slots, svc.starts_at) });
-        }
-      }
-
-      // (2) Attempt the Digitail write (single attempt — idempotency owned here).
-      const vetId = svc.doctor_id || (await defaultVetId(clinic.digitail_clinic_id));
-      const parentId = await findOrCreatePetParent(clinic.digitail_clinic_id, b.customer_name, b.customer_phone);
-      const petSnap = b.pet_snapshot_json || {};
-      const speciesId = await mapSpeciesId(petSnap.species);
-      const patientId = await createDigitailPet(clinic.digitail_clinic_id, vetId, parentId, petSnap, speciesId);
-      try {
-        const appt = await digitailRequest("POST", "/appointments", {
-          clinic_id: clinic.digitail_clinic_id,
-          vet_id: Number(vetId),
-          patient_id: Number(patientId),
-          visit_type_id: Number(svc.service_id),
-          datetime_start_utc: new Date(svc.starts_at).toISOString(),
-          datetime_end_utc: new Date(svc.ends_at || new Date(new Date(svc.starts_at).getTime() + (svc.duration_minutes || 30) * 60_000)).toISOString(),
-        });
-        const apptId = String(appt?.data?.id);
-        await pool.query(
-          `UPDATE hub_bookings SET status = 'confirmed', digitail_appointment_id = $2, updated_at = NOW() WHERE id = $1`,
-          [b.id, apptId],
-        );
-        // persist upstream ids on the pet record (never exposed publicly)
-        await pool.query(`UPDATE hub_pets SET digitail_patient_id = $2, digitail_parent_id = $3, updated_at = NOW() WHERE id = $1`, [b.pet_id, patientId, parentId]);
-
-        // (3) Notifications: confirm now + reminders scheduled (Part 6.3)
-        const ref = referenceCode(b.brand, b.id);
-        const riyadh = new Date(svc.starts_at);
-        const vars = {
-          ref,
-          clinic: b.locale === "ar" ? clinic.name_ar : clinic.name_en,
-          date: riyadh.toLocaleString("sv-SE", { timeZone: "Asia/Riyadh" }).slice(0, 10),
-          time: riyadh.toLocaleString("sv-SE", { timeZone: "Asia/Riyadh" }).slice(11, 16),
-        };
-        const templates = ((await getBrandRow(b.brand))?.config_json || {}).templates;
-        await enqueueNotification({ bookingId: b.id, kind: "confirm", channel: "sms", toPhone: b.customer_phone, templateKey: "confirm", payload: { body: renderTemplate("confirm", vars, b.locale, templates) }, scheduledAt: new Date(), respectQuietHours: false });
-        const startMs2 = new Date(svc.starts_at).getTime();
-        for (const [kind, offsetMs] of [["remind_24h", 24 * 3600_000], ["remind_2h", 2 * 3600_000]] as const) {
-          const at = new Date(startMs2 - offsetMs);
-          if (at.getTime() > Date.now() + 60_000) {
-            await enqueueNotification({ bookingId: b.id, kind, channel: "sms", toPhone: b.customer_phone, templateKey: kind, payload: { body: renderTemplate(kind, vars, b.locale, templates) }, scheduledAt: at });
-          }
-        }
-        await audit(`customer:${b.customer_id || "anon"}`, "booking.confirmed", "hub_bookings", b.id, { ref, appointment: apptId });
-        return res.json({ confirmed: true, ref, starts_at: svc.starts_at, ends_at: svc.ends_at });
-      } catch (e: any) {
-        // (4) Clean conflict / upstream failure handling (A7 + A13)
-        if (e?.status === 409 || e?.status === 422) {
-          await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1`, [b.id]);
-          let alternatives: string[] = [];
-          if (slug) {
-            try {
-              alternatives = nearestAlternatives(await fetchDaySlots(slug, day, svc.service_id, svc.duration_minutes || 30), svc.starts_at);
-            } catch {}
-          }
-          await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "upstream_conflict", status: e.status });
-          return res.status(409).json({ error: "slot_taken", alternatives });
-        }
-        // Upstream down: never lose the booking — keep the hold for manual recovery.
-        await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0 });
-        return res.status(503).json({ error: "upstream_unavailable_keep_hold" });
+      const result = await runConfirmPipeline(b, `customer:${b.customer_id || "anon"}`);
+      switch (result.outcome) {
+        case "confirmed":
+          return res.json({ confirmed: true, ref: result.ref, starts_at: result.startsAt, ends_at: result.endsAt, idempotent: result.idempotent });
+        case "conflict":
+          return res.status(409).json({ error: "slot_taken", alternatives: result.alternatives });
+        case "invalid_state":
+          return res.status(409).json({ error: `invalid_state_${result.state}` });
+        case "otp_required":
+          return res.status(400).json({ error: "otp_required" });
+        case "hold_expired":
+          return res.status(410).json({ error: "hold_expired" });
+        default:
+          return res.status(503).json({ error: "upstream_unavailable_keep_hold" });
       }
     } catch (error: any) {
       safeErr(res, error, "booking_confirm_failed");
@@ -578,7 +507,12 @@ export function registerHubBookingRoutes(app: Express) {
     try {
       const b = await loadBookingForWrite(req, res, { requirePhone: false });
       if (!b) return;
-      res.json({ booking: publicBooking(b), ref: referenceCode(b.brand, b.id) });
+      let payment: any = null;
+      if (b.payment_id) {
+        const p = await pool.query(`SELECT status, amount_halalas, currency FROM hub_payments WHERE id = $1`, [b.payment_id]);
+        payment = p.rows[0] || null;
+      }
+      res.json({ booking: publicBooking(b), ref: referenceCode(b.brand, b.id), payment });
     } catch (error: any) {
       safeErr(res, error, "booking_read_failed");
     }
@@ -777,4 +711,111 @@ async function runSweep() {
   } catch (e: any) {
     console.error(JSON.stringify({ level: "error", msg: "sweeper_failed", error: redactErrorMessage(e) }));
   }
+}
+
+// ---------------------------------------------------------------------------
+// Exported confirm pipeline (Part 6.1) — used by the public confirm route AND
+// the Phase 3 payment webhook (Part 7.1: confirm ONLY after verified payment).
+// Idempotent: re-entry on a confirmed booking returns the same reference.
+// ---------------------------------------------------------------------------
+export type ConfirmResult =
+  | { outcome: "confirmed"; ref: string; idempotent: boolean; startsAt?: string; endsAt?: string }
+  | { outcome: "conflict"; alternatives: string[] }
+  | { outcome: "invalid_state"; state: string }
+  | { outcome: "otp_required" }
+  | { outcome: "hold_expired" }
+  | { outcome: "upstream_error" };
+
+export async function runConfirmPipeline(b: any, actor: string): Promise<ConfirmResult> {
+  if (b.status === "confirmed" && b.digitail_appointment_id) {
+    return { outcome: "confirmed", ref: referenceCode(b.brand, b.id), idempotent: true };
+  }
+  if (b.status !== "held" && b.status !== "pending_payment") {
+    return { outcome: "invalid_state", state: b.status };
+  }
+  if (!b.customer_phone_verified) return { outcome: "otp_required" };
+  if (b.hold_expires_at && new Date(b.hold_expires_at).getTime() < Date.now()) {
+    await pool.query(`UPDATE hub_bookings SET status = 'expired', updated_at = NOW() WHERE id = $1`, [b.id]);
+    return { outcome: "hold_expired" };
+  }
+
+  const clinic = await getClinicRow(b.clinic_id);
+  const svc = b.service_json || {};
+  const day = new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: clinic?.timezone || "Asia/Riyadh" }).slice(0, 10);
+  const slug = (clinic?.config_json || {}).slug;
+
+  // (1) Re-check upstream availability immediately before creation.
+  if (slug) {
+    try {
+      const slots = await fetchDaySlots(slug, day, svc.service_id, svc.duration_minutes || 30);
+      if (!slotMatches(slots, svc.starts_at)) {
+        await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1`, [b.id]);
+        await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "slot_taken_at_confirm", clinic: b.clinic_id });
+        const alternatives = nearestAlternatives(slots, svc.starts_at);
+        return { outcome: "conflict", alternatives };
+      }
+    } catch (e: any) {
+      if (e?.status === 503) return { outcome: "upstream_error" };
+      return { outcome: "upstream_error" };
+    }
+  }
+
+  // (2) Single upstream write — idempotency owned by this layer.
+  try {
+    const vetId = svc.doctor_id || (await defaultVetId(clinic.digitail_clinic_id));
+    const parentId = await findOrCreatePetParent(clinic.digitail_clinic_id, b.customer_name, b.customer_phone);
+    const petSnap = b.pet_snapshot_json || {};
+    const speciesId = await mapSpeciesId(petSnap.species);
+    const patientId = await createDigitailPet(clinic.digitail_clinic_id, vetId, parentId, petSnap, speciesId);
+    const appt = await digitailRequest("POST", "/appointments", {
+      clinic_id: clinic.digitail_clinic_id,
+      vet_id: Number(vetId),
+      patient_id: Number(patientId),
+      visit_type_id: Number(svc.service_id),
+      datetime_start_utc: new Date(svc.starts_at).toISOString(),
+      datetime_end_utc: new Date(svc.ends_at || new Date(new Date(svc.starts_at).getTime() + (svc.duration_minutes || 30) * 60_000)).toISOString(),
+    });
+    const apptId = String(appt?.data?.id);
+    await pool.query(`UPDATE hub_bookings SET status = 'confirmed', digitail_appointment_id = $2, updated_at = NOW() WHERE id = $1`, [b.id, apptId]);
+    await pool.query(`UPDATE hub_pets SET digitail_patient_id = $2, digitail_parent_id = $3, updated_at = NOW() WHERE id = $1`, [b.pet_id, patientId, parentId]);
+
+    // (3) Notifications: confirm now + reminders scheduled.
+    const ref = referenceCode(b.brand, b.id);
+    const vars = {
+      ref,
+      clinic: b.locale === "ar" ? clinic.name_ar : clinic.name_en,
+      date: new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: "Asia/Riyadh" }).slice(0, 10),
+      time: new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: "Asia/Riyadh" }).slice(11, 16),
+    };
+    const templates = ((await getBrandRow(b.brand))?.config_json || {}).templates;
+    await enqueueNotification({ bookingId: b.id, kind: "confirm", channel: "sms", toPhone: b.customer_phone, templateKey: "confirm", payload: { body: renderTemplate("confirm", vars, b.locale, templates) }, scheduledAt: new Date(), respectQuietHours: false });
+    const startMs2 = new Date(svc.starts_at).getTime();
+    for (const [kind, offsetMs] of [["remind_24h", 24 * 3600_000], ["remind_2h", 2 * 3600_000]] as const) {
+      const at = new Date(startMs2 - offsetMs);
+      if (at.getTime() > Date.now() + 60_000) {
+        await enqueueNotification({ bookingId: b.id, kind, channel: "sms", toPhone: b.customer_phone, templateKey: kind, payload: { body: renderTemplate(kind, vars, b.locale, templates) }, scheduledAt: at });
+      }
+    }
+    await audit(actor, "booking.confirmed", "hub_bookings", b.id, { ref, appointment: apptId });
+    return { outcome: "confirmed", ref, idempotent: false, startsAt: svc.starts_at, endsAt: svc.ends_at };
+  } catch (e: any) {
+    if (e?.status === 409 || e?.status === 422) {
+      await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1`, [b.id]);
+      let alternatives: string[] = [];
+      if (slug) {
+        try {
+          alternatives = nearestAlternatives(await fetchDaySlots(slug, day, svc.service_id, svc.duration_minutes || 30), svc.starts_at);
+        } catch {}
+      }
+      await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "upstream_conflict", status: e.status });
+      return { outcome: "conflict", alternatives };
+    }
+    await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0 });
+    return { outcome: "upstream_error" };
+  }
+}
+
+export async function loadBookingById(id: string) {
+  const r = await pool.query(`SELECT * FROM hub_bookings WHERE id = $1 LIMIT 1`, [id]);
+  return r.rows[0] || null;
 }

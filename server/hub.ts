@@ -301,7 +301,7 @@ export function registerHubRoutes(app: Express) {
       const r = await pool.query(`SELECT * FROM hub_clinics WHERE brand = $1 ORDER BY name_en`, [brand.brand]);
       res.set("Cache-Control", `public, max-age=${TTL_CLINICS}`);
       res.json({
-        brand: { id: brand.brand, name_ar: brand.display_name_ar, name_en: brand.display_name_en, locale: brand.default_locale },
+        brand: { id: brand.brand, name_ar: brand.display_name_ar, name_en: brand.display_name_en, locale: brand.default_locale, payment_mode: brand.payment_mode || "off" },
         clinics: r.rows.map(shapeClinic),
         fallback: brandFallbackContact(brand),
       });
