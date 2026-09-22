@@ -187,6 +187,11 @@ export function registerHubPaymentRoutes(app: Express) {
         const status = String(data?.InvoiceStatus || "");
         const txRef = String(data?.TransactionId || data?.PaymentId || "");
         if (!invoiceId) return;
+        // Integrations Manager V1: webhook health metadata only (design §12) —
+        // timestamp updates, never payload content.
+        const { recordWebhookEvent } = await import("./integrations/health");
+        const bkBrand = await pool.query(`SELECT b.brand FROM hub_payments hp JOIN hub_bookings b ON b.id = hp.booking_id WHERE hp.provider_invoice_id = $1 LIMIT 1`, [invoiceId]).catch(() => ({ rows: [] as any[] }));
+        await recordWebhookEvent("myfatoorah", bkBrand.rows[0]?.brand ?? "*");
 
         // Replay protection (Part 7.2): same invoice+status+tx processed once.
         const pay = await pool.query(`SELECT * FROM hub_payments WHERE provider_invoice_id = $1 LIMIT 1`, [invoiceId]);

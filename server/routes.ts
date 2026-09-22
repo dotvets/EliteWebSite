@@ -116,6 +116,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerHubPaymentRoutes } = await import("./hubPayments");
   registerHubPaymentRoutes(app);
 
+  // Integrations Manager V1 (ships INTEGRATIONS_MANAGER=false — dark by default).
+  const { registerAdminIntegrationRoutes } = await import("./adminIntegrations");
+  registerAdminIntegrationRoutes(app);
+
   // Phase 4 / G4: emergency path (ships EMERGENCY_PATH_ENABLED=false — Part 16.1).
   const { registerHubEmergencyRoutes } = await import("./hubEmergency");
   registerHubEmergencyRoutes(app);

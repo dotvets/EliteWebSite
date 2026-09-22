@@ -306,6 +306,60 @@ CREATE TABLE IF NOT EXISTS hub_emergency_requests (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS hub_emergency_requests_brand_idx ON hub_emergency_requests (brand, created_at);
+-- Integrations Manager V1 (approved design 2026-09-22): additive only.
+-- Category A config only — Category B secrets are NEVER stored here (references only).
+CREATE TABLE IF NOT EXISTS hub_integrations_configs (
+  id varchar PRIMARY KEY,
+  provider_key varchar NOT NULL,
+  scope_type varchar NOT NULL,           -- global | brand | clinic | connection
+  scope_id varchar NOT NULL,
+  environment varchar NOT NULL,          -- test | sandbox | production
+  config_json jsonb NOT NULL DEFAULT '{}',
+  secret_refs_json jsonb NOT NULL DEFAULT '{}',  -- env names only, never values
+  enabled boolean NOT NULL DEFAULT false,
+  blocked_reason varchar,
+  created_by varchar,
+  updated_by varchar,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (provider_key, scope_type, scope_id, environment)
+);
+-- Health metadata + timestamps only (never webhook/response payloads).
+CREATE TABLE IF NOT EXISTS hub_integrations_health (
+  provider_key varchar NOT NULL,
+  scope_id varchar NOT NULL DEFAULT '*',
+  last_test_at timestamptz,
+  last_test_result varchar,
+  last_success_at timestamptz,
+  last_failure_at timestamptz,
+  last_error_class varchar,
+  consecutive_failures integer NOT NULL DEFAULT 0,
+  circuit_opened_at timestamptz,
+  webhook_last_event_at timestamptz,
+  PRIMARY KEY (provider_key, scope_id)
+);
+CREATE TABLE IF NOT EXISTS hub_integrations_events (
+  id varchar PRIMARY KEY,
+  actor varchar NOT NULL,
+  provider_key varchar NOT NULL,
+  scope_id varchar,
+  action varchar NOT NULL,
+  meta_json jsonb NOT NULL DEFAULT '{}',
+  result varchar NOT NULL DEFAULT 'ok',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_integrations_events_provider_idx ON hub_integrations_events (provider_key, created_at);
+CREATE TABLE IF NOT EXISTS hub_messaging_routes (
+  id varchar PRIMARY KEY,
+  brand_id varchar NOT NULL,
+  purpose varchar NOT NULL,              -- otp | booking_confirmation | reminder | payment_notification | emergency | fallback
+  provider_key varchar NOT NULL,
+  environment varchar NOT NULL,
+  updated_by varchar,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (brand_id, purpose, environment)
+);
 `;
 
 export async function ensureSchema() {

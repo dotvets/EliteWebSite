@@ -131,3 +131,30 @@
   verify a seeded no-show phone gets `payment_mode: "required_deposit"` on the created booking and
   a clean phone keeps the static mode, test an admin override plus its audit entry, then proceed
   only when the Phase 3 payment prerequisites are already accepted.
+
+## Integrations Manager V1 (feat/integrations-manager, 2026-09-22)
+
+Admin module behind `INTEGRATIONS_MANAGER` (Category C flag, default OFF, dark 404).
+Design doc: approved 2026-09-22 (22 sections). Rules: provider logic in code,
+Category A config in DB (`hub_integrations_configs`, strict zod-style allowlist),
+Category B secrets NEVER in DB (env references only), Category C display-only,
+Dr Paws hard isolation (`server/integrations/protectedAssets.ts`).
+
+- Routes: `/api/admin/integrations*` (requireAdmin + flag).
+- Safe Test Connection: read-only adapter per provider, fixed hosts (no user
+  URLs — SSRF barrier), ≤10s timeout, 5/min rate limit, redacted results only.
+- Health: `hub_integrations_health` (metadata/timestamps only, circuit breaker
+  opens after 5 consecutive failures, half-open probe after 60s).
+- Audit: `hub_integrations_events` for every config write / enable / test /
+  routing change.
+- Messaging routing: `hub_messaging_routes` per brand+purpose+environment;
+  V1 never switches to an unimplemented adapter (falls back to current
+  behavior with `routing.unsupported_provider` audit).
+- Rollback: set `INTEGRATIONS_MANAGER=false` → module dark; system reads env
+  exactly as before. Tables are additive; dropping them has zero effect on
+  booking/payment paths.
+- Live validation 2026-09-22 (temp PG allowlist window, reverted): bevatel ok
+  (account_match), m365 ok (smtp_role_present), myfatoorah ok (mode_live),
+  digitail ok (clinics_readable), google_ads blocked (developer_token_missing),
+  meta_whatsapp missing_secret_ref. Rate limit 429 after 5/min verified.
+  Flag-OFF rollback: integrations 404, other admin APIs 200.
