@@ -94,7 +94,11 @@ const createBookingSchema = z.object({
     name: z.string().trim().min(1).max(80),
     species: z.string().trim().min(1).max(40),
     breed: z.string().max(80).optional(),
-    sex: z.string().max(20).optional(),
+    // Real owner-submitted medical data (widget Details step) — Digitail
+    // requires these upstream; NEVER defaulted or invented server-side.
+    sex: z.enum(["male", "female"]),
+    birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    neutered: z.enum(["yes", "no", "unknown"]),
     notes: z.string().max(500).optional(),
   }),
   idempotencyKey: z.string().uuid(),
@@ -163,8 +167,16 @@ async function findOrCreatePetParent(clinicDigitailId: number, name: string, pho
 // on 2026-09-23 — a bare nickname+species_id POST returns 422):
 //   species_id (valid id from /species), breed_id (must belong to species),
 //   birthday (YYYY-MM-DD), gender, hormonal_status (integer enum).
-const DEFAULT_PET_BIRTHDAY = "2020-01-01"; // UX does not collect birthdate yet
-const DEFAULT_HORMONAL_STATUS = 1; // integer enum value accepted by upstream
+// hormonal_status semantics (sandbox-verified via gender_translated labels):
+//   0 = neutered/spayed, 1 = intact, 2 = unknown/not specified.
+//   Accepted set is exactly {0,1,2} — 3 is rejected with 422 (verified).
+// ALL medical values come from the booking form (Details step) — nothing is
+// invented server-side.
+function mapHormonalStatus(neutered: string | undefined): number {
+  if (neutered === "yes") return 0;
+  if (neutered === "no") return 1;
+  return 2; // "unknown" — the only not-specified value in the verified enum
+}
 
 async function resolveBreedId(speciesId: number, breedName?: string): Promise<number> {
   const { value } = await cached(`digitail:breeds:${speciesId}`, 6 * 3600, async () => {
@@ -189,12 +201,17 @@ function normalizeGender(sex: string | undefined): string {
   return "male"; // upstream requires a value; male/female are the accepted literals
 }
 
-async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string; breed?: string; sex?: string; birthdate?: string; birthday?: string; hormonal_status?: number }, speciesId?: number): Promise<string> {
+async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string; breed?: string; sex?: string; birthdate?: string; neutered?: string }, speciesId?: number): Promise<string> {
   // Docs specify multipart/form-data for /pets; try JSON first, fall back.
   if (!speciesId) {
     // No valid species mapping — fail as an upstream error, NEVER silently send
     // a wrong species_id (the old `?? 1` fallback caused 422 on every confirm).
     throw Object.assign(new Error("species_unmapped"), { status: 502 });
+  }
+  // Medical data must be real owner-submitted values (widget Details step).
+  // Refuse to create an upstream patient with invented data.
+  if (!pet.birthdate || !pet.sex) {
+    throw Object.assign(new Error("pet_medical_data_missing"), { status: 502 });
   }
   const breedId = await resolveBreedId(speciesId, pet.breed);
   const payload: Record<string, any> = {
@@ -204,9 +221,9 @@ async function createDigitailPet(clinicDigitailId: number, vetId: string, parent
     nickname: pet.name,
     species_id: speciesId,
     breed_id: breedId,
-    birthday: pet.birthdate || pet.birthday || DEFAULT_PET_BIRTHDAY,
+    birthday: pet.birthdate,
     gender: normalizeGender(pet.sex),
-    hormonal_status: Number.isInteger(pet.hormonal_status) ? pet.hormonal_status : DEFAULT_HORMONAL_STATUS,
+    hormonal_status: mapHormonalStatus(pet.neutered),
   };
   try {
     const created = await digitailRequest("POST", "/pets", payload);
@@ -854,6 +871,33 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
   const day = new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: clinic?.timezone || "Asia/Riyadh" }).slice(0, 10);
   const slug = (clinic?.config_json || {}).slug;
 
+  // Slot-level concurrency guard (2026-09-23): different bookings targeting
+  // the SAME clinic+service+slot must not both reach upstream creation —
+  // Digitail accepts overlapping appointments, so the availability re-check
+  // alone is not atomic. The claim is a single atomic INSERT..ON CONFLICT;
+  // losers get a safe conflict with alternatives; claims self-expire (TTL)
+  // so a crashed confirm never deadlocks the slot; retries of the SAME
+  // booking re-claim idempotently.
+  const slotClaim = await pool.query(
+    `INSERT INTO hub_slot_claims (clinic_id, service_id, slot_start, booking_id, expires_at)
+     VALUES ($1, $2, $3, $4, NOW() + interval '2 minutes')
+     ON CONFLICT (clinic_id, service_id, slot_start) DO UPDATE
+       SET booking_id = EXCLUDED.booking_id, expires_at = EXCLUDED.expires_at
+       WHERE hub_slot_claims.expires_at < NOW() OR hub_slot_claims.booking_id = EXCLUDED.booking_id
+     RETURNING booking_id`,
+    [b.clinic_id, String(svc.service_id || "0"), new Date(svc.starts_at).toISOString(), b.id],
+  );
+  if (slotClaim.rowCount === 0) {
+    let alternatives: string[] = [];
+    if (slug) {
+      try { alternatives = nearestAlternatives(await fetchDaySlots(slug, day, svc.service_id, svc.duration_minutes || 30), svc.starts_at); } catch {}
+    }
+    await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1`, [b.id]);
+    await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "slot_claim_contended", clinic: b.clinic_id });
+    return { outcome: "conflict", alternatives };
+  }
+
+  try {
   // (1) Re-check upstream availability immediately before creation.
   if (slug) {
     try {
@@ -929,6 +973,12 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
     await pool.query(`UPDATE hub_bookings SET status = $2, updated_at = NOW() WHERE id = $1 AND status = 'confirming'`, [b.id, b.status]);
     await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0 });
     return { outcome: "upstream_error" };
+  }
+  } finally {
+    // Release the slot claim — success (slot now genuinely taken upstream),
+    // conflict, or error. A missed release is harmless: the claim self-expires
+    // via its TTL and can be taken over.
+    await pool.query(`DELETE FROM hub_slot_claims WHERE clinic_id = $1 AND service_id = $2 AND slot_start = $3 AND booking_id = $4`, [b.clinic_id, String(svc.service_id || "0"), new Date(svc.starts_at).toISOString(), b.id]).catch(() => {});
   }
 }
 
