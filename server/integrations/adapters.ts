@@ -115,6 +115,26 @@ async function testBevatel(): Promise<TestResult> {
   }
 }
 
+// --- Bevatel SMS: SEPARATE capability (host sms-api.bevatel.com, Bearer token).
+// Read-only auth proof: GET /users/me (documented). NEVER sends a message.
+const BEVATEL_SMS_BASE = "https://sms-api.bevatel.com";
+async function testBevatelSms(): Promise<TestResult> {
+  const token = process.env.BEVATEL_SMS_API_TOKEN;
+  if (!token) return { result: "failed", errorClass: "missing_secret_ref", latencyMs: 0 };
+  const started = Date.now();
+  try {
+    const r = await timedFetch(`${BEVATEL_SMS_BASE}/users/me`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    });
+    const latencyMs = Date.now() - started;
+    if (r.status === 401 || r.status === 403) return { result: "failed", errorClass: "auth_denied", latencyMs };
+    if (!r.ok) return { result: "failed", errorClass: classifyError({ status: r.status }), latencyMs };
+    return { result: "ok", latencyMs, note: "auth_ok account_readable" };
+  } catch (e: any) {
+    return { result: "failed", errorClass: classifyError(e), latencyMs: Date.now() - started };
+  }
+}
+
 // --- Digitail: reuse the existing typed client (clinics read = /auth/me) ---
 async function testDigitail(): Promise<TestResult> {
   if (!process.env.DIGITAIL_CLIENT_ID || !process.env.DIGITAIL_CLIENT_SECRET || !process.env.DIGITAIL_TOKEN_ENCRYPTION_KEY) {
@@ -193,6 +213,7 @@ const TESTERS: Record<string, () => Promise<TestResult>> = {
   google_ads: testGoogleAds,
   m365: testM365,
   bevatel: testBevatel,
+  bevatel_sms: testBevatelSms,
   meta_whatsapp: testMetaWhatsApp,
 };
 
