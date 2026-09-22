@@ -27,6 +27,7 @@ function configuredSecretValues(): string[] {
     process.env.BEVATEL_ACCESS_TOKEN,
     process.env.BEVATEL_API_KEY,
     process.env.BEVATEL_WEBHOOK_VERIFY_TOKEN,
+    process.env.BEVATEL_SMS_API_TOKEN,
     process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON,
     process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
     process.env.META_WHATSAPP_ACCESS_TOKEN,
