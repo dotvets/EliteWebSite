@@ -291,6 +291,30 @@ export function registerHubRoutes(app: Express) {
         values.push(JSON.stringify(clean));
         updates.push(`config_json = jsonb_set(config_json, '{emergency}', $${values.length}::jsonb, true)`);
       }
+      // G3: dynamic deposit rule lives in config_json.dynamic_deposit — never in code.
+      if ("dynamic_deposit_config" in (req.body || {})) {
+        const cfg = req.body.dynamic_deposit_config;
+        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return res.status(400).json({ error: "invalid_dynamic_deposit_config" });
+        const allowedKeys = ["enabled", "no_show_threshold", "window_months"];
+        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k))) return res.status(400).json({ error: "invalid_dynamic_deposit_config" });
+        const clean: Record<string, any> = {};
+        if ("enabled" in cfg) {
+          if (typeof cfg.enabled !== "boolean") return res.status(400).json({ error: "invalid_dynamic_deposit_enabled" });
+          clean.enabled = cfg.enabled;
+        }
+        if ("no_show_threshold" in cfg) {
+          const v = Number(cfg.no_show_threshold);
+          if (!Number.isInteger(v) || v < 1 || v > 20) return res.status(400).json({ error: "invalid_no_show_threshold" });
+          clean.no_show_threshold = v;
+        }
+        if ("window_months" in cfg) {
+          const v = Number(cfg.window_months);
+          if (!Number.isInteger(v) || v < 1 || v > 36) return res.status(400).json({ error: "invalid_window_months" });
+          clean.window_months = v;
+        }
+        values.push(JSON.stringify(clean));
+        updates.push(`config_json = jsonb_set(config_json, '{dynamic_deposit}', $${values.length}::jsonb, true)`);
+      }
       if (!updates.length) return res.status(400).json({ error: "no_fields" });
       values.push(brandParam);
       const r = await pool.query(`UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode, config_json`, values);

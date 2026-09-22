@@ -103,3 +103,31 @@
   parameters, verify the CTA points to `/hub/elite?district=...` with the same parameters, verify
   `page_view` and `district_booking_click` in GA4 DebugView, then after hub booking is enabled run a
   sandbox booking and verify `source_json.district` plus click IDs.
+
+## Dynamic deposit policy (Phase 4+ / G3)
+- **Purpose:** decide the deposit requirement per customer from `hub_bookings` history — customers
+  with enough `no_show` bookings inside the configured window get `required_deposit`; clean-record
+  customers keep the brand/clinic base payment mode (optional/free booking).
+- **Feature flag:** `DYNAMIC_DEPOSIT_ENABLED=false` by default (ships dark). When off, behavior is
+  identical to the static Phase 3 logic.
+- **Rules live in config, never code:** the rule is `hub_brands.config_json.dynamic_deposit`
+  (`enabled`, `no_show_threshold`, `window_months`), editable via
+  `PATCH /api/hub/admin/brands/:brand` with `dynamic_deposit_config`. Missing, disabled, or invalid
+  rules disable the policy and fall back to the static mode.
+- **Resolution:** at hold creation the server counts this phone's `no_show` bookings within
+  `window_months`; if the count reaches `no_show_threshold` the booking's
+  `payment_mode_effective` snapshot becomes `required_deposit` and an audit entry
+  `deposit.dynamic_required` is written. The widget uses the booking's resolved `payment_mode`
+  instead of the static clinic/brand mode.
+- **Admin override:** `PATCH /api/hub/admin/bookings/:id` accepts `payment_mode_override`
+  (`off` | `optional` | `required_deposit` | `null` to clear). Overrides always win over the
+  snapshot and are audit-logged as `booking.admin_override` with the override value.
+- **Payment path:** `payment-choice` and amount calculation use the effective mode
+  (override > snapshot > clinic > brand). `required_deposit` still requires
+  `deposit_amount_halalas` on the clinic and a configured MyFatoorah key.
+- **Rollback:** set `DYNAMIC_DEPOSIT_ENABLED=false`; existing snapshots are ignored and static
+  modes apply. Clearing a per-booking override restores its snapshot.
+- **Go-live checklist:** set the brand rule via `dynamic_deposit_config`, enable the env flag,
+  verify a seeded no-show phone gets `payment_mode: "required_deposit"` on the created booking and
+  a clean phone keeps the static mode, test an admin override plus its audit entry, then proceed
+  only when the Phase 3 payment prerequisites are already accepted.

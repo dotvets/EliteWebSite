@@ -384,6 +384,12 @@ export default function HubWidget() {
       return false;
     }
     setBookingId(j.booking.id);
+    // G3: the server resolves the payment mode per customer at hold time
+    // (dynamic deposit snapshot, admin override wins later). Prefer it over
+    // the static clinic/brand mode selected during browse.
+    if (typeof j.booking?.payment_mode === "string" && j.booking.payment_mode) {
+      setPaymentMode(j.booking.payment_mode);
+    }
     track("begin_booking", { brand, clinic: clinic.id, ...analyticsAttribution });
     return true;
   }
