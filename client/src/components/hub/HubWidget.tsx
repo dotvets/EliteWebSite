@@ -42,6 +42,10 @@ const t = {
     name: "الاسم الكامل",
     mobileLabel: "رقم الجوال (05xxxxxxxx)",
     petName: "اسم الحيوان",
+    petBirthdate: "تاريخ ميلاد الحيوان",
+    sexLabel: "الجنس",
+    male: "ذكر",
+    female: "أنثى",
     species: "النوع",
     speciesOptions: ["قط", "كلب", "طيور", "زواحف", "أخرى"],
     notes: "ملاحظات (اختياري)",
@@ -103,6 +107,10 @@ const t = {
     name: "Full name",
     mobileLabel: "Mobile (05xxxxxxxx)",
     petName: "Pet name",
+    petBirthdate: "Pet birthdate",
+    sexLabel: "Sex",
+    male: "Male",
+    female: "Female",
     species: "Species",
     speciesOptions: ["Cat", "Dog", "Birds", "Reptiles", "Other"],
     notes: "Notes (optional)",
@@ -227,7 +235,7 @@ export default function HubWidget() {
 
   // Details + OTP + confirmation state
   const [step, setStep] = useState<"browse" | "details" | "otp" | "payment" | "success" | "emergency" | "emergencySent">("browse");
-  const [form, setForm] = useState({ name: "", phone: "", petName: "", species: "", notes: "", website: "" });
+  const [form, setForm] = useState({ name: "", phone: "", petName: "", birthdate: "", sex: "", species: "", notes: "", website: "" });
   const [emergencyConfig, setEmergencyConfig] = useState<EmergencyConfig | null>(null);
   const [emergencyForm, setEmergencyForm] = useState({ species: "", symptoms: "", eta: "", website: "" });
   const [consent, setConsent] = useState(false);
@@ -366,7 +374,7 @@ export default function HubWidget() {
         durationMinutes: service.duration_minutes || 30,
         customerName: form.name.trim(),
         phone: form.phone.trim(),
-        pet: { name: form.petName.trim(), species: form.species, notes: form.notes.trim() || undefined },
+        pet: { name: form.petName.trim(), species: form.species, birthdate: form.birthdate, sex: form.sex, notes: form.notes.trim() || undefined },
         idempotencyKey: idemRef.current,
         locale: lang,
         source: { ...attribution, page: window.location.pathname },
@@ -410,7 +418,7 @@ export default function HubWidget() {
   }
 
   async function submitDetails() {
-    if (!form.name.trim() || !form.petName.trim() || !form.species || !/^(\+?9665\d{8}|05\d{8})$/.test(form.phone.trim().replace(/\s/g, ""))) {
+    if (!form.name.trim() || !form.petName.trim() || !form.species || !form.birthdate || !form.sex || !/^(\+?9665\d{8}|05\d{8})$/.test(form.phone.trim().replace(/\s/g, ""))) {
       setError("invalidPhone");
       return;
     }
@@ -738,6 +746,14 @@ export default function HubWidget() {
         <input className="w-full rounded-xl border p-3 min-h-[48px]" placeholder={L.mobileLabel} inputMode="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         <div className="flex gap-2">
           <input className="flex-1 rounded-xl border p-3 min-h-[48px]" placeholder={L.petName} value={form.petName} onChange={(e) => setForm({ ...form, petName: e.target.value })} />
+          <input className="flex-1 rounded-xl border p-3 min-h-[48px]" type="date" aria-label={L.petBirthdate} value={form.birthdate} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setForm({ ...form, birthdate: e.target.value })} />
+        </div>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={L.sexLabel}>
+          {(["male", "female"] as const).map((sx) => (
+            <button key={sx} onClick={() => setForm({ ...form, sex: sx })} className={`rounded-full border px-4 py-2 min-h-[48px] ${form.sex === sx ? "bg-primary text-primary-foreground" : ""}`}>
+              {sx === "male" ? L.male : L.female}
+            </button>
+          ))}
         </div>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={L.species}>
           {L.speciesOptions.map((s) => (

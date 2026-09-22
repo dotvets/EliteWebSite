@@ -131,3 +131,18 @@
   verify a seeded no-show phone gets `payment_mode: "required_deposit"` on the created booking and
   a clean phone keeps the static mode, test an admin override plus its audit entry, then proceed
   only when the Phase 3 payment prerequisites are already accepted.
+
+## Digitail live-verified contract notes (sandbox, 2026-09-22)
+Verified during the Phase 2 sandbox acceptance (all findings reproduced against the live sandbox API):
+- `POST /appointments` REQUIRES `reminder_notifications` (array; may be empty) — 422 otherwise.
+- `POST /pets` REQUIRES `species_id` (ids from `GET /species` labels: 2=Dog, 3=Cat, 9=Avian, …),
+  `breed_id` (from `GET /breeds?filter[species_id]=…`, "Mix" used for unknown/mixed),
+  `birthday` (YYYY-MM-DD), `gender` ("male"|"female"), `hormonal_status` (integer; 0 used as
+  unspecified — enum semantics pending Digitail confirmation, OPEN verification item).
+- Concurrent confirm safety: the hub claims a booking atomically (`status='confirming'`) BEFORE the
+  upstream write; stuck `confirming` rows >10 min are swept to `failed` for manual review.
+- Concurrent same-key creates: unique-violation losers re-read the winner and return idempotent 200.
+- `hub_notifications` dedup insert uses explicit casts (PG16 on Render fails type deduction otherwise).
+- Stub messaging provider redacts 6-digit codes from log previews.
+- Slot edge: upstream slots after ~21:30 UTC fall on the NEXT Riyadh day; the create re-check derives
+  the day in clinic timezone, so such slots are rejected as unavailable (safe behavior, not a bug).

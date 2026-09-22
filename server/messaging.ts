@@ -26,7 +26,9 @@ export function maskPhone(phone: string): string {
 class StubProvider implements MessagingProvider {
   async sendSms(to: string, body: string, senderId?: string) {
     const id = `stub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    console.log(JSON.stringify({ level: "info", msg: "stub_sms", to: maskPhone(to), senderId: senderId || null, bodyPreview: body.slice(0, 60), providerMessageId: id }));
+    // Never log OTP codes: redact 6-digit sequences from the preview (PDPL/security).
+    const safePreview = body.replace(/\b\d{6}\b/g, "******").slice(0, 60);
+    console.log(JSON.stringify({ level: "info", msg: "stub_sms", to: maskPhone(to), senderId: senderId || null, bodyPreview: safePreview, providerMessageId: id }));
     return { providerMessageId: id };
   }
   async sendWhatsApp(to: string, templateKey: string, params: Record<string, string>) {
@@ -98,12 +100,14 @@ export async function enqueueNotification(opts: {
     scheduledAt = nextAllowedSendTime(scheduledAt);
   }
   // Dedup: same booking + kind + channel + template not already queued/sent.
+  // Explicit casts required: PG16 (Render) fails type deduction for repeated
+  // params inside INSERT…SELECT … WHERE NOT EXISTS (live-verified 2026-09-22).
   await pool.query(
     `INSERT INTO hub_notifications (id, booking_id, kind, channel, to_phone, template_key, payload_json, status, scheduled_at)
-     SELECT $1, $2, $3, $4, $5, $6, $7, 'queued', $8
+     SELECT $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar, $7::jsonb, 'queued', $8::timestamptz
      WHERE NOT EXISTS (
        SELECT 1 FROM hub_notifications
-       WHERE booking_id IS NOT DISTINCT FROM $2 AND kind = $3 AND channel = $4 AND template_key = $6
+       WHERE booking_id IS NOT DISTINCT FROM $2::varchar AND kind = $3::varchar AND channel = $4::varchar AND template_key = $6::varchar
          AND status IN ('queued', 'sent', 'delivered')
      )`,
     [crypto.randomUUID(), opts.bookingId || null, opts.kind, opts.channel, opts.toPhone, opts.templateKey, JSON.stringify(opts.payload || {}), scheduledAt],
