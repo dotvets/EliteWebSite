@@ -76,3 +76,30 @@
   widget hides the entry point and POST returns `404 emergency_unavailable`.
 - **Go-live checklist:** configure an HTTPS webhook or SMTP email, enable the env flag, enable the
   brand config, submit a test emergency, verify delivery under 60 seconds, then check the admin log.
+
+## District pages attribution (Phase 4+ / G8)
+- **Purpose:** connect the 18 existing Riyadh district landing pages to the Group Booking Hub with
+  per-district analytics attribution while keeping booking availability controlled by the existing
+  hub booking gate.
+- **Feature flag:** `DISTRICT_PAGES_ENABLED=false` by default. Public clients read only the boolean
+  `features.district_pages` from `GET /api/public/bootstrap`; no secrets are exposed.
+- **Pages:** the activation script `/district-tracking.js` is loaded by all 18
+  `client/public/vet-clinic-*.html` district pages. When the flag is off or bootstrap is unavailable,
+  the pages keep their existing `/book-now#booking-section` links and no district events are sent.
+- **Enabled behavior:** booking CTAs are rewritten to `/hub/elite?district={slug}` and preserve only
+  the approved attribution keys: `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`,
+  `utm_content`, `gclid`, `gbraid`, and `wbraid`.
+- **Analytics/storage:** district pages send a GA4 `page_view` with `district`; booking CTA clicks
+  send `district_booking_click`; call/WhatsApp clicks send `district_contact_click`. The hub widget
+  stores `district`, UTM fields, and Google click IDs in `hub_bookings.source_json`, and adds the
+  `district` event parameter to hub GA4 events. Payment redirects return without the original query,
+  so the public booking status response exposes only the non-PII `district` slug to keep
+  `booking_confirmed`/`purchase` attribution intact.
+- **GA4 setup required:** register `district` as an event-scoped custom dimension in GA4 before
+  relying on reports; DebugView still shows the raw event parameter without that setup.
+- **Rollback:** set `DISTRICT_PAGES_ENABLED=false` and redeploy (or restart if env reload is supported).
+  The district pages immediately keep their legacy `/book-now` links on the next page load.
+- **Go-live checklist:** enable the flag, redeploy, open a district page with test UTM and click-ID
+  parameters, verify the CTA points to `/hub/elite?district=...` with the same parameters, verify
+  `page_view` and `district_booking_click` in GA4 DebugView, then after hub booking is enabled run a
+  sandbox booking and verify `source_json.district` plus click IDs.

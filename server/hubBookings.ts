@@ -635,6 +635,9 @@ function publicBooking(b: any) {
     pet: b.pet_snapshot_json,
     hold_expires_at: b.hold_expires_at,
     created_at: b.created_at,
+    // Non-PII analytics dimension needed to keep G8 attribution intact after
+    // a payment redirect returns with only payment/booking query parameters.
+    district: typeof b.source_json?.district === "string" && /^[a-z0-9-]{2,40}$/.test(b.source_json.district) ? b.source_json.district : null,
   };
 }
 

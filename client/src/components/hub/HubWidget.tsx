@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { normalizeDistrictSlug } from "@/data/districtPages";
 
 // ============================================================================
 // Group Booking Hub widget — Phase 2: full booking flow.
@@ -248,15 +249,21 @@ export default function HubWidget() {
     return () => clearInterval(tm);
   }, [resendAfter > 0]);
 
-  const utm = useMemo(() => {
+  const attribution = useMemo(() => {
     const p = new URLSearchParams(window.location.search);
     const out: Record<string, string> = {};
-    for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+    for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid"]) {
       const v = p.get(k);
-      if (v) out[k] = v;
+      if (v) out[k] = v.slice(0, 200);
     }
+    const district = normalizeDistrictSlug(p.get("district"));
+    if (district) out.district = district;
     return out;
   }, []);
+  const analyticsAttribution = useMemo(
+    () => (attribution.district ? { district: attribution.district } : {}),
+    [attribution],
+  );
 
   // Emergency path is independent from booking availability (G4) and stays
   // hidden unless both the env flag and brand config enable it.
@@ -333,7 +340,7 @@ export default function HubWidget() {
         const j = await r.json();
         if (!r.ok) throw new Error(j.error);
         setSlots(Array.isArray(j.availability) ? j.availability : []);
-        track("view_availability", { brand, clinic: clinic.id, day });
+        track("view_availability", { brand, clinic: clinic.id, day, ...analyticsAttribution });
       })
       .catch(() => setError("error"))
       .finally(() => setLoading(false));
@@ -362,7 +369,7 @@ export default function HubWidget() {
         pet: { name: form.petName.trim(), species: form.species, notes: form.notes.trim() || undefined },
         idempotencyKey: idemRef.current,
         locale: lang,
-        source: { ...utm, page: window.location.pathname },
+        source: { ...attribution, page: window.location.pathname },
         website: form.website, // honeypot
       }),
     });
@@ -377,7 +384,7 @@ export default function HubWidget() {
       return false;
     }
     setBookingId(j.booking.id);
-    track("begin_booking", { brand, clinic: clinic.id });
+    track("begin_booking", { brand, clinic: clinic.id, ...analyticsAttribution });
     return true;
   }
 
@@ -441,7 +448,7 @@ export default function HubWidget() {
         setError(vj.error || "otp_incorrect");
         return;
       }
-      track("otp_verified", { brand });
+      track("otp_verified", { brand, ...analyticsAttribution });
       if (paymentMode !== "off") {
         setStep("payment");
         return;
@@ -465,7 +472,7 @@ export default function HubWidget() {
       }
       setRefCode(cj.ref);
       setStep("success");
-      track("booking_confirmed", { brand, clinic: clinic?.id });
+      track("booking_confirmed", { brand, clinic: clinic?.id, ...analyticsAttribution });
     } finally {
       setLoading(false);
     }
@@ -493,7 +500,7 @@ export default function HubWidget() {
       if (j.confirmed) {
         setRefCode(j.ref);
         setStep("success");
-        track("booking_confirmed", { brand, clinic: clinic?.id });
+        track("booking_confirmed", { brand, clinic: clinic?.id, ...analyticsAttribution });
       }
     } finally {
       setLoading(false);
@@ -523,7 +530,8 @@ export default function HubWidget() {
           setPaymentWaiting(false);
           setRefCode(j.ref);
           setStep("success");
-          track("booking_confirmed", { brand });
+          const returnAttribution = j.booking?.district ? { district: j.booking.district } : analyticsAttribution;
+          track("booking_confirmed", { brand, ...returnAttribution });
           if (j.payment?.status === "paid") {
             const marker = `hub_purchase_tracked:${bid}`;
             let alreadyTracked = false;
@@ -532,7 +540,7 @@ export default function HubWidget() {
               if (!alreadyTracked) sessionStorage.setItem(marker, "1");
             } catch {}
             if (!alreadyTracked) {
-              track("purchase", { brand, currency: j.payment.currency || "SAR", value: (j.payment.amount_halalas || 0) / 100, transaction_id: bid });
+              track("purchase", { brand, currency: j.payment.currency || "SAR", value: (j.payment.amount_halalas || 0) / 100, transaction_id: bid, ...returnAttribution });
             }
           }
         } else if (j.booking?.status === "failed" || tries > 20) {
@@ -548,7 +556,7 @@ export default function HubWidget() {
   function startEmergency() {
     setError(null);
     setStep("emergency");
-    track("emergency_started", { brand });
+    track("emergency_started", { brand, ...analyticsAttribution });
   }
 
   async function submitEmergency() {
@@ -567,7 +575,7 @@ export default function HubWidget() {
           symptoms: emergencyForm.symptoms.trim(),
           eta: emergencyForm.eta,
           locale: lang,
-          source: { ...utm, page: window.location.pathname },
+          source: { ...attribution, page: window.location.pathname },
           website: emergencyForm.website,
         }),
       });
@@ -578,7 +586,7 @@ export default function HubWidget() {
         return;
       }
       setStep("emergencySent");
-      track("emergency_submitted", { brand, channel: j.channel || "unknown" });
+      track("emergency_submitted", { brand, channel: j.channel || "unknown", ...analyticsAttribution });
     } catch {
       setError("error");
     } finally {
@@ -868,7 +876,7 @@ export default function HubWidget() {
                       <p className="text-sm text-muted-foreground mb-1">{label}</p>
                       <div className="grid grid-cols-3 gap-2">
                         {group.map((s) => (
-                          <button key={s.iso} onClick={() => { setSlot(s); setIdempotencyKey(crypto.randomUUID()); setStep("details"); track("begin_booking", { brand, clinic: clinic.id, slot: s.iso }); }} className="rounded-lg border p-2 text-center min-h-[48px] hover:bg-accent">
+                          <button key={s.iso} onClick={() => { setSlot(s); setIdempotencyKey(crypto.randomUUID()); setStep("details"); track("begin_booking", { brand, clinic: clinic.id, slot: s.iso, ...analyticsAttribution }); }} className="rounded-lg border p-2 text-center min-h-[48px] hover:bg-accent">
                             {s.label}
                           </button>
                         ))}
