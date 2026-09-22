@@ -44,6 +44,11 @@ const t = {
     petName: "اسم الحيوان",
     species: "النوع",
     speciesOptions: ["قط", "كلب", "طيور", "زواحف", "أخرى"],
+    petSex: "جنس الحيوان",
+    petSexOptions: [{ v: "male", t: "ذكر" }, { v: "female", t: "أنثى" }],
+    petBirthdate: "تاريخ ميلاد الحيوان",
+    petNeutered: "هل الحيوان معقّم/مخصي؟",
+    petNeuteredOptions: [{ v: "yes", t: "نعم" }, { v: "no", t: "لا" }, { v: "unknown", t: "لا أعرف" }],
     notes: "ملاحظات (اختياري)",
     consent: "أوافق على معالجة بياناتي الشخصية لغرض الحجز وفق سياسة الخصوصية",
     privacy: "سياسة الخصوصية",
@@ -105,6 +110,11 @@ const t = {
     petName: "Pet name",
     species: "Species",
     speciesOptions: ["Cat", "Dog", "Birds", "Reptiles", "Other"],
+    petSex: "Pet sex",
+    petSexOptions: [{ v: "male", t: "Male" }, { v: "female", t: "Female" }],
+    petBirthdate: "Pet birthdate",
+    petNeutered: "Is the pet neutered/spayed?",
+    petNeuteredOptions: [{ v: "yes", t: "Yes" }, { v: "no", t: "No" }, { v: "unknown", t: "Unknown" }],
     notes: "Notes (optional)",
     consent: "I consent to processing my personal data for booking per the privacy policy",
     privacy: "Privacy policy",
@@ -227,7 +237,7 @@ export default function HubWidget() {
 
   // Details + OTP + confirmation state
   const [step, setStep] = useState<"browse" | "details" | "otp" | "payment" | "success" | "emergency" | "emergencySent">("browse");
-  const [form, setForm] = useState({ name: "", phone: "", petName: "", species: "", notes: "", website: "" });
+  const [form, setForm] = useState({ name: "", phone: "", petName: "", species: "", sex: "", birthdate: "", neutered: "", notes: "", website: "" });
   const [emergencyConfig, setEmergencyConfig] = useState<EmergencyConfig | null>(null);
   const [emergencyForm, setEmergencyForm] = useState({ species: "", symptoms: "", eta: "", website: "" });
   const [consent, setConsent] = useState(false);
@@ -366,7 +376,7 @@ export default function HubWidget() {
         durationMinutes: service.duration_minutes || 30,
         customerName: form.name.trim(),
         phone: form.phone.trim(),
-        pet: { name: form.petName.trim(), species: form.species, notes: form.notes.trim() || undefined },
+        pet: { name: form.petName.trim(), species: form.species, sex: form.sex, birthdate: form.birthdate, neutered: form.neutered, notes: form.notes.trim() || undefined },
         idempotencyKey: idemRef.current,
         locale: lang,
         source: { ...attribution, page: window.location.pathname },
@@ -410,7 +420,7 @@ export default function HubWidget() {
   }
 
   async function submitDetails() {
-    if (!form.name.trim() || !form.petName.trim() || !form.species || !/^(\+?9665\d{8}|05\d{8})$/.test(form.phone.trim().replace(/\s/g, ""))) {
+    if (!form.name.trim() || !form.petName.trim() || !form.species || !form.sex || !form.birthdate || !form.neutered || !/^(\+?9665\d{8}|05\d{8})$/.test(form.phone.trim().replace(/\s/g, ""))) {
       setError("invalidPhone");
       return;
     }
@@ -743,6 +753,26 @@ export default function HubWidget() {
           {L.speciesOptions.map((s) => (
             <button key={s} onClick={() => setForm({ ...form, species: s })} className={`rounded-full border px-4 py-2 min-h-[48px] ${form.species === s ? "bg-primary text-primary-foreground" : ""}`}>
               {s}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">{L.petSex}</span>
+          {L.petSexOptions.map((o) => (
+            <button key={o.v} onClick={() => setForm({ ...form, sex: o.v })} className={`rounded-full border px-4 py-2 min-h-[48px] ${form.sex === o.v ? "bg-primary text-primary-foreground" : ""}`}>
+              {o.t}
+            </button>
+          ))}
+        </div>
+        <label className="block text-sm text-muted-foreground">
+          {L.petBirthdate}
+          <input type="date" max={new Date().toISOString().slice(0, 10)} className="mt-1 w-full rounded-xl border p-3 min-h-[48px] text-foreground" value={form.birthdate} onChange={(e) => setForm({ ...form, birthdate: e.target.value })} />
+        </label>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">{L.petNeutered}</span>
+          {L.petNeuteredOptions.map((o) => (
+            <button key={o.v} onClick={() => setForm({ ...form, neutered: o.v })} className={`rounded-full border px-4 py-2 min-h-[48px] ${form.neutered === o.v ? "bg-primary text-primary-foreground" : ""}`}>
+              {o.t}
             </button>
           ))}
         </div>
