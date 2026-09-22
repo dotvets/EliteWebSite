@@ -3,7 +3,8 @@ import type { Express, Request, Response } from "express";
 import { pool, dbEnabled } from "./db";
 import { requireAdmin } from "./admin";
 import { runConfirmPipeline, loadBookingById, normalizeSaudiPhone } from "./hubBookings";
-import { enqueueNotification, audit, maskPhone } from "./messaging";
+import { digitailRequest } from "./digitail";
+import { enqueueNotification, audit } from "./messaging";
 import { redactErrorMessage } from "./redact";
 
 // ============================================================================
@@ -212,18 +213,33 @@ export function registerHubPaymentRoutes(app: Express) {
           const result = await runConfirmPipeline(booking, "system");
           if (result.outcome !== "confirmed") {
             await audit("system", "payment.confirm_after_paid_failed", "hub_bookings", booking.id, { outcome: result.outcome });
+          } else {
+            const receiptUrl = p.raw_webhook_json?.invoice_url || null;
+            if (receiptUrl) {
+              await enqueueNotification({
+                bookingId: booking.id,
+                kind: "receipt",
+                channel: "sms",
+                toPhone: booking.customer_phone,
+                templateKey: "receipt",
+                payload: { body: booking.locale === "ar" ? `إيصال الدفع لحجزك: ${receiptUrl}` : `Payment receipt for your booking: ${receiptUrl}` },
+                scheduledAt: new Date(),
+                respectQuietHours: false,
+              });
+            }
           }
         } else if (["Failed", "Expired"].includes(status) && p.status !== "failed") {
           await pool.query(`UPDATE hub_payments SET status = 'failed', updated_at = NOW() WHERE id = $1`, [p.id]);
           // Release hold + one-tap re-pay/fresh-booking notification (Part 7.1)
           await pool.query(`UPDATE hub_bookings SET status = 'failed', updated_at = NOW() WHERE id = $1 AND status = 'pending_payment'`, [booking.id]);
+          const freshBookingUrl = `${process.env.SITE_URL || "https://www.elitevetksa.com"}/hub/${booking.brand}`;
           await enqueueNotification({
             bookingId: booking.id,
             kind: "payment_failed",
             channel: "sms",
             toPhone: booking.customer_phone,
             templateKey: "payment_failed",
-            payload: { body: booking.locale === "ar" ? "لم يتم الدفع — يمكنك إعادة المحاولة من رابط الحجز." : "Payment failed — you can retry from your booking link." },
+            payload: { body: booking.locale === "ar" ? `لم يتم الدفع — يمكنك بدء حجز جديد من هنا: ${freshBookingUrl}` : `Payment failed — start a fresh booking here: ${freshBookingUrl}` },
             scheduledAt: new Date(),
             respectQuietHours: false,
           });
@@ -273,18 +289,51 @@ async function maybeRunReconciliation() {
   const lock = await pool.query(`SELECT pg_try_advisory_lock($1) AS got`, [RECON_ADVISORY_LOCK]).catch(() => ({ rows: [{ got: false }] }));
   if (!lock.rows[0]?.got) return;
   try {
+    let checkedPayments = 0;
     const initiated = await pool.query(`SELECT * FROM hub_payments WHERE status = 'initiated' AND updated_at < NOW() - interval '15 minutes'`);
     for (const p of initiated.rows) {
+      checkedPayments += 1;
       try {
         const st = await mfPost("/v2/getPaymentStatus", { Key: p.provider_invoice_id, KeyType: "InvoiceId" });
         const upstream = st?.Data?.InvoiceStatus;
         if (upstream && upstream !== "Pending" && upstream !== "paid") {
-          await audit("system", "recon.discrepancy", "hub_payments", p.id, { local: p.status, upstream });
+          await audit("system", "recon.discrepancy", "hub_payments", p.id, { type: "stale_initiated_payment", local: p.status, upstream });
         }
       } catch (e: any) {
         await audit("system", "recon.check_failed", "hub_payments", p.id, { error: String(e?.message || e).slice(0, 150) });
       }
     }
+
+    const paidMismatches = await pool.query(
+      `SELECT p.id, p.booking_id, b.status AS booking_status
+       FROM hub_payments p JOIN hub_bookings b ON b.id = p.booking_id
+       WHERE p.status = 'paid' AND b.status <> 'confirmed'
+       ORDER BY p.updated_at DESC LIMIT 100`,
+    );
+    for (const row of paidMismatches.rows) {
+      await audit("system", "recon.discrepancy", "hub_payments", row.id, { type: "paid_booking_not_confirmed", booking: row.booking_id, bookingStatus: row.booking_status });
+    }
+
+    let checkedAppointments = 0;
+    const confirmed = await pool.query(
+      `SELECT id, digitail_appointment_id FROM hub_bookings
+       WHERE status = 'confirmed' AND digitail_appointment_id IS NOT NULL AND updated_at > NOW() - interval '7 days'
+       ORDER BY updated_at DESC LIMIT 50`,
+    );
+    for (const row of confirmed.rows) {
+      checkedAppointments += 1;
+      try {
+        await digitailRequest("GET", `/appointments/${encodeURIComponent(row.digitail_appointment_id)}`);
+      } catch (e: any) {
+        if (e?.status === 404) {
+          await audit("system", "recon.discrepancy", "hub_bookings", row.id, { type: "missing_upstream_appointment", appointment: row.digitail_appointment_id });
+        } else {
+          await audit("system", "recon.check_failed", "hub_bookings", row.id, { status: e?.status || 0 });
+        }
+      }
+    }
+
+    await audit("system", "recon.completed", "hub_payments", "nightly", { checkedPayments, checkedAppointments, paidMismatches: paidMismatches.rows.length });
     reconLastRun = new Date();
   } finally {
     await pool.query(`SELECT pg_advisory_unlock($1)`, [RECON_ADVISORY_LOCK]).catch(() => {});

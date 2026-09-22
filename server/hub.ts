@@ -81,6 +81,8 @@ type ClinicRow = {
   name_ar: string;
   name_en: string;
   booking_enabled: boolean;
+  payment_mode: string | null;
+  deposit_amount_halalas: number | null;
   timezone: string;
   config_json: any;
 };
@@ -181,6 +183,7 @@ function shapeClinic(c: ClinicRow) {
     name_en: c.name_en,
     timezone: c.timezone || "Asia/Riyadh",
     booking_enabled: c.booking_enabled,
+    payment_mode: c.payment_mode || null,
   };
 }
 
@@ -266,6 +269,22 @@ export function registerHubRoutes(app: Express) {
         values.push(body.booking_enabled);
         updates.push(`booking_enabled = $${values.length}`);
       }
+      if ("payment_mode" in body) {
+        const mode = body.payment_mode;
+        if (!(mode === null || ["off", "optional", "required_deposit"].includes(String(mode)))) {
+          return res.status(400).json({ error: "invalid_payment_mode" });
+        }
+        values.push(mode === null ? null : String(mode));
+        updates.push(`payment_mode = $${values.length}`);
+      }
+      if ("deposit_amount_halalas" in body) {
+        const amount = body.deposit_amount_halalas;
+        if (!(amount === null || (Number.isInteger(amount) && amount > 0 && amount <= 1_000_000))) {
+          return res.status(400).json({ error: "invalid_deposit_amount_halalas" });
+        }
+        values.push(amount);
+        updates.push(`deposit_amount_halalas = $${values.length}`);
+      }
       if ("name_ar" in body || "name_en" in body) {
         for (const k of ["name_ar", "name_en"] as const) {
           if (k in body) {
@@ -277,7 +296,7 @@ export function registerHubRoutes(app: Express) {
       }
       if (!updates.length) return res.status(400).json({ error: "no_fields" });
       values.push(clinicId);
-      const r = await pool.query(`UPDATE hub_clinics SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING id, brand, booking_enabled, name_ar, name_en`, values);
+      const r = await pool.query(`UPDATE hub_clinics SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING id, brand, booking_enabled, payment_mode, deposit_amount_halalas, name_ar, name_en`, values);
       if (!r.rows[0]) return res.status(404).json({ error: "unknown_clinic" });
       res.json({ updated: r.rows[0] });
     } catch (error: any) {

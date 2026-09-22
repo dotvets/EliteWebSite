@@ -10,7 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 // ============================================================================
 
 type Fallback = { whatsapp?: string | null; phone?: string | null };
-type Clinic = { id: string; name_ar: string; name_en: string; timezone: string };
+type Clinic = { id: string; name_ar: string; name_en: string; timezone: string; payment_mode?: string | null };
 type Service = { id: string; name_ar: string; name_en: string; duration_minutes: number | null };
 type Doctor = { id: string; name: string; job_title: string | null };
 
@@ -210,6 +210,7 @@ export default function HubWidget() {
   const [otp, setOtp] = useState("");
   const [resendAfter, setResendAfter] = useState(0);
   const [refCode, setRefCode] = useState<string | null>(null);
+  const [brandPaymentMode, setBrandPaymentMode] = useState<string>("off");
   const [paymentMode, setPaymentMode] = useState<string>("off");
   const [paymentWaiting, setPaymentWaiting] = useState(false);
   const [alternatives, setAlternatives] = useState<string[]>([]);
@@ -244,7 +245,9 @@ export default function HubWidget() {
           return;
         }
         setFallback(j.fallback);
-        setPaymentMode(j.brand?.payment_mode || "off");
+        const mode = j.brand?.payment_mode || "off";
+        setBrandPaymentMode(mode);
+        setPaymentMode(mode);
         setClinics(j.clinics || []);
       })
       .catch(() => setFatal("error"))
@@ -484,7 +487,15 @@ export default function HubWidget() {
           setStep("success");
           track("booking_confirmed", { brand });
           if (j.payment?.status === "paid") {
-            track("purchase", { brand, currency: j.payment.currency || "SAR", value: (j.payment.amount_halalas || 0) / 100, transaction_id: bid });
+            const marker = `hub_purchase_tracked:${bid}`;
+            let alreadyTracked = false;
+            try {
+              alreadyTracked = sessionStorage.getItem(marker) === "1";
+              if (!alreadyTracked) sessionStorage.setItem(marker, "1");
+            } catch {}
+            if (!alreadyTracked) {
+              track("purchase", { brand, currency: j.payment.currency || "SAR", value: (j.payment.amount_halalas || 0) / 100, transaction_id: bid });
+            }
           }
         } else if (j.booking?.status === "failed" || tries > 20) {
           clearInterval(poll);
@@ -640,7 +651,7 @@ export default function HubWidget() {
           ) : (
             <div className="grid gap-3">
               {clinics.map((c) => (
-                <button key={c.id} onClick={() => setClinic(c)} className="rounded-xl border p-4 text-start hover:bg-accent transition min-h-[48px]">
+                <button key={c.id} onClick={() => { setClinic(c); setPaymentMode(c.payment_mode || brandPaymentMode); }} className="rounded-xl border p-4 text-start hover:bg-accent transition min-h-[48px]">
                   {lang === "ar" ? c.name_ar : c.name_en}
                 </button>
               ))}
@@ -651,7 +662,7 @@ export default function HubWidget() {
 
       {clinic && !service && (
         <section className="space-y-3">
-          <button className="text-sm underline" onClick={() => setClinic(null)}>← {L.back}</button>
+          <button className="text-sm underline" onClick={() => { setClinic(null); setPaymentMode(brandPaymentMode); }}>← {L.back}</button>
           <h3 className="font-semibold">{L.pickService}</h3>
           {services === null ? (
             <Skeleton />
