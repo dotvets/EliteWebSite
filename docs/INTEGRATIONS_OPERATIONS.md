@@ -54,3 +54,25 @@
 - **Go-live checklist:** set webhook secret; configure portal webhook URL; run test-mode
   paid → confirmed, failed/expired → released, replay rejected, duplicate delivery idempotent;
   verify one `purchase` conversion per paid booking; only then set brand/clinic `payment_mode`.
+
+## Emergency path (Phase 4 / G4)
+- **Purpose:** urgent-care entry point inside the booking hub that bypasses booking, payment, and OTP friction.
+- **Feature flags:** `EMERGENCY_PATH_ENABLED=false` by default, plus per-brand config
+  `hub_brands.config_json.emergency.enabled=true`. Both are required.
+- **Public endpoints:** `GET /api/hub/{brand}/emergency-config` returns only enabled state and public
+  call/WhatsApp fallbacks; `POST /api/hub/{brand}/emergency` accepts species, symptoms, ETA, locale,
+  source metadata, and an empty honeypot field. No phone number is collected.
+- **Operations channels (config names only):** `hub_brands.config_json.emergency.webhook_url` for an
+  HTTPS POST webhook, or `hub_brands.config_json.emergency.email=true` to use the existing SMTP
+  notification env vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL`).
+  WhatsApp/phone are customer CTAs only until a verified messaging provider route exists.
+- **Timeout/retry/idempotency:** webhook delivery uses a 5s timeout and one attempt; submissions are
+  stored first in `hub_emergency_requests`, then marked `sent` or `failed` so no request is lost.
+- **Abuse controls:** schema validation, honeypot, and 5 requests/minute/IP using the real client IP
+  behind Cloudflare/Render.
+- **Audit/health:** writes audit `emergency.submitted`, `emergency.delivery_failed`, or
+  `emergency.channel_unconfigured`; `GET /api/hub/health` reports the flag and request counts.
+- **Rollback:** set `EMERGENCY_PATH_ENABLED=false` or remove/disable the brand emergency config; the
+  widget hides the entry point and POST returns `404 emergency_unavailable`.
+- **Go-live checklist:** configure an HTTPS webhook or SMTP email, enable the env flag, enable the
+  brand config, submit a test emergency, verify delivery under 60 seconds, then check the admin log.

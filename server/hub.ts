@@ -4,6 +4,7 @@ import { requireAdmin } from "./admin";
 import { digitailApi } from "./digitail";
 import { resolveDigitailConfig } from "./digitailConfig";
 import { cached, upstreamStats } from "./hubCache";
+import { audit } from "./messaging";
 import { redactErrorMessage, redactSecrets } from "./redact";
 
 // ============================================================================
@@ -103,6 +104,17 @@ function brandFallbackContact(brand: BrandRow) {
     whatsapp: cfg.whatsapp || null, // e.g. "966920011626" → wa.me link client-side
     phone: cfg.phone || null,
   };
+}
+
+function validEmergencyWebhookUrl(raw: string): boolean {
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" || url.username || url.password) return false;
+    const host = url.hostname.toLowerCase();
+    return !(host === "localhost" || host.endsWith(".local") || /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host));
+  } catch {
+    return false;
+  }
 }
 
 // Gate (Part 5.2 feature flag): booking_enabled=false → endpoints stay dark.
@@ -247,11 +259,47 @@ export function registerHubRoutes(app: Express) {
           updates.push(`${key} = $${values.length}`);
         }
       }
+      if ("emergency_config" in (req.body || {})) {
+        const cfg = req.body.emergency_config;
+        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return res.status(400).json({ error: "invalid_emergency_config" });
+        const allowedKeys = ["enabled", "webhook_url", "email", "phone", "whatsapp"];
+        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k))) return res.status(400).json({ error: "invalid_emergency_config" });
+        const clean: Record<string, any> = {};
+        if ("enabled" in cfg) {
+          if (typeof cfg.enabled !== "boolean") return res.status(400).json({ error: "invalid_emergency_enabled" });
+          clean.enabled = cfg.enabled;
+        }
+        if ("webhook_url" in cfg) {
+          if (!(cfg.webhook_url === null || (typeof cfg.webhook_url === "string" && cfg.webhook_url.length <= 500 && validEmergencyWebhookUrl(cfg.webhook_url)))) {
+            return res.status(400).json({ error: "invalid_emergency_webhook_url" });
+          }
+          clean.webhook_url = cfg.webhook_url;
+        }
+        if ("email" in cfg) {
+          if (typeof cfg.email !== "boolean") return res.status(400).json({ error: "invalid_emergency_email" });
+          clean.email = cfg.email;
+        }
+        for (const key of ["phone", "whatsapp"] as const) {
+          if (key in cfg) {
+            const value = cfg[key];
+            if (!(value === null || (typeof value === "string" && /^\+?\d{8,15}$/.test(value)))) {
+              return res.status(400).json({ error: `invalid_emergency_${key}` });
+            }
+            clean[key] = value;
+          }
+        }
+        values.push(JSON.stringify(clean));
+        updates.push(`config_json = jsonb_set(config_json, '{emergency}', $${values.length}::jsonb, true)`);
+      }
       if (!updates.length) return res.status(400).json({ error: "no_fields" });
       values.push(brandParam);
-      const r = await pool.query(`UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode`, values);
+      const r = await pool.query(`UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode, config_json`, values);
       if (!r.rows[0]) return res.status(404).json({ error: "unknown_brand" });
-      res.json({ updated: r.rows[0] });
+      await audit(`admin:${(req.session as any)?.adminId || "unknown"}`, "hub.brand_update", "hub_brands", brandParam, { fields: Object.keys(req.body || {}) });
+      const updated = r.rows[0];
+      const emergency = (updated.config_json || {}).emergency || {};
+      delete updated.config_json;
+      res.json({ updated: { ...updated, emergency_configured: emergency.enabled === true && (!!emergency.webhook_url || emergency.email === true) } });
     } catch (error: any) {
       safeError(res, error, "hub_brand_update_failed");
     }

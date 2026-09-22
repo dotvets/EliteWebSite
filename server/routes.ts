@@ -116,6 +116,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerHubPaymentRoutes } = await import("./hubPayments");
   registerHubPaymentRoutes(app);
 
+  // Phase 4 / G4: emergency path (ships EMERGENCY_PATH_ENABLED=false — Part 16.1).
+  const { registerHubEmergencyRoutes } = await import("./hubEmergency");
+  registerHubEmergencyRoutes(app);
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -290,6 +290,20 @@ CREATE TABLE IF NOT EXISTS hub_otp_codes (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS hub_otp_phone_idx ON hub_otp_codes (phone, created_at);
+-- Phase 4 / G4: emergency triage path. No phone field by design (PDPL minimization).
+CREATE TABLE IF NOT EXISTS hub_emergency_requests (
+  id varchar PRIMARY KEY,
+  brand varchar NOT NULL,
+  species varchar NOT NULL,
+  symptoms text NOT NULL,
+  eta varchar NOT NULL,
+  locale varchar NOT NULL DEFAULT 'ar',
+  channel varchar,
+  status varchar NOT NULL,
+  source_json jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS hub_emergency_requests_brand_idx ON hub_emergency_requests (brand, created_at);
 `;
 
 export async function ensureSchema() {
