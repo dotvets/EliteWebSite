@@ -7,6 +7,7 @@ import ImagesPanel from "./ImagesPanel";
 import BookingPanel from "./BookingPanel";
 import HoursPanel from "./HoursPanel";
 import AdsPanel from "./AdsPanel";
+import IntegrationsPanel from "./IntegrationsPanel";
 
 const S: Record<string, React.CSSProperties> = {
   wrap: { display: "flex", minHeight: "100vh", fontFamily: "sans-serif", background: "#f5f3fa", direction: "rtl" },
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
     ["pages", "الصفحات"], ["team", "الفريق"], ["testimonials", "آراء العملاء"], ["offers", "العروض"],
     ["blog", "المدونة"], ["branches", "الفروع"],
     ["messages", "الرسائل"], ["content", "محتوى الموقع"], ["images", "صور الموقع"], ["ads", "Ads"], ["media", "مكتبة الصور"],
-    ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"],
+    ["seo", "SEO"], ["settings", "الإعدادات"], ["activity", "سجل النشاط"], ["integrations", "مدير التكاملات"],
   ];
 
   return (
@@ -198,6 +199,7 @@ export default function AdminDashboard() {
         {tab === "ads" && <AdsPanel api={api} />}
         {tab === "bookingSettings" && <BookingPanel api={api} />}
         {tab === "hours" && <HoursPanel api={api} />}
+        {tab === "integrations" && <IntegrationsPanel api={api} />}
       </div>
     </div>
     </ToastProvider>

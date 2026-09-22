@@ -18,6 +18,19 @@ function configuredSecretValues(): string[] {
     process.env.DIGITAIL_CLIENT_SECRET,
     process.env.DIGITAIL_CLIENT_ID, // not a secret per se, but never useful in logs
     process.env.DIGITAIL_TOKEN_ENCRYPTION_KEY,
+    // Integrations Manager V1 (design §5): every Category B secret value is
+    // scrubbed from logs even if an upstream error echoes it back at us.
+    process.env.M365_CLIENT_SECRET,
+    process.env.MYFATOORAH_API_KEY,
+    process.env.MYFATOORAH_API_KEY_VETSVAN,
+    process.env.MYFATOORAH_WEBHOOK_SECRET,
+    process.env.BEVATEL_ACCESS_TOKEN,
+    process.env.BEVATEL_API_KEY,
+    process.env.BEVATEL_WEBHOOK_VERIFY_TOKEN,
+    process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON,
+    process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
+    process.env.META_WHATSAPP_ACCESS_TOKEN,
+    process.env.META_WHATSAPP_VERIFY_TOKEN,
   ].filter((v): v is string => !!v && v.length >= 8);
 }
 

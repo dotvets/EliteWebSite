@@ -128,8 +128,41 @@ export async function audit(actor: string, action: string, entity: string, entit
 // notifications; failed sends retry with backoff (attempts 1..3) then status
 // 'failed' + audit alert.
 // ---------------------------------------------------------------------------
+// Integrations Manager V1 (design §11): optional per-brand routing. A routing
+// rule only takes effect when (a) a rule exists, (b) the provider key maps to
+// a REAL implemented adapter. Anything else falls back to the current behavior
+// (MESSAGING_PROVIDER env / stub) — no automatic provider switching.
+const KIND_TO_PURPOSE: Record<string, string> = {
+  otp: "otp",
+  confirm: "booking_confirmation",
+  reminder: "reminder",
+  payment: "payment_notification",
+  rebook: "payment_notification",
+};
+
+async function resolveRoutedProvider(bookingId: string | null, kind: string): Promise<MessagingProvider | null> {
+  try {
+    if (!bookingId) return null;
+    const purpose = KIND_TO_PURPOSE[kind];
+    if (!purpose) return null;
+    const { resolveRouteProvider } = await import("./integrations/configStore");
+    const b = await pool.query(`SELECT brand FROM hub_bookings WHERE id = $1 LIMIT 1`, [bookingId]);
+    const brand = b.rows[0]?.brand;
+    if (!brand) return null;
+    const routed = await resolveRouteProvider(brand, purpose as any, process.env.DIGITAIL_ENV || "sandbox");
+    if (!routed) return null;
+    // V1: no messaging provider has a completed send adapter (Bevatel send path
+    // stays unverified until the official contract lands) — routing is recorded
+    // but never switches to an unimplemented adapter.
+    await audit("system", "routing.unsupported_provider", "hub_notifications", bookingId, { routed, purpose });
+    return null;
+  } catch {
+    return null; // routing failure must never break notification delivery
+  }
+}
+
 export async function dispatchDueNotifications(): Promise<{ sent: number; failed: number }> {
-  const provider = getMessagingProvider();
+  const defaultProvider = getMessagingProvider();
   const due = await pool.query(
     `SELECT * FROM hub_notifications WHERE status = 'queued' AND scheduled_at <= NOW() ORDER BY scheduled_at LIMIT 50`,
   );
@@ -137,6 +170,7 @@ export async function dispatchDueNotifications(): Promise<{ sent: number; failed
   let failed = 0;
   for (const n of due.rows) {
     try {
+      const provider = (await resolveRoutedProvider(n.booking_id, n.kind)) || defaultProvider;
       let result: { providerMessageId: string };
       if (n.channel === "whatsapp") {
         if (!whatsappEnabled() || !provider.sendWhatsApp) {
