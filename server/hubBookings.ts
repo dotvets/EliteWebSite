@@ -94,7 +94,9 @@ const createBookingSchema = z.object({
     name: z.string().trim().min(1).max(80),
     species: z.string().trim().min(1).max(40),
     breed: z.string().max(80).optional(),
-    sex: z.string().max(20).optional(),
+    // Required by the live Digitail /pets contract (verified 2026-09-22).
+    birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    sex: z.enum(["male", "female"]),
     notes: z.string().max(500).optional(),
   }),
   idempotencyKey: z.string().uuid(),
@@ -159,14 +161,40 @@ async function findOrCreatePetParent(clinicDigitailId: number, name: string, pho
   return String(created?.data?.id);
 }
 
-async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string }, speciesId?: number): Promise<string> {
+// Live-verified Digitail contract (sandbox, 2026-09-22): /pets REQUIRES
+// species_id (from /species labels), breed_id, birthday (YYYY-MM-DD),
+// gender ("male"|"female"), and hormonal_status (integer; 0 = unspecified,
+// enum semantics pending Digitail confirmation — OPEN verification item).
+async function findBreedId(speciesId: number): Promise<number> {
+  const { value } = await cached(`digitail:breeds:${speciesId}`, 6 * 3600, async () => {
+    const data = await digitailRequest("GET", `/breeds?filter%5Bspecies_id%5D=${speciesId}`);
+    return data?.data || [];
+  });
+  const list = value as any[];
+  const mix = list.find((b) => ["mix", "mixed", "other"].includes(String(b?.label || b?.breed || "").trim().toLowerCase()));
+  const chosen = mix || list[0];
+  if (!chosen?.id) throw new Error("no_breed_available_upstream");
+  return Number(chosen.id);
+}
+
+async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string; birthdate: string; sex: string }, speciesId?: number): Promise<string> {
+  if (!speciesId) {
+    const err = new Error("species_not_supported_upstream");
+    (err as any).status = 422;
+    throw err;
+  }
+  const breedId = await findBreedId(speciesId);
   // Docs specify multipart/form-data for /pets; try JSON first, fall back.
   const payload: Record<string, any> = {
     clinic_id: clinicDigitailId,
     vet_id: Number(vetId),
     owner_id: Number(parentId),
     nickname: pet.name,
-    species_id: speciesId ?? 1,
+    species_id: speciesId,
+    breed_id: breedId,
+    birthday: pet.birthdate,
+    gender: pet.sex,
+    hormonal_status: 0, // 0 = unspecified (pending Digitail enum confirmation)
   };
   try {
     const created = await digitailRequest("POST", "/pets", payload);
@@ -329,11 +357,24 @@ export function registerHubBookingRoutes(app: Express) {
         ends_at: end.toISOString(),
         duration_minutes: input.durationMinutes,
       };
-      await pool.query(
-        `INSERT INTO hub_bookings (id, brand, clinic_id, status, idempotency_key, customer_name, customer_phone, pet_snapshot_json, service_json, hold_expires_at, locale, source_json, payment_mode_effective)
-         VALUES ($1,$2,$3,'held',$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-        [id, brand.brand, clinic.id, input.idempotencyKey, input.customerName, phone, JSON.stringify(input.pet), JSON.stringify(serviceJson), new Date(Date.now() + holdMinutes * 60_000), input.locale, JSON.stringify(input.source || {}), resolvedPayment.mode],
-      );
+      try {
+        await pool.query(
+          `INSERT INTO hub_bookings (id, brand, clinic_id, status, idempotency_key, customer_name, customer_phone, pet_snapshot_json, service_json, hold_expires_at, locale, source_json, payment_mode_effective)
+           VALUES ($1,$2,$3,'held',$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+          [id, brand.brand, clinic.id, input.idempotencyKey, input.customerName, phone, JSON.stringify(input.pet), JSON.stringify(serviceJson), new Date(Date.now() + holdMinutes * 60_000), input.locale, JSON.stringify(input.source || {}), resolvedPayment.mode],
+        );
+      } catch (e: any) {
+        // Concurrent same-key creates: exactly one INSERT wins; the others get a
+        // unique violation and must return the winner's booking idempotently
+        // (live-verified 2026-09-22: losers previously returned bare 500s).
+        if (e?.code === "23505") {
+          const winner = await pool.query(`SELECT * FROM hub_bookings WHERE idempotency_key = $1 LIMIT 1`, [input.idempotencyKey]);
+          if (winner.rows[0]) {
+            return res.json({ booking: publicBooking(winner.rows[0]), ref: referenceCode(brand.brand, winner.rows[0].id), idempotent: true });
+          }
+        }
+        throw e;
+      }
       await audit(`customer:anon`, "booking.create", "hub_bookings", id, { brand: brand.brand, clinic: clinic.id, phone: maskPhone(phone) });
       if (resolvedPayment.source === "dynamic_rule") {
         await audit("system", "deposit.dynamic_required", "hub_bookings", id, { mode: resolvedPayment.mode, no_show_count: resolvedPayment.no_show_count ?? 0 });
@@ -698,15 +739,25 @@ async function mapSpeciesId(species: string | undefined): Promise<number | undef
       return data?.data || [];
     });
     const s = species.trim().toLowerCase();
+    // Live /species labels (sandbox 2026-09-22): Dog, Cat, Horse, Bovine, Ovine,
+    // Caprine, Porcine, Avian, Parrot, Hamster, Guinea pig, Rabbit, Turtle, Snake, Fish.
     const aliases: Record<string, string[]> = {
       cat: ["cat", "قط", "قطة", "cats"],
       dog: ["dog", "كلب", "dogs"],
-      bird: ["bird", "طائر", "طيور", "birds"],
-      reptile: ["reptile", "زواحف", "reptiles"],
+      avian: ["bird", "avian", "طائر", "طيور", "birds"],
+      rabbit: ["rabbit", "أرنب", "ارنب"],
+      hamster: ["hamster", "هامستر"],
+      turtle: ["turtle", "سلحفاة"],
+      snake: ["snake", "ثعبان"],
+      fish: ["fish", "سمك", "سمكة"],
+      parrot: ["parrot", "ببغاء"],
     };
-    const entry = Object.entries(aliases).find(([, names]) => names.includes(s));
     const list = value as any[];
-    const match = list.find((sp: any) => String(sp?.name || "").toLowerCase() === (entry?.[0] || s));
+    const label = (sp: any) => String(sp?.label || sp?.species || sp?.name || "").trim().toLowerCase();
+    const entry = Object.entries(aliases).find(([, names]) => names.includes(s));
+    const match = entry
+      ? list.find((sp: any) => label(sp) === entry[0])
+      : list.find((sp: any) => label(sp) === s);
     return match?.id ? Number(match.id) : undefined;
   } catch {
     return undefined;
@@ -748,6 +799,17 @@ async function runSweep() {
       for (const row of expired.rows) {
         await audit("system", "booking.expired", "hub_bookings", row.id, {});
       }
+      // Crash recovery: a booking stuck in 'confirming' >10 min means the process
+      // died mid-claim. Mark failed for manual review (audit trail) rather than
+      // auto-retrying, which could double-book upstream (no upstream idempotency).
+      const stuck = await pool.query(
+        `UPDATE hub_bookings SET status = 'failed', updated_at = NOW()
+         WHERE status = 'confirming' AND updated_at < NOW() - interval '10 minutes'
+         RETURNING id`,
+      );
+      for (const row of stuck.rows) {
+        await audit("system", "booking.confirming_stuck_failed", "hub_bookings", row.id, { note: "manual review: verify no orphan upstream appointment" });
+      }
       await dispatchDueNotifications();
       await pool.query(`DELETE FROM hub_otp_codes WHERE created_at < NOW() - interval '24 hours'`);
       sweeperLastRun = new Date();
@@ -785,6 +847,23 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
     return { outcome: "hold_expired" };
   }
 
+  // A7 race guard (live-verified 2026-09-22: 9 concurrent confirms created 9
+  // upstream appointments for ONE booking before this guard existed). Atomically
+  // claim the booking BEFORE any upstream write; only one concurrent caller wins.
+  const claim = await pool.query(
+    `UPDATE hub_bookings SET status = 'confirming', updated_at = NOW()
+     WHERE id = $1 AND status IN ('held','pending_payment') RETURNING id`,
+    [b.id],
+  );
+  if (!claim.rows[0]) {
+    const cur = await pool.query(`SELECT status, digitail_appointment_id FROM hub_bookings WHERE id = $1`, [b.id]);
+    if (cur.rows[0]?.status === "confirmed" && cur.rows[0]?.digitail_appointment_id) {
+      return { outcome: "confirmed", ref: referenceCode(b.brand, b.id), idempotent: true };
+    }
+    return { outcome: "invalid_state", state: cur.rows[0]?.status || "unknown" };
+  }
+  const priorStatus = b.status; // restore target if the upstream write fails
+
   const clinic = await getClinicRow(b.clinic_id);
   const svc = b.service_json || {};
   const day = new Date(svc.starts_at).toLocaleString("sv-SE", { timeZone: clinic?.timezone || "Asia/Riyadh" }).slice(0, 10);
@@ -818,6 +897,9 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
       vet_id: Number(vetId),
       patient_id: Number(patientId),
       visit_type_id: Number(svc.service_id),
+      // Digitail contract (live-verified 2026-09-22, sandbox 422 otherwise):
+      // reminder_notifications is a REQUIRED array field on appointment create.
+      reminder_notifications: [],
       datetime_start_utc: new Date(svc.starts_at).toISOString(),
       datetime_end_utc: new Date(svc.ends_at || new Date(new Date(svc.starts_at).getTime() + (svc.duration_minutes || 30) * 60_000)).toISOString(),
     });
@@ -856,7 +938,9 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
       await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "upstream_conflict", status: e.status });
       return { outcome: "conflict", alternatives };
     }
-    await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0 });
+    // Restore the pre-claim state so the customer can retry (hold kept).
+    await pool.query(`UPDATE hub_bookings SET status = $2, updated_at = NOW() WHERE id = $1 AND status = 'confirming'`, [b.id, priorStatus]);
+    await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0, message: redactErrorMessage(e).slice(0, 200) });
     return { outcome: "upstream_error" };
   }
 }
