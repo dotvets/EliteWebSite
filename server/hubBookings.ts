@@ -569,6 +569,9 @@ export function registerHubBookingRoutes(app: Express) {
       const counts: Record<string, number> = {};
       for (const r of q.rows) counts[r.status] = r.c;
       const recon = await pool.query(`SELECT created_at FROM hub_audit_log WHERE action = 'recon.completed' ORDER BY created_at DESC LIMIT 1`);
+      const emergencyQ = await pool.query(`SELECT status, COUNT(*)::int AS c FROM hub_emergency_requests GROUP BY status`);
+      const emergencyCounts: Record<string, number> = {};
+      for (const r of emergencyQ.rows) emergencyCounts[r.status] = r.c;
       res.json({
         db: "up",
         digitail: digitailCircuitState(),
@@ -579,6 +582,7 @@ export function registerHubBookingRoutes(app: Express) {
           webhook_configured: !!process.env.MYFATOORAH_WEBHOOK_SECRET,
           reconciliation_last_run: recon.rows[0]?.created_at || null,
         },
+        emergency: { enabled: (process.env.EMERGENCY_PATH_ENABLED || "false").toLowerCase() === "true", requests: emergencyCounts },
         notifications: counts,
         sweeper: { enabled: sweeperEnabled(), lastRun: sweeperLastRun?.toISOString() || null, intervalMs: SWEEP_INTERVAL_MS },
       });

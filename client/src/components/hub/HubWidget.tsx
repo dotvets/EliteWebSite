@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 // ============================================================================
 
 type Fallback = { whatsapp?: string | null; phone?: string | null };
+type EmergencyConfig = { enabled: boolean; contact_only?: boolean; channel?: string | null; fallback?: Fallback };
 type Clinic = { id: string; name_ar: string; name_en: string; timezone: string; payment_mode?: string | null };
 type Service = { id: string; name_ar: string; name_en: string; duration_minutes: number | null };
 type Doctor = { id: string; name: string; job_title: string | null };
@@ -75,6 +76,17 @@ const t = {
     payClinic: "ادفع في العيادة",
     payWaiting: "ننتظر تأكيد الدفع…",
     payFailed: "لم يتم الدفع — حاول مجدداً أو ادفع في العيادة",
+    emergencyCta: "حالة طارئة",
+    emergencyTitle: "حالة طارئة",
+    emergencyNote: "لا تنتظر الحجز — اتصل فوراً أو أرسل الحالة للفريق",
+    emergencySymptoms: "الأعراض",
+    emergencyEta: "وقت الوصول المتوقع",
+    emergencySubmit: "أرسل الحالة الآن",
+    emergencySent: "تم استلام الحالة ✅",
+    emergencySentNote: "وصلت الحالة لفريق العيادة. إذا تدهورت الحالة اتصل الآن.",
+    emergencyUnavailable: "المسار الطارئ غير متاح حالياً — تواصل مباشرة",
+    emergencyChannelMissing: "قناة الاستلام غير مهيأة — استخدم الاتصال أو واتساب",
+    etaOptions: ["أقل من 30 دقيقة", "30–60 دقيقة", "أكثر من ساعة"],
   },
   en: {
     title: "Book your appointment",
@@ -125,6 +137,17 @@ const t = {
     payClinic: "Pay at clinic",
     payWaiting: "Waiting for payment confirmation…",
     payFailed: "Payment failed — retry or pay at clinic",
+    emergencyCta: "Emergency case",
+    emergencyTitle: "Emergency case",
+    emergencyNote: "Do not wait for booking — call now or send the case to the team",
+    emergencySymptoms: "Symptoms",
+    emergencyEta: "Expected arrival time",
+    emergencySubmit: "Send emergency now",
+    emergencySent: "Emergency received ✅",
+    emergencySentNote: "The clinic team received the case. If it gets worse, call now.",
+    emergencyUnavailable: "Emergency path is currently unavailable — contact us directly",
+    emergencyChannelMissing: "Receiving channel is not configured — use call or WhatsApp",
+    etaOptions: ["Under 30 minutes", "30–60 minutes", "Over an hour"],
   },
 } as const;
 
@@ -202,8 +225,10 @@ export default function HubWidget() {
   const [loading, setLoading] = useState(false);
 
   // Details + OTP + confirmation state
-  const [step, setStep] = useState<"browse" | "details" | "otp" | "payment" | "success">("browse");
+  const [step, setStep] = useState<"browse" | "details" | "otp" | "payment" | "success" | "emergency" | "emergencySent">("browse");
   const [form, setForm] = useState({ name: "", phone: "", petName: "", species: "", notes: "", website: "" });
+  const [emergencyConfig, setEmergencyConfig] = useState<EmergencyConfig | null>(null);
+  const [emergencyForm, setEmergencyForm] = useState({ species: "", symptoms: "", eta: "", website: "" });
   const [consent, setConsent] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState<string>(() => crypto.randomUUID());
@@ -232,6 +257,19 @@ export default function HubWidget() {
     }
     return out;
   }, []);
+
+  // Emergency path is independent from booking availability (G4) and stays
+  // hidden unless both the env flag and brand config enable it.
+  useEffect(() => {
+    fetch(`/api/hub/${brand}/emergency-config`)
+      .then(async (r) => {
+        const j = await r.json();
+        if (!r.ok) return;
+        setEmergencyConfig(j);
+        if (j.fallback) setFallback((prev) => prev || j.fallback);
+      })
+      .catch(() => {});
+  }, [brand]);
 
   // Load clinics
   useEffect(() => {
@@ -507,6 +545,47 @@ export default function HubWidget() {
     return () => clearInterval(poll);
   }, []);
 
+  function startEmergency() {
+    setError(null);
+    setStep("emergency");
+    track("emergency_started", { brand });
+  }
+
+  async function submitEmergency() {
+    if (!emergencyForm.species || !emergencyForm.symptoms.trim() || !emergencyForm.eta) {
+      setError("required");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`/api/hub/${brand}/emergency`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          species: emergencyForm.species,
+          symptoms: emergencyForm.symptoms.trim(),
+          eta: emergencyForm.eta,
+          locale: lang,
+          source: { ...utm, page: window.location.pathname },
+          website: emergencyForm.website,
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) {
+        if (j.fallback) setFallback(j.fallback);
+        setError(j.error === "emergency_channel_unconfigured" ? "emergencyChannelMissing" : j.error === "emergency_unavailable" ? "emergencyUnavailable" : j.error || "emergencyUnavailable");
+        return;
+      }
+      setStep("emergencySent");
+      track("emergency_submitted", { brand, channel: j.channel || "unknown" });
+    } catch {
+      setError("error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function icsUrl(): string {
     if (!slot || !clinic || !service) return "#";
     const start = new Date(slot.iso);
@@ -517,10 +596,73 @@ export default function HubWidget() {
   }
 
   // -------------------------------------------------------------------------
+  if (step === "emergency") {
+    return (
+      <div dir={dir} className="mx-auto max-w-xl p-4 space-y-4">
+        {!fatal && <button className="text-sm underline" onClick={() => setStep("browse")}>← {L.back}</button>}
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold text-red-700">{L.emergencyTitle}</h2>
+          <p className="text-muted-foreground">{L.emergencyNote}</p>
+        </div>
+        <FallbackCta fallback={emergencyConfig?.fallback || fallback} lang={lang} />
+        {emergencyConfig?.contact_only ? (
+          <p className="rounded-xl border border-amber-400 p-4 text-center">{L.emergencyChannelMissing}</p>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <h3 className="font-semibold">{L.species}</h3>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={L.species}>
+                {L.speciesOptions.map((s) => (
+                  <button key={s} onClick={() => setEmergencyForm({ ...emergencyForm, species: s })} className={`rounded-full border px-4 py-2 min-h-[48px] ${emergencyForm.species === s ? "bg-red-700 text-white" : ""}`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <textarea className="w-full rounded-xl border p-3" placeholder={L.emergencySymptoms} value={emergencyForm.symptoms} onChange={(e) => setEmergencyForm({ ...emergencyForm, symptoms: e.target.value })} rows={4} maxLength={500} />
+            <div className="space-y-2">
+              <h3 className="font-semibold">{L.emergencyEta}</h3>
+              <div className="grid gap-2">
+                {L.etaOptions.map((eta) => (
+                  <button key={eta} onClick={() => setEmergencyForm({ ...emergencyForm, eta })} className={`rounded-xl border px-4 py-3 text-start min-h-[48px] ${emergencyForm.eta === eta ? "bg-red-700 text-white" : ""}`}>
+                    {eta}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <input type="text" name="website" value={emergencyForm.website} onChange={(e) => setEmergencyForm({ ...emergencyForm, website: e.target.value })} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+            {error && <p className="text-red-600 text-sm">{error in L ? (L as any)[error] : L.error}</p>}
+            <div className="sticky bottom-4">
+              <button onClick={submitEmergency} disabled={loading} className="w-full rounded-xl bg-red-700 px-4 py-3 text-white min-h-[48px] disabled:opacity-50">
+                {loading ? L.loading : L.emergencySubmit}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  if (step === "emergencySent") {
+    return (
+      <div dir={dir} className="mx-auto max-w-xl p-6 text-center space-y-4">
+        <h2 className="text-2xl font-bold text-red-700">{L.emergencySent}</h2>
+        <p className="text-muted-foreground">{L.emergencySentNote}</p>
+        <FallbackCta fallback={emergencyConfig?.fallback || fallback} lang={lang} />
+        {!fatal && <button className="rounded-lg border px-4 py-2" onClick={() => setStep("browse")}>{L.back}</button>}
+      </div>
+    );
+  }
+
   if (fatal) {
     return (
-      <div dir={dir} className="mx-auto max-w-xl p-6 text-center">
+      <div dir={dir} className="mx-auto max-w-xl p-6 text-center space-y-4">
         <p className="text-lg font-semibold">{fatal === "unavailable" ? L.unavailable : L.error}</p>
+        {emergencyConfig?.enabled && (
+          <button onClick={startEmergency} className="w-full rounded-xl bg-red-700 px-4 py-3 text-white min-h-[48px]">
+            {L.emergencyCta}
+          </button>
+        )}
         <FallbackCta fallback={fallback} lang={lang} />
       </div>
     );
@@ -637,6 +779,11 @@ export default function HubWidget() {
   return (
     <div dir={dir} className="mx-auto max-w-xl p-4 space-y-6">
       <h2 className="text-2xl font-bold text-center">{L.title}</h2>
+      {emergencyConfig?.enabled && (
+        <button onClick={startEmergency} className="w-full rounded-xl border border-red-300 bg-red-50 px-4 py-3 font-semibold text-red-700 min-h-[48px]">
+          {L.emergencyCta}
+        </button>
+      )}
 
       {!clinic && (
         <section className="space-y-3">
