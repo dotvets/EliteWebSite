@@ -159,14 +159,54 @@ async function findOrCreatePetParent(clinicDigitailId: number, name: string, pho
   return String(created?.data?.id);
 }
 
-async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string }, speciesId?: number): Promise<string> {
+// Digitail /pets REQUIRED fields (live-verified against the sandbox contract
+// on 2026-09-23 — a bare nickname+species_id POST returns 422):
+//   species_id (valid id from /species), breed_id (must belong to species),
+//   birthday (YYYY-MM-DD), gender, hormonal_status (integer enum).
+const DEFAULT_PET_BIRTHDAY = "2020-01-01"; // UX does not collect birthdate yet
+const DEFAULT_HORMONAL_STATUS = 1; // integer enum value accepted by upstream
+
+async function resolveBreedId(speciesId: number, breedName?: string): Promise<number> {
+  const { value } = await cached(`digitail:breeds:${speciesId}`, 6 * 3600, async () => {
+    const data = await digitailRequest("GET", `/breeds?filter%5Bspecies_id%5D=${speciesId}`);
+    return data?.data || [];
+  });
+  const list = (value as any[]) || [];
+  const labelOf = (b: any) => String(b?.breed || b?.label || b?.name || "").toLowerCase();
+  if (breedName) {
+    const exact = list.find((b: any) => labelOf(b) === breedName.trim().toLowerCase());
+    if (exact?.id) return Number(exact.id);
+  }
+  const mix = list.find((b: any) => labelOf(b) === "mix");
+  if (mix?.id) return Number(mix.id);
+  if (list[0]?.id) return Number(list[0].id);
+  throw Object.assign(new Error("no_breed_available_upstream"), { status: 502 });
+}
+
+function normalizeGender(sex: string | undefined): string {
+  const s = (sex || "").trim().toLowerCase();
+  if (s.startsWith("f") || s === "أنثى" || s === "انثى") return "female";
+  return "male"; // upstream requires a value; male/female are the accepted literals
+}
+
+async function createDigitailPet(clinicDigitailId: number, vetId: string, parentId: string, pet: { name: string; species: string; breed?: string; sex?: string; birthdate?: string; birthday?: string; hormonal_status?: number }, speciesId?: number): Promise<string> {
   // Docs specify multipart/form-data for /pets; try JSON first, fall back.
+  if (!speciesId) {
+    // No valid species mapping — fail as an upstream error, NEVER silently send
+    // a wrong species_id (the old `?? 1` fallback caused 422 on every confirm).
+    throw Object.assign(new Error("species_unmapped"), { status: 502 });
+  }
+  const breedId = await resolveBreedId(speciesId, pet.breed);
   const payload: Record<string, any> = {
     clinic_id: clinicDigitailId,
     vet_id: Number(vetId),
     owner_id: Number(parentId),
     nickname: pet.name,
-    species_id: speciesId ?? 1,
+    species_id: speciesId,
+    breed_id: breedId,
+    birthday: pet.birthdate || pet.birthday || DEFAULT_PET_BIRTHDAY,
+    gender: normalizeGender(pet.sex),
+    hormonal_status: Number.isInteger(pet.hormonal_status) ? pet.hormonal_status : DEFAULT_HORMONAL_STATUS,
   };
   try {
     const created = await digitailRequest("POST", "/pets", payload);
@@ -705,8 +745,14 @@ async function mapSpeciesId(species: string | undefined): Promise<number | undef
       reptile: ["reptile", "زواحف", "reptiles"],
     };
     const entry = Object.entries(aliases).find(([, names]) => names.includes(s));
+    const wanted = entry?.[0] || s;
     const list = value as any[];
-    const match = list.find((sp: any) => String(sp?.name || "").toLowerCase() === (entry?.[0] || s));
+    // Real Digitail species payload exposes the name under `species`/`label`
+    // (NOT `name`) — live-verified 2026-09-23: [{"id":3,"label":"Cat","species":"Cat"}].
+    const match = list.find((sp: any) => {
+      const names = [sp?.species, sp?.label, sp?.name].filter((v) => v != null).map((v) => String(v).toLowerCase());
+      return names.includes(wanted);
+    });
     return match?.id ? Number(match.id) : undefined;
   } catch {
     return undefined;
@@ -779,6 +825,24 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
   if (b.status !== "held" && b.status !== "pending_payment") {
     return { outcome: "invalid_state", state: b.status };
   }
+
+  // Atomic claim (race protection, live-verified 2026-09-23): two concurrent
+  // confirms of the SAME booking both passed the status read above and each
+  // created an upstream appointment (orphan 23807). Claim the booking by
+  // flipping it to the transient 'confirming' state in ONE conditional UPDATE
+  // — Postgres row locking serializes concurrent claims, so losers re-evaluate
+  // the WHERE after the winner commits and get rowCount 0.
+  const claim = await pool.query(
+    `UPDATE hub_bookings SET status = 'confirming', updated_at = NOW() WHERE id = $1 AND status IN ('held','pending_payment') RETURNING id`,
+    [b.id],
+  );
+  if (claim.rowCount === 0) {
+    const cur = await loadBookingById(b.id);
+    if (cur?.status === "confirmed" && cur?.digitail_appointment_id) {
+      return { outcome: "confirmed", ref: referenceCode(cur.brand, cur.id), idempotent: true };
+    }
+    return { outcome: "invalid_state", state: cur?.status || "unknown" };
+  }
   if (!b.customer_phone_verified) return { outcome: "otp_required" };
   if (b.hold_expires_at && new Date(b.hold_expires_at).getTime() < Date.now()) {
     await pool.query(`UPDATE hub_bookings SET status = 'expired', updated_at = NOW() WHERE id = $1`, [b.id]);
@@ -820,6 +884,9 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
       visit_type_id: Number(svc.service_id),
       datetime_start_utc: new Date(svc.starts_at).toISOString(),
       datetime_end_utc: new Date(svc.ends_at || new Date(new Date(svc.starts_at).getTime() + (svc.duration_minutes || 30) * 60_000)).toISOString(),
+      // Required by the live Digitail contract (verified 2026-09-23): an empty
+      // reminder list — notifications are owned by our own scheduler.
+      reminder_notifications: [],
     });
     const apptId = String(appt?.data?.id);
     await pool.query(`UPDATE hub_bookings SET status = 'confirmed', digitail_appointment_id = $2, updated_at = NOW() WHERE id = $1`, [b.id, apptId]);
@@ -856,6 +923,10 @@ export async function runConfirmPipeline(b: any, actor: string): Promise<Confirm
       await audit("system", "booking.conflict", "hub_bookings", b.id, { reason: "upstream_conflict", status: e.status });
       return { outcome: "conflict", alternatives };
     }
+    // Transient upstream failure: release the claim back to the original
+    // state so the caller (webhook retry / sweeper) can try again instead of
+    // the booking being stuck in the transient 'confirming' state.
+    await pool.query(`UPDATE hub_bookings SET status = $2, updated_at = NOW() WHERE id = $1 AND status = 'confirming'`, [b.id, b.status]);
     await audit("system", "booking.confirm_upstream_error", "hub_bookings", b.id, { status: e?.status || 0 });
     return { outcome: "upstream_error" };
   }
