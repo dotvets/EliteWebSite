@@ -100,10 +100,10 @@ export async function enqueueNotification(opts: {
   // Dedup: same booking + kind + channel + template not already queued/sent.
   await pool.query(
     `INSERT INTO hub_notifications (id, booking_id, kind, channel, to_phone, template_key, payload_json, status, scheduled_at)
-     SELECT $1, $2, $3, $4, $5, $6, $7, 'queued', $8
+     SELECT $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar, $7::jsonb, 'queued', $8::timestamptz
      WHERE NOT EXISTS (
        SELECT 1 FROM hub_notifications
-       WHERE booking_id IS NOT DISTINCT FROM $2 AND kind = $3 AND channel = $4 AND template_key = $6
+       WHERE booking_id IS NOT DISTINCT FROM $2::varchar AND kind = $3::varchar AND channel = $4::varchar AND template_key = $6::varchar
          AND status IN ('queued', 'sent', 'delivered')
      )`,
     [crypto.randomUUID(), opts.bookingId || null, opts.kind, opts.channel, opts.toPhone, opts.templateKey, JSON.stringify(opts.payload || {}), scheduledAt],
