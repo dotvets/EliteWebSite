@@ -7,6 +7,7 @@ import { digitailRequest, digitailCircuitState } from "./digitail";
 import { cached } from "./hubCache";
 import { getMessagingProvider, enqueueNotification, dispatchDueNotifications, audit, maskPhone, whatsappEnabled } from "./messaging";
 import { redactErrorMessage } from "./redact";
+import { resolvePaymentModeForHold } from "./hubDynamicDeposit";
 
 // ============================================================================
 // Phase 2 (master document Part 6): booking write path.
@@ -315,6 +316,10 @@ export function registerHubBookingRoutes(app: Express) {
       }
 
       const id = crypto.randomUUID();
+      // G3: resolve the payment mode for THIS customer at hold time (dynamic
+      // deposit policy from brand config_json; static fallback when the
+      // feature flag or rule is off). Snapshot is stored on the booking.
+      const resolvedPayment = await resolvePaymentModeForHold(brand, clinic, phone);
       const serviceJson = {
         service_id: input.serviceId,
         name: input.serviceName || null,
@@ -325,11 +330,14 @@ export function registerHubBookingRoutes(app: Express) {
         duration_minutes: input.durationMinutes,
       };
       await pool.query(
-        `INSERT INTO hub_bookings (id, brand, clinic_id, status, idempotency_key, customer_name, customer_phone, pet_snapshot_json, service_json, hold_expires_at, locale, source_json)
-         VALUES ($1,$2,$3,'held',$4,$5,$6,$7,$8,$9,$10,$11)`,
-        [id, brand.brand, clinic.id, input.idempotencyKey, input.customerName, phone, JSON.stringify(input.pet), JSON.stringify(serviceJson), new Date(Date.now() + holdMinutes * 60_000), input.locale, JSON.stringify(input.source || {})],
+        `INSERT INTO hub_bookings (id, brand, clinic_id, status, idempotency_key, customer_name, customer_phone, pet_snapshot_json, service_json, hold_expires_at, locale, source_json, payment_mode_effective)
+         VALUES ($1,$2,$3,'held',$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+        [id, brand.brand, clinic.id, input.idempotencyKey, input.customerName, phone, JSON.stringify(input.pet), JSON.stringify(serviceJson), new Date(Date.now() + holdMinutes * 60_000), input.locale, JSON.stringify(input.source || {}), resolvedPayment.mode],
       );
       await audit(`customer:anon`, "booking.create", "hub_bookings", id, { brand: brand.brand, clinic: clinic.id, phone: maskPhone(phone) });
+      if (resolvedPayment.source === "dynamic_rule") {
+        await audit("system", "deposit.dynamic_required", "hub_bookings", id, { mode: resolvedPayment.mode, no_show_count: resolvedPayment.no_show_count ?? 0 });
+      }
       const created = await pool.query(`SELECT * FROM hub_bookings WHERE id = $1`, [id]);
       res.json({ booking: publicBooking(created.rows[0]), ref: referenceCode(brand.brand, id) });
     } catch (error: any) {
@@ -540,13 +548,34 @@ export function registerHubBookingRoutes(app: Express) {
 
   app.patch("/api/hub/admin/bookings/:id", requireAdmin, async (req, res) => {
     try {
-      const to = String(req.body?.status || "");
-      if (!["held", "confirmed", "failed", "cancelled", "expired", "completed", "no_show", "pending_payment"].includes(to)) {
-        return res.status(400).json({ error: "invalid_status" });
+      const updates: string[] = [];
+      const values: any[] = [];
+      const meta: Record<string, any> = {};
+      if ("status" in (req.body || {})) {
+        const to = String(req.body?.status || "");
+        if (!["held", "confirmed", "failed", "cancelled", "expired", "completed", "no_show", "pending_payment"].includes(to)) {
+          return res.status(400).json({ error: "invalid_status" });
+        }
+        values.push(to);
+        updates.push(`status = $${values.length}`);
+        meta.to = to;
       }
-      const r = await pool.query(`UPDATE hub_bookings SET status = $2, updated_at = NOW() WHERE id = $1 RETURNING id, brand, status`, [req.params.id, to]);
+      // G3: admin override of the resolved payment mode (audited). null clears
+      // the override and returns the booking to its hold-time snapshot.
+      if ("payment_mode_override" in (req.body || {})) {
+        const o = req.body.payment_mode_override;
+        if (!(o === null || ["off", "optional", "required_deposit"].includes(String(o)))) {
+          return res.status(400).json({ error: "invalid_payment_mode_override" });
+        }
+        values.push(o === null ? null : String(o));
+        updates.push(`payment_mode_override = $${values.length}`);
+        meta.payment_mode_override = o;
+      }
+      if (!updates.length) return res.status(400).json({ error: "no_fields" });
+      values.push(String(req.params.id));
+      const r = await pool.query(`UPDATE hub_bookings SET ${updates.join(", ")}, updated_at = NOW() WHERE id = $${values.length} RETURNING id, brand, status, payment_mode_override`, values);
       if (!r.rows[0]) return res.status(404).json({ error: "unknown_booking" });
-      await audit(`admin:${(req.session as any)?.adminId || "unknown"}`, "booking.admin_override", "hub_bookings", String(req.params.id), { to });
+      await audit(`admin:${(req.session as any)?.adminId || "unknown"}`, "booking.admin_override", "hub_bookings", String(req.params.id), meta);
       res.json({ updated: r.rows[0] });
     } catch (error: any) {
       safeErr(res, error, "admin_override_failed");
@@ -638,6 +667,9 @@ function publicBooking(b: any) {
     // Non-PII analytics dimension needed to keep G8 attribution intact after
     // a payment redirect returns with only payment/booking query parameters.
     district: typeof b.source_json?.district === "string" && /^[a-z0-9-]{2,40}$/.test(b.source_json.district) ? b.source_json.district : null,
+    // G3: effective payment mode for this booking (override > snapshot).
+    // Non-PII; lets the widget render the correct payment step after OTP.
+    payment_mode: b.payment_mode_override || b.payment_mode_effective || null,
   };
 }
 

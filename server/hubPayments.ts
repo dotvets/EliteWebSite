@@ -6,6 +6,7 @@ import { runConfirmPipeline, loadBookingById, normalizeSaudiPhone } from "./hubB
 import { digitailRequest } from "./digitail";
 import { enqueueNotification, audit } from "./messaging";
 import { redactErrorMessage } from "./redact";
+import { effectiveBookingPaymentMode } from "./hubDynamicDeposit";
 
 // ============================================================================
 // Phase 3 (master document Part 7): MyFatoorah optional payment.
@@ -71,10 +72,9 @@ function verifyWebhookSignature(rawBody: Buffer | undefined, data: any, signatur
   }
 }
 
-function paymentAmountFor(booking: any, clinic: any, brand: any): number | null {
+function paymentAmountFor(booking: any, clinic: any, brand: any, mode: string): number | null {
   // required_deposit → clinic.deposit_amount_halalas; optional → service price
   // from the cached visit type, else brand config default. Never invented.
-  const mode = clinic.payment_mode || brand.payment_mode;
   if (mode === "required_deposit") return clinic.deposit_amount_halalas ?? null;
   const svc = booking.service_json || {};
   if (svc.price_halalas) return svc.price_halalas;
@@ -97,7 +97,8 @@ export function registerHubPaymentRoutes(app: Express) {
 
       const brand = (await pool.query(`SELECT * FROM hub_brands WHERE brand = $1`, [b.brand])).rows[0];
       const clinic = (await pool.query(`SELECT * FROM hub_clinics WHERE id = $1`, [b.clinic_id])).rows[0];
-      const mode = clinic.payment_mode || brand.payment_mode || "off";
+      // G3: admin override > hold-time dynamic snapshot > static config.
+      const mode = effectiveBookingPaymentMode(b, brand, clinic);
       if (mode === "off") return res.status(400).json({ error: "payment_disabled" });
 
       const choice = String(req.body?.choice || "");
@@ -109,7 +110,7 @@ export function registerHubPaymentRoutes(app: Express) {
       }
       if (choice !== "now") return res.status(400).json({ error: "invalid_choice" });
 
-      const amountHalalas = paymentAmountFor(b, clinic, brand);
+      const amountHalalas = paymentAmountFor(b, clinic, brand, mode);
       if (!amountHalalas || amountHalalas <= 0) return res.status(500).json({ error: "payment_amount_unconfigured" });
       if (!mfConfigured()) return res.status(503).json({ error: "payment_provider_unconfigured" });
 

@@ -234,6 +234,8 @@ CREATE TABLE IF NOT EXISTS hub_bookings (
   service_json jsonb NOT NULL,
   hold_expires_at timestamptz,
   payment_id varchar,
+  payment_mode_effective varchar,  -- G3: resolved at hold time (static or dynamic rule)
+  payment_mode_override varchar,   -- G3: admin override — always wins, audit-logged
   locale varchar NOT NULL DEFAULT 'ar',
   source_json jsonb NOT NULL DEFAULT '{}',
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -316,6 +318,9 @@ export async function ensureSchema() {
     for (const t of ["team_members", "testimonials", "offers", "blog_posts", "branches"]) {
       await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`);
     }
+    // Phase 4+ / G3: dynamic deposit columns (additive, idempotent).
+    await pool.query(`ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_effective varchar`);
+    await pool.query(`ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_override varchar`);
     // Phase 0: migrate the legacy single 'default' Digitail connection into
     // digitail_connections_v2 under the current "{env}:{scope}" identity.
     // Tokens stay encrypted exactly as they were — copied byte-for-byte, never re-encrypted.
