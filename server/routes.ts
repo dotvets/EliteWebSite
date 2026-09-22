@@ -112,6 +112,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerHubBookingRoutes } = await import("./hubBookings");
   registerHubBookingRoutes(app);
 
+  // Phase 3: MyFatoorah optional payment (ships payment_mode=off — Part 7).
+  const { registerHubPaymentRoutes } = await import("./hubPayments");
+  registerHubPaymentRoutes(app);
+
   const httpServer = createServer(app);
 
   return httpServer;

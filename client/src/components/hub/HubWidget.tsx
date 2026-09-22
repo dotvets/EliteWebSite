@@ -70,6 +70,11 @@ const t = {
     required: "هذا الحقل مطلوب",
     invalidPhone: "أدخل رقماً سعودياً صحيحاً",
     holdNote: "الموعد محجوز لك مؤقتاً — أكمل التحقق قبل انتهاء المهلة",
+    payTitle: "الدفع",
+    payNow: "ادفع الآن",
+    payClinic: "ادفع في العيادة",
+    payWaiting: "ننتظر تأكيد الدفع…",
+    payFailed: "لم يتم الدفع — حاول مجدداً أو ادفع في العيادة",
   },
   en: {
     title: "Book your appointment",
@@ -115,6 +120,11 @@ const t = {
     required: "Required",
     invalidPhone: "Enter a valid Saudi number",
     holdNote: "Your slot is temporarily held — verify before it expires",
+    payTitle: "Payment",
+    payNow: "Pay now",
+    payClinic: "Pay at clinic",
+    payWaiting: "Waiting for payment confirmation…",
+    payFailed: "Payment failed — retry or pay at clinic",
   },
 } as const;
 
@@ -192,7 +202,7 @@ export default function HubWidget() {
   const [loading, setLoading] = useState(false);
 
   // Details + OTP + confirmation state
-  const [step, setStep] = useState<"browse" | "details" | "otp" | "success">("browse");
+  const [step, setStep] = useState<"browse" | "details" | "otp" | "payment" | "success">("browse");
   const [form, setForm] = useState({ name: "", phone: "", petName: "", species: "", notes: "", website: "" });
   const [consent, setConsent] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -200,6 +210,8 @@ export default function HubWidget() {
   const [otp, setOtp] = useState("");
   const [resendAfter, setResendAfter] = useState(0);
   const [refCode, setRefCode] = useState<string | null>(null);
+  const [paymentMode, setPaymentMode] = useState<string>("off");
+  const [paymentWaiting, setPaymentWaiting] = useState(false);
   const [alternatives, setAlternatives] = useState<string[]>([]);
   const idemRef = useRef(idempotencyKey);
   idemRef.current = idempotencyKey;
@@ -232,6 +244,7 @@ export default function HubWidget() {
           return;
         }
         setFallback(j.fallback);
+        setPaymentMode(j.brand?.payment_mode || "off");
         setClinics(j.clinics || []);
       })
       .catch(() => setFatal("error"))
@@ -388,6 +401,10 @@ export default function HubWidget() {
         return;
       }
       track("otp_verified", { brand });
+      if (paymentMode !== "off") {
+        setStep("payment");
+        return;
+      }
       const c = await fetch(`/api/hub/${brand}/bookings/${bookingId}/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -412,6 +429,72 @@ export default function HubWidget() {
       setLoading(false);
     }
   }
+
+  async function choosePayment(choice: "now" | "clinic") {
+    if (!bookingId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`/api/hub/${brand}/bookings/${bookingId}/payment-choice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: form.phone.trim(), choice }),
+      });
+      const j = await r.json();
+      if (!r.ok) {
+        setError(j.error || "error");
+        return;
+      }
+      if (choice === "now" && j.invoiceUrl) {
+        window.location.href = j.invoiceUrl;
+        return;
+      }
+      if (j.confirmed) {
+        setRefCode(j.ref);
+        setStep("success");
+        track("booking_confirmed", { brand, clinic: clinic?.id });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Payment return: never trust the redirect — poll until webhook confirms (7.1/7.2)
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const ret = p.get("payment");
+    const bid = p.get("booking");
+    if (!ret || !bid || !/^[0-9a-f-]{36}$/i.test(bid)) return;
+    setBookingId(bid);
+    if (ret === "error") {
+      setError("payFailed");
+      return;
+    }
+    setPaymentWaiting(true);
+    let tries = 0;
+    const poll = setInterval(async () => {
+      tries += 1;
+      try {
+        const r = await fetch(`/api/hub/${brand}/bookings/${bid}`);
+        const j = await r.json();
+        if (j.booking?.status === "confirmed") {
+          clearInterval(poll);
+          setPaymentWaiting(false);
+          setRefCode(j.ref);
+          setStep("success");
+          track("booking_confirmed", { brand });
+          if (j.payment?.status === "paid") {
+            track("purchase", { brand, currency: j.payment.currency || "SAR", value: (j.payment.amount_halalas || 0) / 100, transaction_id: bid });
+          }
+        } else if (j.booking?.status === "failed" || tries > 20) {
+          clearInterval(poll);
+          setPaymentWaiting(false);
+          setError("payFailed");
+        }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(poll);
+  }, []);
 
   function icsUrl(): string {
     if (!slot || !clinic || !service) return "#";
@@ -511,6 +594,30 @@ export default function HubWidget() {
             {loading ? L.loading : L.continue}
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (step === "payment") {
+    return (
+      <div dir={dir} className="mx-auto max-w-xl p-4 space-y-4">
+        <h2 className="text-xl font-bold text-center">{L.payTitle}</h2>
+        {paymentWaiting ? (
+          <div className="text-center space-y-3"><Skeleton rows={2} /><p>{L.payWaiting}</p></div>
+        ) : (
+          <div className="grid gap-3">
+            <button onClick={() => choosePayment("now")} disabled={loading} className="rounded-xl border p-5 text-start hover:bg-accent min-h-[48px] disabled:opacity-50">
+              <span className="font-semibold block">{L.payNow}</span>
+            </button>
+            {paymentMode === "optional" && (
+              <button onClick={() => choosePayment("clinic")} disabled={loading} className="rounded-xl border p-5 text-start hover:bg-accent min-h-[48px] disabled:opacity-50">
+                <span className="font-semibold block">{L.payClinic}</span>
+              </button>
+            )}
+          </div>
+        )}
+        {error && <p className="text-center text-red-600 text-sm">{error in L ? (L as any)[error] : L.error}</p>}
+        <FallbackCta fallback={fallback} lang={lang} />
       </div>
     );
   }
