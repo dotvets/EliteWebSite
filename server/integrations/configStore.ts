@@ -148,9 +148,6 @@ function computeStatus(provider: ProviderSpec, row: ConfigRow | null, health: Aw
   const secrets = secretStates(provider);
   const missingRequired = secrets.some((s) => s.required && s.state === "missing");
   if (row?.blocked_reason) return "blocked";
-  if (provider.testBlockedReason && secrets.some((s) => s.envName === "GOOGLE_ADS_DEVELOPER_TOKEN" && s.state === "missing")) {
-    return "blocked"; // documented blocker (developer token) — not "not_configured"
-  }
   if (!row) {
     if (!externallyConfigured(provider)) return "not_configured";
     // Externally configured integrations still surface live health signals.
@@ -183,7 +180,7 @@ export async function getIntegrationView(providerKey: string): Promise<Integrati
     environment: row?.environment ?? null,
     enabled: row?.enabled ?? false,
     status: computeStatus(provider, row, health),
-    blockedReason: row?.blocked_reason ?? (provider.testBlockedReason && !process.env.GOOGLE_ADS_DEVELOPER_TOKEN ? provider.testBlockedReason : null),
+    blockedReason: row?.blocked_reason ?? null,
     config: row?.config_json ?? null,
     source: row ? "dashboard" : externallyConfigured(provider) ? "environment" : "none",
     secrets: secretStates(provider),

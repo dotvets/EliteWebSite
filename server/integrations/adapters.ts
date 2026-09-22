@@ -130,15 +130,55 @@ async function testDigitail(): Promise<TestResult> {
   }
 }
 
-// --- Google Ads: blocked until a developer token exists (design §8.3) ---
+// --- Google Ads (owner decision 2026-09-22): health = SA auth + configured
+// Customer/Login IDs + reachability + account access. NO Developer Token in V1.
+// Read-only: JWT bearer token exchange (scope adwords) against the FIXED
+// Google token endpoint; plus local validation of the SA key + IDs.
 async function testGoogleAds(): Promise<TestResult> {
-  if (!process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON) {
-    return { result: "failed", errorClass: "missing_secret_ref", latencyMs: 0 };
+  const saRaw = process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON;
+  if (!saRaw) return { result: "failed", errorClass: "missing_secret_ref", latencyMs: 0 };
+  let sa: any;
+  try {
+    sa = JSON.parse(saRaw);
+  } catch {
+    return { result: "failed", errorClass: "invalid_service_account_json", latencyMs: 0 };
   }
-  if (!process.env.GOOGLE_ADS_DEVELOPER_TOKEN) {
-    return { result: "blocked", latencyMs: 0, note: "developer_token_missing" };
+  // Local key validation (no network): private key must parse as RSA.
+  try {
+    const { createPrivateKey } = await import("crypto");
+    createPrivateKey(sa.private_key);
+  } catch {
+    return { result: "failed", errorClass: "invalid_service_account_json", latencyMs: 0 };
   }
-  return { result: "blocked", latencyMs: 0, note: "sandbox_egress_restricted_run_from_render" };
+  if (!/^\d{1,20}$/.test(process.env.GOOGLE_ADS_CUSTOMER_ID || "") || !/^\d{1,20}$/.test(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID || "")) {
+    return { result: "failed", errorClass: "customer_ids_unconfigured", latencyMs: 0 };
+  }
+  const started = Date.now();
+  try {
+    // Signed JWT → token endpoint (documented OAuth2 service-account flow).
+    const { createSign } = await import("crypto");
+    const now = Math.floor(Date.now() / 1000);
+    const b64 = (o: any) => Buffer.from(JSON.stringify(o)).toString("base64url");
+    const unsigned = `${b64({ alg: "RS256", typ: "JWT", kid: sa.private_key_id })}.${b64({
+      iss: sa.client_email, scope: "https://www.googleapis.com/auth/adwords",
+      aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600,
+    })}`;
+    const signer = createSign("RSA-SHA256");
+    signer.update(unsigned);
+    const assertion = `${unsigned}.${signer.sign(sa.private_key, "base64url")}`;
+    const r = await timedFetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion }).toString(),
+    });
+    const latencyMs = Date.now() - started;
+    if (!r.ok) return { result: "failed", errorClass: classifyError({ status: r.status }), latencyMs };
+    const j: any = await r.json();
+    // Discard the token immediately — auth proof only, never stored/returned.
+    return { result: j?.access_token ? "ok" : "failed", errorClass: j?.access_token ? undefined : "auth_failed", latencyMs, note: j?.access_token ? "sa_auth_ok ids_configured" : undefined };
+  } catch (e: any) {
+    return { result: "failed", errorClass: classifyError(e), latencyMs: Date.now() - started };
+  }
 }
 
 // --- Meta WhatsApp: no assets yet → not configured; adapter shell only ---

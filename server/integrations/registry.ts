@@ -58,7 +58,6 @@ export interface ProviderSpec {
   categoryC: string[];
   /** Health test capability — read-only operations only */
   testCapability: "readonly" | "none";
-  testBlockedReason?: string; // documented external blocker (e.g. missing developer token)
   webhookHealth: boolean; // tracks webhook_last_event_at
 }
 
@@ -120,13 +119,14 @@ export const PROVIDERS: ProviderSpec[] = [
       { key: "customer_id", kind: "string", pattern: NUM_ID_RE, required: true },
       { key: "login_customer_id", kind: "string", pattern: NUM_ID_RE },
     ],
+    // Owner decision (2026-09-22): NO Developer Token field in V1. Health is
+    // based on: valid Service Account auth + configured Customer/Login IDs +
+    // reachability + actual account access. Explorer Access is already enabled.
     secretRefs: [
       { key: "service_account_json", envName: "GOOGLE_ADS_SERVICE_ACCOUNT_JSON", required: true },
-      { key: "developer_token", envName: "GOOGLE_ADS_DEVELOPER_TOKEN", required: false },
     ],
     categoryC: [],
     testCapability: "readonly",
-    testBlockedReason: "developer_token_missing",
     webhookHealth: false,
   },
   {

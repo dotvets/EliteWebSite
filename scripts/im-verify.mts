@@ -149,11 +149,11 @@ await check("store: view computes status + hides secrets", async () => {
   assert.ok(v!.secrets.every((s) => s.state === "configured"));
 });
 
-await check("store: google_ads blocked (developer token missing)", async () => {
+await check("store: google_ads configured_externally (no developer-token concept in V1)", async () => {
   process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "{}"; // presence only
   const v = await store.getIntegrationView("google_ads");
-  assert.equal(v!.status, "blocked");
-  assert.equal(v!.blockedReason, "developer_token_missing");
+  assert.equal(v!.status, "configured_externally");
+  assert.equal(v!.blockedReason, null);
 });
 
 await check("store: meta_whatsapp not_configured", async () => {
@@ -186,6 +186,11 @@ await check("routing: drpaws route rejected + never resolves", async () => {
   const r = await store.setRoute({ brandId: "drpaws", purpose: "otp", providerKey: "bevatel", environment: "production", actor: "test" });
   assert.ok(!r.ok && r.error === "protected_asset");
   assert.equal(await store.resolveRouteProvider("drpaws", "otp", "production"), null);
+});
+
+await check("routing: meta_whatsapp unavailable until configured (owner decision #4)", async () => {
+  const r = await store.setRoute({ brandId: "elite", purpose: "booking_confirmation", providerKey: "meta_whatsapp", environment: "production", actor: "test" });
+  assert.ok(!r.ok && r.error === "provider_not_ready");
 });
 
 await check("routing: non-messaging provider rejected", async () => {
@@ -237,9 +242,23 @@ await check("flag: INTEGRATIONS_MANAGER gates the manager", () => {
 });
 
 const { runSafeTest } = await import("../server/integrations/adapters");
-await check("adapters: google_ads blocked without developer token", async () => {
+await check("adapters: google_ads never reports developer_token_missing", async () => {
+  process.env.GOOGLE_ADS_CUSTOMER_ID = "1972596431";
+  process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID = "4371731752";
   const r = await runSafeTest("google_ads");
-  assert.ok("result" in r && r.result === "blocked");
+  assert.ok("result" in r);
+  if ("result" in r) {
+    assert.notEqual(r.note, "developer_token_missing");
+    assert.notEqual(r.errorClass, "developer_token_missing");
+  }
+});
+
+await check("adapters: google_ads rejects corrupt SA JSON cleanly", async () => {
+  const prev = process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON;
+  process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "not-json";
+  const r = await runSafeTest("google_ads");
+  assert.ok("result" in r && r.result === "failed" && r.errorClass === "invalid_service_account_json");
+  if (prev) process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = prev;
 });
 
 await check("adapters: meta missing secrets fails cleanly", async () => {
