@@ -161,6 +161,9 @@ export function registerCmsRoutes(app: Express) {
         announcement: val("settings.announcement"),
       },
       branches: await db.select().from(branches).where(eq(branches.published, "true")),
+      features: {
+        district_pages: (process.env.DISTRICT_PAGES_ENABLED || "false").toLowerCase() === "true",
+      },
     });
   });
 }

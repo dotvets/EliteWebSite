@@ -22,6 +22,7 @@ import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import HubWidget from "@/components/hub/HubWidget";
+import { normalizeDistrictSlug } from "@/data/districtPages";
 
 function Router() {
   return (
@@ -54,10 +55,12 @@ function AnalyticsPageView() {
 
     if (!gtag) return;
 
+    const district = normalizeDistrictSlug(new URLSearchParams(window.location.search).get("district"));
     gtag("event", "page_view", {
       page_path: loc,
       page_location: window.location.href,
       page_title: document.title,
+      ...(district ? { district } : {}),
     });
   }, [loc]);
 
