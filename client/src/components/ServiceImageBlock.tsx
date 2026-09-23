@@ -18,7 +18,7 @@ export default function ServiceImageBlock({
   title,
   description,
   reverse = false,
-  className = ""
+  className = "",
 }: ServiceImageBlockProps) {
   return (
     <ContentWithMediaSection
@@ -28,14 +28,14 @@ export default function ServiceImageBlock({
       reverse={reverse}
       className={className}
     >
-        <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
-          <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">
-            {title}
-          </h2>
-          <p className="text-base sm:text-lg text-muted-foreground font-body">
-            {description}
-          </p>
-        </AnimatedContent>
-      </ContentWithMediaSection>
+      <AnimatedContent className="space-y-4 text-center lg:text-start ltr:lg:text-left rtl:lg:text-right">
+        <h2 className="text-2xl sm:text-3xl font-bold font-heading text-primary">
+          {title}
+        </h2>
+        <p className="text-base sm:text-lg text-muted-foreground font-body">
+          {description}
+        </p>
+      </AnimatedContent>
+    </ContentWithMediaSection>
   );
 }

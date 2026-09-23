@@ -5,7 +5,8 @@ import nodemailer from "nodemailer";
 // Until configured, emails are skipped gracefully and logged.
 
 export async function sendNotification(subject: string, html: string) {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_EMAIL } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_EMAIL } =
+    process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !NOTIFY_EMAIL) {
     console.log("[email] SMTP not configured — skipping:", subject);
     return { sent: false, reason: "smtp_not_configured" };

@@ -19,24 +19,37 @@ export type DynamicDepositRule = {
 };
 
 export function dynamicDepositEnabled(): boolean {
-  return (process.env.DYNAMIC_DEPOSIT_ENABLED || "false").toLowerCase() === "true";
+  return (
+    (process.env.DYNAMIC_DEPOSIT_ENABLED || "false").toLowerCase() === "true"
+  );
 }
 
 // Parse + validate the rule from brand config. Strict: any malformed value
 // disables the policy (fail-safe to the static brand/clinic payment_mode).
-export function parseDynamicDepositRule(configJson: any): DynamicDepositRule | null {
+export function parseDynamicDepositRule(
+  configJson: any,
+): DynamicDepositRule | null {
   const cfg = configJson?.dynamic_deposit;
   if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return null;
   if (cfg.enabled !== true) return null;
   const threshold = Number(cfg.no_show_threshold);
   const windowMonths = Number(cfg.window_months);
-  if (!Number.isInteger(threshold) || threshold < 1 || threshold > 20) return null;
-  if (!Number.isInteger(windowMonths) || windowMonths < 1 || windowMonths > 36) return null;
-  return { enabled: true, no_show_threshold: threshold, window_months: windowMonths };
+  if (!Number.isInteger(threshold) || threshold < 1 || threshold > 20)
+    return null;
+  if (!Number.isInteger(windowMonths) || windowMonths < 1 || windowMonths > 36)
+    return null;
+  return {
+    enabled: true,
+    no_show_threshold: threshold,
+    window_months: windowMonths,
+  };
 }
 
 // Pure decision — inputs only, no I/O, no hardcoded thresholds.
-export function decideDynamicMode(rule: DynamicDepositRule, noShowCount: number): "required_deposit" | null {
+export function decideDynamicMode(
+  rule: DynamicDepositRule,
+  noShowCount: number,
+): "required_deposit" | null {
   return noShowCount >= rule.no_show_threshold ? "required_deposit" : null;
 }
 
@@ -71,12 +84,23 @@ export async function resolvePaymentModeForHold(
   );
   const count = Number(r.rows[0]?.c ?? 0);
   const decided = decideDynamicMode(rule, count);
-  if (!decided) return { mode: staticMode, source: "static", no_show_count: count };
+  if (!decided)
+    return { mode: staticMode, source: "static", no_show_count: count };
   return { mode: decided, source: "dynamic_rule", no_show_count: count };
 }
 
 // Effective mode for an EXISTING booking: admin override > hold snapshot >
 // static fallback (for bookings created before G3 columns existed).
-export function effectiveBookingPaymentMode(booking: any, brand: any, clinic: any): string {
-  return booking?.payment_mode_override || booking?.payment_mode_effective || clinic?.payment_mode || brand?.payment_mode || "off";
+export function effectiveBookingPaymentMode(
+  booking: any,
+  brand: any,
+  clinic: any,
+): string {
+  return (
+    booking?.payment_mode_override ||
+    booking?.payment_mode_effective ||
+    clinic?.payment_mode ||
+    brand?.payment_mode ||
+    "off"
+  );
 }

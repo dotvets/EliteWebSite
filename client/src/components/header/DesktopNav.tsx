@@ -15,8 +15,8 @@ export function DesktopNav({ items }: DesktopNavProps) {
   const [location] = useLocation();
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return location === '/';
+    if (href === "/") {
+      return location === "/";
     }
     return location === href;
   };
@@ -25,9 +25,13 @@ export function DesktopNav({ items }: DesktopNavProps) {
     <nav className="hidden lg:flex items-center gap-8">
       {items.map((item, index) => {
         const active = isActive(item.href);
-        const activeClasses = active ? "text-primary underline underline-offset-8 decoration-2" : "text-foreground hover:text-primary";
-        const standaloneClasses = item.standalone ? "ml-8 pl-8 border-l border-muted-foreground/30" : "";
-        
+        const activeClasses = active
+          ? "text-primary underline underline-offset-8 decoration-2"
+          : "text-foreground hover:text-primary";
+        const standaloneClasses = item.standalone
+          ? "ml-8 pl-8 border-l border-muted-foreground/30"
+          : "";
+
         if (item.standalone) {
           return (
             <span
@@ -39,11 +43,11 @@ export function DesktopNav({ items }: DesktopNavProps) {
             </span>
           );
         }
-        
+
         return item.onClick ? (
           <span
             key={item.href}
-            data-testid={`link-nav-${item.href.replace('/', '').replace('#', '') || 'home'}`}
+            data-testid={`link-nav-${item.href.replace("/", "").replace("#", "") || "home"}`}
             className={`${activeClasses} transition-colors font-medium cursor-pointer`}
             onClick={item.onClick}
           >
@@ -52,7 +56,7 @@ export function DesktopNav({ items }: DesktopNavProps) {
         ) : (
           <Link key={item.href} href={item.href}>
             <span
-              data-testid={`link-nav-${item.href.replace('/', '') || 'home'}`}
+              data-testid={`link-nav-${item.href.replace("/", "") || "home"}`}
               className={`${activeClasses} transition-colors font-medium cursor-pointer`}
             >
               {item.label}

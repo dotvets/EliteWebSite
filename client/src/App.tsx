@@ -49,13 +49,14 @@ function AnalyticsPageView() {
   useEffect(() => {
     if (loc.startsWith("/admin")) return;
 
-    const gtag = (
-      window as Window & { gtag?: (...args: unknown[]) => void }
-    ).gtag;
+    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void })
+      .gtag;
 
     if (!gtag) return;
 
-    const district = normalizeDistrictSlug(new URLSearchParams(window.location.search).get("district"));
+    const district = normalizeDistrictSlug(
+      new URLSearchParams(window.location.search).get("district"),
+    );
     gtag("event", "page_view", {
       page_path: loc,
       page_location: window.location.href,

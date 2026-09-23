@@ -7,7 +7,12 @@ interface TeamSlideItemProps {
   index: number;
 }
 
-export function TeamSlideItem({ name, image, initials, index }: TeamSlideItemProps) {
+export function TeamSlideItem({
+  name,
+  image,
+  initials,
+  index,
+}: TeamSlideItemProps) {
   return (
     <div className="flex-[0_0_100%] min-w-0 px-4">
       <div className="flex flex-col items-center">
@@ -26,7 +31,7 @@ export function TeamSlideItem({ name, image, initials, index }: TeamSlideItemPro
             </AvatarFallback>
           </Avatar>
         )}
-        <h3 
+        <h3
           className="text-2xl sm:text-3xl font-bold font-heading text-foreground mt-12 sm:mt-16"
           data-testid={`text-team-name-${index}`}
         >

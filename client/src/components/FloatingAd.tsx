@@ -24,7 +24,8 @@ export default function FloatingAd() {
       .then((rows: ContentRow[]) => {
         if (cancelled || !Array.isArray(rows)) return;
         const adRow = rows.find((row) => row.key === "ads.floating") || null;
-        const linkRow = rows.find((row) => row.key === "ads.floating.link") || null;
+        const linkRow =
+          rows.find((row) => row.key === "ads.floating.link") || null;
         setAd(adRow);
         setLink((linkRow?.valueAr || linkRow?.valueEn || "").trim());
       })
@@ -59,7 +60,8 @@ export default function FloatingAd() {
     setImageFailed(false);
   }, [imageUrl]);
 
-  if (closed || !imageUrl || imageFailed || typeof document === "undefined") return null;
+  if (closed || !imageUrl || imageFailed || typeof document === "undefined")
+    return null;
 
   const image = (
     <img
@@ -85,7 +87,9 @@ export default function FloatingAd() {
         left: isMobile ? 12 : 20,
         bottom: isMobile ? 12 : 20,
         zIndex: 2147483000,
-        width: isMobile ? "calc(100vw - 24px)" : "min(380px, calc(100vw - 40px))",
+        width: isMobile
+          ? "calc(100vw - 24px)"
+          : "min(380px, calc(100vw - 40px))",
         maxWidth: isMobile ? 420 : 380,
         display: "block",
         visibility: "visible",
@@ -99,16 +103,22 @@ export default function FloatingAd() {
             href={link}
             target={isExternalLink ? "_blank" : undefined}
             rel={isExternalLink ? "noopener noreferrer" : undefined}
-            aria-label={language === "ar" ? "فتح رابط الإعلان" : "Open advertisement link"}
+            aria-label={
+              language === "ar" ? "فتح رابط الإعلان" : "Open advertisement link"
+            }
             style={{ display: "block", width: "100%", cursor: "pointer" }}
           >
             {image}
           </a>
-        ) : image}
+        ) : (
+          image
+        )}
 
         <button
           type="button"
-          aria-label={language === "ar" ? "إغلاق الإعلان" : "Close advertisement"}
+          aria-label={
+            language === "ar" ? "إغلاق الإعلان" : "Close advertisement"
+          }
           onClick={() => setClosed(true)}
           style={{
             position: "absolute",

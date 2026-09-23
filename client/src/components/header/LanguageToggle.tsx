@@ -8,15 +8,15 @@ interface LanguageToggleProps {
   testId?: string;
 }
 
-export function LanguageToggle({ 
-  variant = "ghost", 
+export function LanguageToggle({
+  variant = "ghost",
   className = "",
-  testId = "button-language-toggle"
+  testId = "button-language-toggle",
 }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
 
   const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
+    setLanguage(language === "en" ? "ar" : "en");
   };
 
   return (
@@ -27,7 +27,7 @@ export function LanguageToggle({
       className={`gap-2 ${className}`}
     >
       <Globe className="w-5 h-5" />
-      <span>{language === 'en' ? 'العربية' : 'English'}</span>
+      <span>{language === "en" ? "العربية" : "English"}</span>
     </Button>
   );
 }

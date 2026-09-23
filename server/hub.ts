@@ -52,9 +52,18 @@ function publicRateLimit(req: Request, res: Response): boolean {
   }
   bucket.count += 1;
   res.set("X-RateLimit-Limit", String(PUBLIC_RATE_LIMIT));
-  res.set("X-RateLimit-Remaining", String(Math.max(0, PUBLIC_RATE_LIMIT - bucket.count)));
+  res.set(
+    "X-RateLimit-Remaining",
+    String(Math.max(0, PUBLIC_RATE_LIMIT - bucket.count)),
+  );
   if (bucket.count > PUBLIC_RATE_LIMIT) {
-    res.status(429).json({ error: "rate_limited", retry_after_seconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) });
+    res.status(429).json({
+      error: "rate_limited",
+      retry_after_seconds: Math.max(
+        1,
+        Math.ceil((bucket.resetAt - now) / 1000),
+      ),
+    });
     return false;
   }
   return true;
@@ -89,12 +98,21 @@ type ClinicRow = {
 };
 
 async function getBrand(brand: string): Promise<BrandRow | null> {
-  const r = await pool.query(`SELECT * FROM hub_brands WHERE brand = $1 LIMIT 1`, [brand]);
+  const r = await pool.query(
+    `SELECT * FROM hub_brands WHERE brand = $1 LIMIT 1`,
+    [brand],
+  );
   return r.rows[0] || null;
 }
 
-async function getClinic(brand: string, publicId: string): Promise<ClinicRow | null> {
-  const r = await pool.query(`SELECT * FROM hub_clinics WHERE brand = $1 AND id = $2 LIMIT 1`, [brand, publicId]);
+async function getClinic(
+  brand: string,
+  publicId: string,
+): Promise<ClinicRow | null> {
+  const r = await pool.query(
+    `SELECT * FROM hub_clinics WHERE brand = $1 AND id = $2 LIMIT 1`,
+    [brand, publicId],
+  );
   return r.rows[0] || null;
 }
 
@@ -111,7 +129,11 @@ function validEmergencyWebhookUrl(raw: string): boolean {
     const url = new URL(raw);
     if (url.protocol !== "https:" || url.username || url.password) return false;
     const host = url.hostname.toLowerCase();
-    return !(host === "localhost" || host.endsWith(".local") || /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host));
+    return !(
+      host === "localhost" ||
+      host.endsWith(".local") ||
+      /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host)
+    );
   } catch {
     return false;
   }
@@ -124,7 +146,10 @@ function brandGate(brand: BrandRow | null, res: Response): brand is BrandRow {
     return false;
   }
   if (!brand.booking_enabled) {
-    res.status(404).json({ error: "booking_unavailable", fallback: brandFallbackContact(brand) });
+    res.status(404).json({
+      error: "booking_unavailable",
+      fallback: brandFallbackContact(brand),
+    });
     return false;
   }
   return true;
@@ -136,10 +161,15 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function safeError(res: Response, error: any, code: string) {
   console.error(`[hub] ${code}:`, redactErrorMessage(error));
   const status = Number(error?.status) || 502;
-  const upstreamDetails = error?.details ? redactSecrets(JSON.stringify(error.details)).slice(0, 500) : undefined;
+  const upstreamDetails = error?.details
+    ? redactSecrets(JSON.stringify(error.details)).slice(0, 500)
+    : undefined;
   res.status(status === 401 || status === 403 ? 502 : status).json({
     error: code,
-    details: redactSecrets(String(error?.message || "upstream error")).slice(0, 300),
+    details: redactSecrets(String(error?.message || "upstream error")).slice(
+      0,
+      300,
+    ),
     ...(upstreamDetails ? { upstream: upstreamDetails } : {}),
   });
 }
@@ -152,12 +182,16 @@ async function syncClinicsFromDigitail() {
   const me = await digitailApi(`/auth/me?include=multipleClinic`);
   // Live response carries the clinic list under `clinics` (verified 2026-09-21);
   // keep `multipleClinic` as a fallback alias.
-  const clinics: Array<{ id: number; name: string; slug: string; logo?: string }> =
-    me?.data?.multipleClinic || me?.data?.clinics || [];
+  const clinics: Array<{
+    id: number;
+    name: string;
+    slug: string;
+    logo?: string;
+  }> = me?.data?.multipleClinic || me?.data?.clinics || [];
 
   // Brand assignment is CONFIG, not code: HUB_CLINIC_BRAND_MAP='{"3010":"elite",...}'.
   // Unknown clinics fall back to the connection scope as brand (sandbox scope "elite").
-  let brandMap: Record<string, string> = {};
+  let brandMap: Record<string, string>;
   try {
     brandMap = JSON.parse(process.env.HUB_CLINIC_BRAND_MAP || "{}");
   } catch {
@@ -177,7 +211,14 @@ async function syncClinicsFromDigitail() {
          name_ar = EXCLUDED.name_ar,
          name_en = EXCLUDED.name_en,
          config_json = hub_clinics.config_json || EXCLUDED.config_json`,
-      [publicId, brand, c.id, c.name, c.name, JSON.stringify({ slug: c.slug, logo: c.logo || null })],
+      [
+        publicId,
+        brand,
+        c.id,
+        c.name,
+        c.name,
+        JSON.stringify({ slug: c.slug, logo: c.logo || null }),
+      ],
     );
     synced.push(publicId);
   }
@@ -224,7 +265,9 @@ function shapeDoctor(v: any) {
 // ---------------------------------------------------------------------------
 export function registerHubRoutes(app: Express) {
   if (!dbEnabled) {
-    app.all("/api/hub/*", (_req, res) => res.status(503).json({ error: "database_not_configured" }));
+    app.all("/api/hub/*", (_req, res) =>
+      res.status(503).json({ error: "database_not_configured" }),
+    );
     return;
   }
 
@@ -242,14 +285,23 @@ export function registerHubRoutes(app: Express) {
   app.patch("/api/hub/admin/brands/:brand", requireAdmin, async (req, res) => {
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
-      const allowed = ["booking_enabled", "messaging_enabled", "payment_mode"] as const;
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
+      const allowed = [
+        "booking_enabled",
+        "messaging_enabled",
+        "payment_mode",
+      ] as const;
       const updates: string[] = [];
       const values: any[] = [];
       for (const key of allowed) {
         if (key in (req.body || {})) {
           if (key === "payment_mode") {
-            if (!["off", "optional", "required_deposit"].includes(String(req.body[key]))) {
+            if (
+              !["off", "optional", "required_deposit"].includes(
+                String(req.body[key]),
+              )
+            ) {
               return res.status(400).json({ error: "invalid_payment_mode" });
             }
           } else if (typeof req.body[key] !== "boolean") {
@@ -261,120 +313,197 @@ export function registerHubRoutes(app: Express) {
       }
       if ("emergency_config" in (req.body || {})) {
         const cfg = req.body.emergency_config;
-        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return res.status(400).json({ error: "invalid_emergency_config" });
-        const allowedKeys = ["enabled", "webhook_url", "email", "phone", "whatsapp"];
-        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k))) return res.status(400).json({ error: "invalid_emergency_config" });
+        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg))
+          return res.status(400).json({ error: "invalid_emergency_config" });
+        const allowedKeys = [
+          "enabled",
+          "webhook_url",
+          "email",
+          "phone",
+          "whatsapp",
+        ];
+        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k)))
+          return res.status(400).json({ error: "invalid_emergency_config" });
         const clean: Record<string, any> = {};
         if ("enabled" in cfg) {
-          if (typeof cfg.enabled !== "boolean") return res.status(400).json({ error: "invalid_emergency_enabled" });
+          if (typeof cfg.enabled !== "boolean")
+            return res.status(400).json({ error: "invalid_emergency_enabled" });
           clean.enabled = cfg.enabled;
         }
         if ("webhook_url" in cfg) {
-          if (!(cfg.webhook_url === null || (typeof cfg.webhook_url === "string" && cfg.webhook_url.length <= 500 && validEmergencyWebhookUrl(cfg.webhook_url)))) {
-            return res.status(400).json({ error: "invalid_emergency_webhook_url" });
+          if (!(
+            cfg.webhook_url === null ||
+            (typeof cfg.webhook_url === "string" &&
+              cfg.webhook_url.length <= 500 &&
+              validEmergencyWebhookUrl(cfg.webhook_url))
+          )) {
+            return res
+              .status(400)
+              .json({ error: "invalid_emergency_webhook_url" });
           }
           clean.webhook_url = cfg.webhook_url;
         }
         if ("email" in cfg) {
-          if (typeof cfg.email !== "boolean") return res.status(400).json({ error: "invalid_emergency_email" });
+          if (typeof cfg.email !== "boolean")
+            return res.status(400).json({ error: "invalid_emergency_email" });
           clean.email = cfg.email;
         }
         for (const key of ["phone", "whatsapp"] as const) {
           if (key in cfg) {
             const value = cfg[key];
-            if (!(value === null || (typeof value === "string" && /^\+?\d{8,15}$/.test(value)))) {
-              return res.status(400).json({ error: `invalid_emergency_${key}` });
+            if (!(
+              value === null ||
+              (typeof value === "string" && /^\+?\d{8,15}$/.test(value))
+            )) {
+              return res
+                .status(400)
+                .json({ error: `invalid_emergency_${key}` });
             }
             clean[key] = value;
           }
         }
         values.push(JSON.stringify(clean));
-        updates.push(`config_json = jsonb_set(config_json, '{emergency}', $${values.length}::jsonb, true)`);
+        updates.push(
+          `config_json = jsonb_set(config_json, '{emergency}', $${values.length}::jsonb, true)`,
+        );
       }
       // G3: dynamic deposit rule lives in config_json.dynamic_deposit — never in code.
       if ("dynamic_deposit_config" in (req.body || {})) {
         const cfg = req.body.dynamic_deposit_config;
-        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return res.status(400).json({ error: "invalid_dynamic_deposit_config" });
+        if (!cfg || typeof cfg !== "object" || Array.isArray(cfg))
+          return res
+            .status(400)
+            .json({ error: "invalid_dynamic_deposit_config" });
         const allowedKeys = ["enabled", "no_show_threshold", "window_months"];
-        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k))) return res.status(400).json({ error: "invalid_dynamic_deposit_config" });
+        if (Object.keys(cfg).some((k) => !allowedKeys.includes(k)))
+          return res
+            .status(400)
+            .json({ error: "invalid_dynamic_deposit_config" });
         const clean: Record<string, any> = {};
         if ("enabled" in cfg) {
-          if (typeof cfg.enabled !== "boolean") return res.status(400).json({ error: "invalid_dynamic_deposit_enabled" });
+          if (typeof cfg.enabled !== "boolean")
+            return res
+              .status(400)
+              .json({ error: "invalid_dynamic_deposit_enabled" });
           clean.enabled = cfg.enabled;
         }
         if ("no_show_threshold" in cfg) {
           const v = Number(cfg.no_show_threshold);
-          if (!Number.isInteger(v) || v < 1 || v > 20) return res.status(400).json({ error: "invalid_no_show_threshold" });
+          if (!Number.isInteger(v) || v < 1 || v > 20)
+            return res.status(400).json({ error: "invalid_no_show_threshold" });
           clean.no_show_threshold = v;
         }
         if ("window_months" in cfg) {
           const v = Number(cfg.window_months);
-          if (!Number.isInteger(v) || v < 1 || v > 36) return res.status(400).json({ error: "invalid_window_months" });
+          if (!Number.isInteger(v) || v < 1 || v > 36)
+            return res.status(400).json({ error: "invalid_window_months" });
           clean.window_months = v;
         }
         values.push(JSON.stringify(clean));
-        updates.push(`config_json = jsonb_set(config_json, '{dynamic_deposit}', $${values.length}::jsonb, true)`);
+        updates.push(
+          `config_json = jsonb_set(config_json, '{dynamic_deposit}', $${values.length}::jsonb, true)`,
+        );
       }
       if (!updates.length) return res.status(400).json({ error: "no_fields" });
       values.push(brandParam);
-      const r = await pool.query(`UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode, config_json`, values);
+      const r = await pool.query(
+        `UPDATE hub_brands SET ${updates.join(", ")} WHERE brand = $${values.length} RETURNING brand, booking_enabled, messaging_enabled, payment_mode, config_json`,
+        values,
+      );
       if (!r.rows[0]) return res.status(404).json({ error: "unknown_brand" });
-      await audit(`admin:${(req.session as any)?.adminId || "unknown"}`, "hub.brand_update", "hub_brands", brandParam, { fields: Object.keys(req.body || {}) });
+      await audit(
+        `admin:${(req.session as any)?.adminId || "unknown"}`,
+        "hub.brand_update",
+        "hub_brands",
+        brandParam,
+        { fields: Object.keys(req.body || {}) },
+      );
       const updated = r.rows[0];
       const emergency = (updated.config_json || {}).emergency || {};
       delete updated.config_json;
-      res.json({ updated: { ...updated, emergency_configured: emergency.enabled === true && (!!emergency.webhook_url || emergency.email === true) } });
+      res.json({
+        updated: {
+          ...updated,
+          emergency_configured:
+            emergency.enabled === true &&
+            (!!emergency.webhook_url || emergency.email === true),
+        },
+      });
     } catch (error: any) {
       safeError(res, error, "hub_brand_update_failed");
     }
   });
 
-  app.patch("/api/hub/admin/clinics/:clinicId", requireAdmin, async (req, res) => {
-    try {
-      const clinicId = String(req.params.clinicId || "");
-      if (!/^[a-z][a-z0-9_-]{0,31}:\d+$/.test(clinicId)) return res.status(400).json({ error: "invalid_clinic_id" });
-      const body = req.body || {};
-      const updates: string[] = [];
-      const values: any[] = [];
-      if ("booking_enabled" in body) {
-        if (typeof body.booking_enabled !== "boolean") return res.status(400).json({ error: "invalid_booking_enabled" });
-        values.push(body.booking_enabled);
-        updates.push(`booking_enabled = $${values.length}`);
-      }
-      if ("payment_mode" in body) {
-        const mode = body.payment_mode;
-        if (!(mode === null || ["off", "optional", "required_deposit"].includes(String(mode)))) {
-          return res.status(400).json({ error: "invalid_payment_mode" });
+  app.patch(
+    "/api/hub/admin/clinics/:clinicId",
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const clinicId = String(req.params.clinicId || "");
+        if (!/^[a-z][a-z0-9_-]{0,31}:\d+$/.test(clinicId))
+          return res.status(400).json({ error: "invalid_clinic_id" });
+        const body = req.body || {};
+        const updates: string[] = [];
+        const values: any[] = [];
+        if ("booking_enabled" in body) {
+          if (typeof body.booking_enabled !== "boolean")
+            return res.status(400).json({ error: "invalid_booking_enabled" });
+          values.push(body.booking_enabled);
+          updates.push(`booking_enabled = $${values.length}`);
         }
-        values.push(mode === null ? null : String(mode));
-        updates.push(`payment_mode = $${values.length}`);
-      }
-      if ("deposit_amount_halalas" in body) {
-        const amount = body.deposit_amount_halalas;
-        if (!(amount === null || (Number.isInteger(amount) && amount > 0 && amount <= 1_000_000))) {
-          return res.status(400).json({ error: "invalid_deposit_amount_halalas" });
+        if ("payment_mode" in body) {
+          const mode = body.payment_mode;
+          if (!(
+            mode === null ||
+            ["off", "optional", "required_deposit"].includes(String(mode))
+          )) {
+            return res.status(400).json({ error: "invalid_payment_mode" });
+          }
+          values.push(mode === null ? null : String(mode));
+          updates.push(`payment_mode = $${values.length}`);
         }
-        values.push(amount);
-        updates.push(`deposit_amount_halalas = $${values.length}`);
-      }
-      if ("name_ar" in body || "name_en" in body) {
-        for (const k of ["name_ar", "name_en"] as const) {
-          if (k in body) {
-            if (typeof body[k] !== "string" || !body[k].trim() || body[k].length > 200) return res.status(400).json({ error: `invalid_${k}` });
-            values.push(body[k].trim());
-            updates.push(`${k} = $${values.length}`);
+        if ("deposit_amount_halalas" in body) {
+          const amount = body.deposit_amount_halalas;
+          if (!(
+            amount === null ||
+            (Number.isInteger(amount) && amount > 0 && amount <= 1_000_000)
+          )) {
+            return res
+              .status(400)
+              .json({ error: "invalid_deposit_amount_halalas" });
+          }
+          values.push(amount);
+          updates.push(`deposit_amount_halalas = $${values.length}`);
+        }
+        if ("name_ar" in body || "name_en" in body) {
+          for (const k of ["name_ar", "name_en"] as const) {
+            if (k in body) {
+              if (
+                typeof body[k] !== "string" ||
+                !body[k].trim() ||
+                body[k].length > 200
+              )
+                return res.status(400).json({ error: `invalid_${k}` });
+              values.push(body[k].trim());
+              updates.push(`${k} = $${values.length}`);
+            }
           }
         }
+        if (!updates.length)
+          return res.status(400).json({ error: "no_fields" });
+        values.push(clinicId);
+        const r = await pool.query(
+          `UPDATE hub_clinics SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING id, brand, booking_enabled, payment_mode, deposit_amount_halalas, name_ar, name_en`,
+          values,
+        );
+        if (!r.rows[0])
+          return res.status(404).json({ error: "unknown_clinic" });
+        res.json({ updated: r.rows[0] });
+      } catch (error: any) {
+        safeError(res, error, "hub_clinic_update_failed");
       }
-      if (!updates.length) return res.status(400).json({ error: "no_fields" });
-      values.push(clinicId);
-      const r = await pool.query(`UPDATE hub_clinics SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING id, brand, booking_enabled, payment_mode, deposit_amount_halalas, name_ar, name_en`, values);
-      if (!r.rows[0]) return res.status(404).json({ error: "unknown_clinic" });
-      res.json({ updated: r.rows[0] });
-    } catch (error: any) {
-      safeError(res, error, "hub_clinic_update_failed");
-    }
-  });
+    },
+  );
 
   // ---- Admin: upstream budget observability ----
   app.get("/api/hub/admin/upstream-stats", requireAdmin, (_req, res) => {
@@ -386,13 +515,23 @@ export function registerHubRoutes(app: Express) {
     if (!publicRateLimit(req, res)) return;
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
       const brand = await getBrand(brandParam);
       if (!brandGate(brand, res)) return;
-      const r = await pool.query(`SELECT * FROM hub_clinics WHERE brand = $1 ORDER BY name_en`, [brand.brand]);
+      const r = await pool.query(
+        `SELECT * FROM hub_clinics WHERE brand = $1 ORDER BY name_en`,
+        [brand.brand],
+      );
       res.set("Cache-Control", `public, max-age=${TTL_CLINICS}`);
       res.json({
-        brand: { id: brand.brand, name_ar: brand.display_name_ar, name_en: brand.display_name_en, locale: brand.default_locale, payment_mode: brand.payment_mode || "off" },
+        brand: {
+          id: brand.brand,
+          name_ar: brand.display_name_ar,
+          name_en: brand.display_name_en,
+          locale: brand.default_locale,
+          payment_mode: brand.payment_mode || "off",
+        },
         clinics: r.rows.map(shapeClinic),
         fallback: brandFallbackContact(brand),
       });
@@ -406,19 +545,39 @@ export function registerHubRoutes(app: Express) {
     if (!publicRateLimit(req, res)) return;
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
       const brand = await getBrand(brandParam);
       if (!brandGate(brand, res)) return;
-      const clinic = await getClinic(brand.brand, String(req.params.clinicId || ""));
+      const clinic = await getClinic(
+        brand.brand,
+        String(req.params.clinicId || ""),
+      );
       if (!clinic) return res.status(404).json({ error: "unknown_clinic" });
 
-      const { value, source } = await cached(`services:${clinic.digitail_clinic_id}`, TTL_SERVICES, async () => {
-        const data = await digitailApi(`/visit-types?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`);
-        const all = data?.data || [];
-        return { total_upstream: all.length, services: all.filter((v: any) => v?.is_visible !== false).map(shapeService) };
-      });
+      const { value, source } = await cached(
+        `services:${clinic.digitail_clinic_id}`,
+        TTL_SERVICES,
+        async () => {
+          const data = await digitailApi(
+            `/visit-types?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`,
+          );
+          const all = data?.data || [];
+          return {
+            total_upstream: all.length,
+            services: all
+              .filter((v: any) => v?.is_visible !== false)
+              .map(shapeService),
+          };
+        },
+      );
       res.set("Cache-Control", `public, max-age=${TTL_SERVICES}`);
-      res.json({ clinic: shapeClinic(clinic), services: (value as any).services, total_upstream: (value as any).total_upstream, cache: source });
+      res.json({
+        clinic: shapeClinic(clinic),
+        services: (value as any).services,
+        total_upstream: (value as any).total_upstream,
+        cache: source,
+      });
     } catch (error: any) {
       safeError(res, error, "hub_services_failed");
     }
@@ -429,29 +588,54 @@ export function registerHubRoutes(app: Express) {
     if (!publicRateLimit(req, res)) return;
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
       const brand = await getBrand(brandParam);
       if (!brandGate(brand, res)) return;
-      const clinic = await getClinic(brand.brand, String(req.params.clinicId || ""));
+      const clinic = await getClinic(
+        brand.brand,
+        String(req.params.clinicId || ""),
+      );
       if (!clinic) return res.status(404).json({ error: "unknown_clinic" });
 
-      const serviceId = typeof req.query.serviceId === "string" && /^\d+$/.test(req.query.serviceId) ? req.query.serviceId : null;
+      const serviceId =
+        typeof req.query.serviceId === "string" &&
+        /^\d+$/.test(req.query.serviceId)
+          ? req.query.serviceId
+          : null;
 
       if (serviceId) {
         // Doctors for a specific service come from the visit type's vet list.
-        const { value, source } = await cached(`services:raw:${clinic.digitail_clinic_id}`, TTL_SERVICES, async () => {
-          const data = await digitailApi(`/visit-types?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`);
-          return data?.data || [];
-        });
+        const { value, source } = await cached(
+          `services:raw:${clinic.digitail_clinic_id}`,
+          TTL_SERVICES,
+          async () => {
+            const data = await digitailApi(
+              `/visit-types?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`,
+            );
+            return data?.data || [];
+          },
+        );
         const vt = (value as any[]).find((v) => String(v.id) === serviceId);
         res.set("Cache-Control", `public, max-age=${TTL_SERVICES}`);
-        return res.json({ clinic: shapeClinic(clinic), service_id: serviceId, doctors: (vt?.vets || []).map(shapeDoctor), cache: source });
+        return res.json({
+          clinic: shapeClinic(clinic),
+          service_id: serviceId,
+          doctors: (vt?.vets || []).map(shapeDoctor),
+          cache: source,
+        });
       }
 
-      const { value, source } = await cached(`doctors:${clinic.digitail_clinic_id}`, TTL_DOCTORS, async () => {
-        const data = await digitailApi(`/vets?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`);
-        return (data?.data || []).map(shapeDoctor);
-      });
+      const { value, source } = await cached(
+        `doctors:${clinic.digitail_clinic_id}`,
+        TTL_DOCTORS,
+        async () => {
+          const data = await digitailApi(
+            `/vets?filter%5Bclinic_id%5D=${clinic.digitail_clinic_id}`,
+          );
+          return (data?.data || []).map(shapeDoctor);
+        },
+      );
       res.set("Cache-Control", `public, max-age=${TTL_DOCTORS}`);
       res.json({ clinic: shapeClinic(clinic), doctors: value, cache: source });
     } catch (error: any) {
@@ -460,60 +644,101 @@ export function registerHubRoutes(app: Express) {
   });
 
   // ---- Public: availability (Digitail public vets-timeslots) ----
-  app.get("/api/hub/:brand/clinics/:clinicId/availability", async (req, res) => {
-    if (!publicRateLimit(req, res)) return;
-    try {
-      const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
-      const brand = await getBrand(brandParam);
-      if (!brandGate(brand, res)) return;
-      const clinic = await getClinic(brand.brand, String(req.params.clinicId || ""));
-      if (!clinic) return res.status(404).json({ error: "unknown_clinic" });
+  app.get(
+    "/api/hub/:brand/clinics/:clinicId/availability",
+    async (req, res) => {
+      if (!publicRateLimit(req, res)) return;
+      try {
+        const brandParam = String(req.params.brand || "");
+        if (!BRAND_RE.test(brandParam))
+          return res.status(400).json({ error: "invalid_brand" });
+        const brand = await getBrand(brandParam);
+        if (!brandGate(brand, res)) return;
+        const clinic = await getClinic(
+          brand.brand,
+          String(req.params.clinicId || ""),
+        );
+        if (!clinic) return res.status(404).json({ error: "unknown_clinic" });
 
-      const from = typeof req.query.from === "string" ? req.query.from : "";
-      const to = typeof req.query.to === "string" ? req.query.to : from;
-      if (!DATE_RE.test(from) || !DATE_RE.test(to)) return res.status(400).json({ error: "invalid_date_range", expected: "YYYY-MM-DD" });
-      const spanDays = (new Date(to).getTime() - new Date(from).getTime()) / 86_400_000;
-      if (spanDays < 0 || spanDays > 31) return res.status(400).json({ error: "date_range_too_large", max_days: 31 });
+        const from = typeof req.query.from === "string" ? req.query.from : "";
+        const to = typeof req.query.to === "string" ? req.query.to : from;
+        if (!DATE_RE.test(from) || !DATE_RE.test(to))
+          return res
+            .status(400)
+            .json({ error: "invalid_date_range", expected: "YYYY-MM-DD" });
+        const spanDays =
+          (new Date(to).getTime() - new Date(from).getTime()) / 86_400_000;
+        if (spanDays < 0 || spanDays > 31)
+          return res
+            .status(400)
+            .json({ error: "date_range_too_large", max_days: 31 });
 
-      const serviceId = typeof req.query.serviceId === "string" && /^\d+$/.test(req.query.serviceId) ? req.query.serviceId : null;
-      const doctorId = typeof req.query.doctorId === "string" && /^[a-zA-Z0-9_-]+$/.test(req.query.doctorId) ? req.query.doctorId : null;
-      // Digitail requires visit_type_id OR duration (live-verified 422 otherwise).
-      const durationRaw = typeof req.query.duration === "string" ? Number(req.query.duration) : NaN;
-      const duration = Number.isInteger(durationRaw) && durationRaw >= 5 && durationRaw <= 240 ? durationRaw : null;
-      if (!serviceId && !duration) {
-        return res.status(400).json({ error: "service_or_duration_required" });
+        const serviceId =
+          typeof req.query.serviceId === "string" &&
+          /^\d+$/.test(req.query.serviceId)
+            ? req.query.serviceId
+            : null;
+        const doctorId =
+          typeof req.query.doctorId === "string" &&
+          /^[a-zA-Z0-9_-]+$/.test(req.query.doctorId)
+            ? req.query.doctorId
+            : null;
+        // Digitail requires visit_type_id OR duration (live-verified 422 otherwise).
+        const durationRaw =
+          typeof req.query.duration === "string"
+            ? Number(req.query.duration)
+            : NaN;
+        const duration =
+          Number.isInteger(durationRaw) &&
+          durationRaw >= 5 &&
+          durationRaw <= 240
+            ? durationRaw
+            : null;
+        if (!serviceId && !duration) {
+          return res
+            .status(400)
+            .json({ error: "service_or_duration_required" });
+        }
+
+        const slug = (clinic.config_json || {}).slug;
+        if (!slug)
+          return res
+            .status(503)
+            .json({ error: "clinic_availability_unconfigured" });
+
+        const cacheKey = `avail:${slug}:${from}:${to}:${serviceId || ""}:${doctorId || ""}:${duration || ""}`;
+        const { value, source } = await cached(
+          cacheKey,
+          TTL_AVAILABILITY,
+          async () => {
+            const params = new URLSearchParams();
+            params.set("filter[start_date]", from);
+            params.set("filter[end_date]", to);
+            if (serviceId) params.set("filter[visit_type_id]", serviceId);
+            else if (duration) params.set("filter[duration]", String(duration));
+            if (doctorId) params.set("filter[vet_slug]", doctorId);
+            const data = await digitailApi(
+              `/public/clinics/${encodeURIComponent(slug)}/vets-timeslots?${params.toString()}`,
+            );
+            return { data: data?.data || [], meta: data?.meta || {} };
+          },
+        );
+
+        res.set("Cache-Control", `public, max-age=${TTL_AVAILABILITY}`);
+        res.json({
+          clinic: shapeClinic(clinic),
+          timezone: clinic.timezone || "Asia/Riyadh",
+          from,
+          to,
+          service_id: serviceId,
+          doctor_id: doctorId,
+          availability: (value as any).data,
+          meta: (value as any).meta,
+          cache: source,
+        });
+      } catch (error: any) {
+        safeError(res, error, "hub_availability_failed");
       }
-
-      const slug = (clinic.config_json || {}).slug;
-      if (!slug) return res.status(503).json({ error: "clinic_availability_unconfigured" });
-
-      const cacheKey = `avail:${slug}:${from}:${to}:${serviceId || ""}:${doctorId || ""}:${duration || ""}`;
-      const { value, source } = await cached(cacheKey, TTL_AVAILABILITY, async () => {
-        const params = new URLSearchParams();
-        params.set("filter[start_date]", from);
-        params.set("filter[end_date]", to);
-        if (serviceId) params.set("filter[visit_type_id]", serviceId);
-        else if (duration) params.set("filter[duration]", String(duration));
-        if (doctorId) params.set("filter[vet_slug]", doctorId);
-        const data = await digitailApi(`/public/clinics/${encodeURIComponent(slug)}/vets-timeslots?${params.toString()}`);
-        return { data: data?.data || [], meta: data?.meta || {} };
-      });
-
-      res.set("Cache-Control", `public, max-age=${TTL_AVAILABILITY}`);
-      res.json({
-        clinic: shapeClinic(clinic),
-        timezone: clinic.timezone || "Asia/Riyadh",
-        from,
-        to,
-        service_id: serviceId,
-        doctor_id: doctorId,
-        availability: (value as any).data,
-        meta: (value as any).meta,
-        cache: source,
-      });
-    } catch (error: any) {
-      safeError(res, error, "hub_availability_failed");
-    }
-  });
+    },
+  );
 }

@@ -8,7 +8,12 @@ interface IconCardProps {
   testId?: string;
 }
 
-export function IconCard({ icon: Icon, title, description, testId }: IconCardProps) {
+export function IconCard({
+  icon: Icon,
+  title,
+  description,
+  testId,
+}: IconCardProps) {
   return (
     <Card className="h-full hover-elevate" data-testid={testId}>
       <CardHeader>
@@ -20,9 +25,7 @@ export function IconCard({ icon: Icon, title, description, testId }: IconCardPro
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-foreground/80 leading-relaxed">
-          {description}
-        </p>
+        <p className="text-foreground/80 leading-relaxed">{description}</p>
       </CardContent>
     </Card>
   );

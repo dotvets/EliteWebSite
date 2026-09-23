@@ -8,11 +8,11 @@ interface UseTeamSliderProps {
 
 export function useTeamSlider({ language }: UseTeamSliderProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
+    {
       loop: true,
-      direction: language === 'ar' ? 'rtl' : 'ltr'
-    }, 
-    [Autoplay({ delay: 4000, stopOnInteraction: false })]
+      direction: language === "ar" ? "rtl" : "ltr",
+    },
+    [Autoplay({ delay: 4000, stopOnInteraction: false })],
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -28,7 +28,7 @@ export function useTeamSlider({ language }: UseTeamSliderProps) {
     (index: number) => {
       if (emblaApi) emblaApi.scrollTo(index);
     },
-    [emblaApi]
+    [emblaApi],
   );
 
   useEffect(() => {

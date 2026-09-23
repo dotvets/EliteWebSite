@@ -68,21 +68,33 @@ const DEFAULTS: Record<string, string> = {
 
 type Api = (url: string, opts?: any) => Promise<any>;
 
-const ACCEPTED = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml"];
+const ACCEPTED = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+];
 const MAX_BYTES = 1_800_000; // server limit ~1.8MB base64 payload
 
-async function fileToOptimizedBase64(file: File): Promise<{ dataBase64: string; mimeType: string }> {
+async function fileToOptimizedBase64(
+  file: File,
+): Promise<{ dataBase64: string; mimeType: string }> {
   const rawToB64 = (f: Blob, mime: string) =>
     new Promise<{ dataBase64: string; mimeType: string }>((res, rej) => {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = String(reader.result || "");
-        res({ dataBase64: dataUrl.slice(dataUrl.indexOf(",") + 1), mimeType: mime });
+        res({
+          dataBase64: dataUrl.slice(dataUrl.indexOf(",") + 1),
+          mimeType: mime,
+        });
       };
       reader.onerror = () => rej(new Error("read_failed"));
       reader.readAsDataURL(f);
     });
-  if (file.type === "image/svg+xml" || file.size <= MAX_BYTES) return rawToB64(file, file.type);
+  if (file.type === "image/svg+xml" || file.size <= MAX_BYTES)
+    return rawToB64(file, file.type);
   // auto-optimize: downscale + re-encode as webp/jpeg until under the limit
   const bitmap = await createImageBitmap(file);
   let scale = Math.min(1, 1920 / bitmap.width);
@@ -93,7 +105,9 @@ async function fileToOptimizedBase64(file: File): Promise<{ dataBase64: string; 
     const ctx = canvas.getContext("2d")!;
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     const quality = Math.max(0.6, 0.88 - attempt * 0.07);
-    const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/webp", quality));
+    const blob: Blob = await new Promise((res) =>
+      canvas.toBlob((b) => res(b!), "image/webp", quality),
+    );
     if (blob.size <= MAX_BYTES) return rawToB64(blob, "image/webp");
     scale *= 0.75;
   }
@@ -101,34 +115,88 @@ async function fileToOptimizedBase64(file: File): Promise<{ dataBase64: string; 
 }
 
 function ImageCard({
-  imgKey, label, sectionLabel, current, overridden, busy, onReplace, onReset,
+  imgKey: _imgKey,
+  label,
+  sectionLabel,
+  current,
+  overridden,
+  busy,
+  onReplace,
+  onReset,
 }: {
-  imgKey: string; label: string; sectionLabel: string; current: string | null;
-  overridden: boolean; busy: boolean; onReplace: (f: File) => void; onReset: () => void;
+  imgKey: string;
+  label: string;
+  sectionLabel: string;
+  current: string | null;
+  overridden: boolean;
+  busy: boolean;
+  onReplace: (f: File) => void;
+  onReset: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 8, background: "#fff" }}>
-      <div style={{ height: 110, display: "flex", alignItems: "center", justifyContent: "center", background: "#faf9fd", borderRadius: 6, overflow: "hidden" }}>
+    <div
+      style={{
+        border: "1px solid #eee",
+        borderRadius: 8,
+        padding: 8,
+        background: "#fff",
+      }}
+    >
+      <div
+        style={{
+          height: 110,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#faf9fd",
+          borderRadius: 6,
+          overflow: "hidden",
+        }}
+      >
         {current ? (
-          <img src={current} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} loading="lazy" />
+          <img
+            src={current}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+            loading="lazy"
+          />
         ) : (
           <span style={{ color: "#bbb", fontSize: 12 }}>لا صورة</span>
         )}
       </div>
       <div style={{ fontSize: 13, fontWeight: 700, marginTop: 6 }}>{label}</div>
-      <div style={{ fontSize: 11, color: "#999" }}>{sectionLabel}{overridden ? " • مُستبدلة" : " • افتراضية"}</div>
+      <div style={{ fontSize: 11, color: "#999" }}>
+        {sectionLabel}
+        {overridden ? " • مُستبدلة" : " • افتراضية"}
+      </div>
       <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-        <button style={{ ...A.btn, opacity: busy ? 0.6 : 1 }} disabled={busy} onClick={() => inputRef.current?.click()}>
+        <button
+          style={{ ...A.btn, opacity: busy ? 0.6 : 1 }}
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
+        >
           {busy ? "جاري الرفع…" : "استبدال الصورة"}
         </button>
         {overridden && (
-          <button style={A.btnGhost} disabled={busy} onClick={onReset}>استعادة الافتراضية</button>
+          <button style={A.btnGhost} disabled={busy} onClick={onReset}>
+            استعادة الافتراضية
+          </button>
         )}
       </div>
       <input
-        ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp,.svg" style={{ display: "none" }}
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onReplace(f); e.target.value = ""; }}
+        ref={inputRef}
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp,.svg"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onReplace(f);
+          e.target.value = "";
+        }}
       />
     </div>
   );
@@ -147,16 +215,25 @@ export default function ImagesPanel({ api }: { api: Api }) {
     setLoading(true);
     try {
       const rows: any[] = await api("/api/content");
-      setOverrides(Object.fromEntries(
-        rows.filter((r) => r.type === "image" && r.key?.startsWith("img.") && r.valueAr).map((r) => [r.key, r.valueAr])
-      ));
+      setOverrides(
+        Object.fromEntries(
+          rows
+            .filter(
+              (r) =>
+                r.type === "image" && r.key?.startsWith("img.") && r.valueAr,
+            )
+            .map((r) => [r.key, r.valueAr]),
+        ),
+      );
       setServices(await api("/api/admin/services").catch(() => []));
     } catch {
       toast("تعذر تحميل بيانات الصور");
     }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const replace = async (key: string, label: string, file: File) => {
     if (!ACCEPTED.includes(file.type)) {
@@ -168,29 +245,46 @@ export default function ImagesPanel({ api }: { api: Api }) {
     try {
       const { dataBase64, mimeType } = await fileToOptimizedBase64(file);
       const up = await api("/api/admin/media", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: `${key.replace(/\W+/g, "-")}-${Date.now()}`, mimeType, dataBase64 }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: `${key.replace(/\W+/g, "-")}-${Date.now()}`,
+          mimeType,
+          dataBase64,
+        }),
       });
       if (!up || !up.id) throw new Error("upload_failed");
       const url = `/api/media/${up.id}`;
       const saved = await api(`/api/admin/content/${encodeURIComponent(key)}`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ valueAr: url, valueEn: url, type: "image", section: "site-images" }),
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          valueAr: url,
+          valueEn: url,
+          type: "image",
+          section: "site-images",
+        }),
       });
       if (!saved || saved.ok !== true) throw new Error("save_failed");
       // update preview instantly, then clean up the replaced media file
       setOverrides((o) => ({ ...o, [key]: url }));
       const oldMatch = previousUrl?.match(/^\/api\/media\/([\w-]+)$/);
       if (oldMatch && oldMatch[1] !== up.id) {
-        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
+        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(
+          () => {},
+        );
       }
       toast(`تم استبدال «${label}» — ستظهر بالموقع مباشرة`);
       await load();
     } catch (e: any) {
-      const msg = e?.message === "large" ? "الصورة كبيرة جدًا حتى بعد التحسين — جرّب صورة أصغر"
-        : e?.message === "upload_failed" ? "فشل رفع الصورة إلى المكتبة — حاول مرة أخرى"
-        : e?.message === "save_failed" ? "رُفعت الصورة لكن فشل حفظ الربط — حاول مرة أخرى"
-        : "فشل استبدال الصورة";
+      const msg =
+        e?.message === "large"
+          ? "الصورة كبيرة جدًا حتى بعد التحسين — جرّب صورة أصغر"
+          : e?.message === "upload_failed"
+            ? "فشل رفع الصورة إلى المكتبة — حاول مرة أخرى"
+            : e?.message === "save_failed"
+              ? "رُفعت الصورة لكن فشل حفظ الربط — حاول مرة أخرى"
+              : "فشل استبدال الصورة";
       toast(msg);
     }
     setBusyKey(null);
@@ -201,10 +295,19 @@ export default function ImagesPanel({ api }: { api: Api }) {
     setBusyKey(key);
     const previousUrl = overrides[key] || null;
     try {
-      await api(`/api/admin/content/${encodeURIComponent(key)}`, { method: "DELETE" });
-      setOverrides((o) => { const n = { ...o }; delete n[key]; return n; });
+      await api(`/api/admin/content/${encodeURIComponent(key)}`, {
+        method: "DELETE",
+      });
+      setOverrides((o) => {
+        const n = { ...o };
+        delete n[key];
+        return n;
+      });
       const oldMatch = previousUrl?.match(/^\/api\/media\/([\w-]+)$/);
-      if (oldMatch) api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
+      if (oldMatch)
+        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(
+          () => {},
+        );
       toast("تمت الاستعادة للافتراضية");
       await load();
     } catch {
@@ -213,32 +316,67 @@ export default function ImagesPanel({ api }: { api: Api }) {
     setBusyKey(null);
   };
 
-  const sectionLabel = (id: string) => SITE_IMAGE_SECTIONS.find((s) => s.id === id)?.label || id;
-  const filtered = SITE_IMAGES.filter((e) =>
-    (section === "all" || e.section === section) &&
-    (!search || e.label.includes(search) || e.key.toLowerCase().includes(search.toLowerCase()))
+  const sectionLabel = (id: string) =>
+    SITE_IMAGE_SECTIONS.find((s) => s.id === id)?.label || id;
+  const filtered = SITE_IMAGES.filter(
+    (e) =>
+      (section === "all" || e.section === section) &&
+      (!search ||
+        e.label.includes(search) ||
+        e.key.toLowerCase().includes(search.toLowerCase())),
   );
-  const filteredServices = services.filter((s) =>
-    section === "all" || section === "services"
-  ).filter((s) => !search || (s.nameAr || "").includes(search) || (s.nameEn || "").toLowerCase().includes(search.toLowerCase()));
+  const filteredServices = services
+    .filter((_s) => section === "all" || section === "services")
+    .filter(
+      (s) =>
+        !search ||
+        (s.nameAr || "").includes(search) ||
+        (s.nameEn || "").toLowerCase().includes(search.toLowerCase()),
+    );
 
   if (loading) return <div style={A.card}>جاري تحميل صور الموقع…</div>;
 
   return (
     <div style={A.card}>
-      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-        <h3 style={{ margin: 0 }}>صور الموقع ({SITE_IMAGES.length + services.length})</h3>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 8,
+          marginBottom: 12,
+        }}
+      >
+        <h3 style={{ margin: 0 }}>
+          صور الموقع ({SITE_IMAGES.length + services.length})
+        </h3>
         <div style={{ display: "flex", gap: 8 }}>
           <SearchBar value={search} onChange={setSearch} placeholder="بحث…" />
-          <select style={{ ...A.input, width: "auto", marginBottom: 0 }} value={section} onChange={(e) => setSection(e.target.value)}>
+          <select
+            style={{ ...A.input, width: "auto", marginBottom: 0 }}
+            value={section}
+            onChange={(e) => setSection(e.target.value)}
+          >
             <option value="all">كل الأقسام</option>
-            {SITE_IMAGE_SECTIONS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+            {SITE_IMAGE_SECTIONS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
-      {filtered.length === 0 && filteredServices.length === 0 ? <Empty text="لا نتائج." /> : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 12 }}>
+      {filtered.length === 0 && filteredServices.length === 0 ? (
+        <Empty text="لا نتائج." />
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))",
+            gap: 12,
+          }}
+        >
           {filtered.map((e) => (
             <ImageCard
               key={e.key}

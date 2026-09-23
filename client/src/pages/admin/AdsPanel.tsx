@@ -4,16 +4,27 @@ import { A, useToast } from "./ui";
 type Api = (url: string, opts?: any) => Promise<any>;
 type Lang = "ar" | "en";
 
-const ACCEPTED = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml"];
+const ACCEPTED = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+];
 const MAX_BYTES = 1_800_000;
 
-async function fileToOptimizedBase64(file: File): Promise<{ dataBase64: string; mimeType: string }> {
+async function fileToOptimizedBase64(
+  file: File,
+): Promise<{ dataBase64: string; mimeType: string }> {
   const rawToB64 = (blob: Blob, mimeType: string) =>
     new Promise<{ dataBase64: string; mimeType: string }>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = String(reader.result || "");
-        resolve({ dataBase64: dataUrl.slice(dataUrl.indexOf(",") + 1), mimeType });
+        resolve({
+          dataBase64: dataUrl.slice(dataUrl.indexOf(",") + 1),
+          mimeType,
+        });
       };
       reader.onerror = () => reject(new Error("read_failed"));
       reader.readAsDataURL(blob);
@@ -68,9 +79,18 @@ function AdImageCard({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 16, background: "#fff" }}>
+    <div
+      style={{
+        border: "1px solid #eee",
+        borderRadius: 12,
+        padding: 16,
+        background: "#fff",
+      }}
+    >
       <h4 style={{ margin: "0 0 4px" }}>{title}</h4>
-      <div style={{ color: "#888", fontSize: 12, marginBottom: 12 }}>{subtitle}</div>
+      <div style={{ color: "#888", fontSize: 12, marginBottom: 12 }}>
+        {subtitle}
+      </div>
       <div
         style={{
           height: 260,
@@ -84,7 +104,15 @@ function AdImageCard({
         }}
       >
         {image ? (
-          <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+          <img
+            src={image}
+            alt=""
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+          />
         ) : (
           <span style={{ color: "#aaa" }}>لا توجد صورة مرفوعة</span>
         )}
@@ -148,20 +176,25 @@ export default function AdsPanel({ api }: { api: Api }) {
 
   const save = async (nextAr: string, nextEn: string) => {
     if (!nextAr && !nextEn) {
-      await api(`/api/admin/content/${encodeURIComponent("ads.floating")}`, { method: "DELETE" });
+      await api(`/api/admin/content/${encodeURIComponent("ads.floating")}`, {
+        method: "DELETE",
+      });
       return;
     }
 
-    const result = await api(`/api/admin/content/${encodeURIComponent("ads.floating")}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        valueAr: nextAr,
-        valueEn: nextEn,
-        type: "image",
-        section: "ads",
-      }),
-    });
+    const result = await api(
+      `/api/admin/content/${encodeURIComponent("ads.floating")}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          valueAr: nextAr,
+          valueEn: nextEn,
+          type: "image",
+          section: "ads",
+        }),
+      },
+    );
 
     if (!result || result.ok !== true) throw new Error("save_failed");
   };
@@ -171,15 +204,26 @@ export default function AdsPanel({ api }: { api: Api }) {
     try {
       const normalized = normalizeLink(link);
       if (!normalized) {
-        await api(`/api/admin/content/${encodeURIComponent("ads.floating.link")}`, { method: "DELETE" });
+        await api(
+          `/api/admin/content/${encodeURIComponent("ads.floating.link")}`,
+          { method: "DELETE" },
+        );
         setLink("");
         toast("تم حذف رابط الإعلان");
       } else {
-        const result = await api(`/api/admin/content/${encodeURIComponent("ads.floating.link")}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ valueAr: normalized, valueEn: normalized, type: "text", section: "ads" }),
-        });
+        const result = await api(
+          `/api/admin/content/${encodeURIComponent("ads.floating.link")}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              valueAr: normalized,
+              valueEn: normalized,
+              type: "text",
+              section: "ads",
+            }),
+          },
+        );
         if (!result?.ok) throw new Error("save_failed");
         setLink(normalized);
         toast("تم حفظ رابط الإعلان");
@@ -222,10 +266,16 @@ export default function AdsPanel({ api }: { api: Api }) {
 
       const oldMatch = oldUrl.match(/^\/api\/media\/([\w-]+)$/);
       if (oldMatch && oldMatch[1] !== uploaded.id) {
-        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
+        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(
+          () => {},
+        );
       }
 
-      toast(lang === "ar" ? "تم تحديث صورة الإعلان العربية" : "تم تحديث صورة الإعلان الإنجليزية");
+      toast(
+        lang === "ar"
+          ? "تم تحديث صورة الإعلان العربية"
+          : "تم تحديث صورة الإعلان الإنجليزية",
+      );
     } catch (error: any) {
       const message =
         error?.message === "large"
@@ -254,7 +304,10 @@ export default function AdsPanel({ api }: { api: Api }) {
       setValueEn(nextEn);
 
       const oldMatch = oldUrl.match(/^\/api\/media\/([\w-]+)$/);
-      if (oldMatch) api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(() => {});
+      if (oldMatch)
+        api(`/api/admin/media/${oldMatch[1]}`, { method: "DELETE" }).catch(
+          () => {},
+        );
       toast(`تم حذف صورة الإعلان ${label}`);
     } catch {
       toast("فشل حذف الصورة");
@@ -270,16 +323,33 @@ export default function AdsPanel({ api }: { api: Api }) {
       <div style={{ marginBottom: 18 }}>
         <h3 style={{ margin: "0 0 6px" }}>Ads</h3>
         <div style={{ color: "#777", fontSize: 13 }}>
-          ارفع صورة الإعلان العربية وصورة الإعلان الإنجليزية. سيظهر الإعلان أسفل يسار الموقع، والصورة تتغير تلقائيًا حسب لغة الموقع.
+          ارفع صورة الإعلان العربية وصورة الإعلان الإنجليزية. سيظهر الإعلان أسفل
+          يسار الموقع، والصورة تتغير تلقائيًا حسب لغة الموقع.
         </div>
       </div>
 
-      <div style={{ marginBottom: 18, padding: 16, border: "1px solid #eee", borderRadius: 12, background: "#fff" }}>
+      <div
+        style={{
+          marginBottom: 18,
+          padding: 16,
+          border: "1px solid #eee",
+          borderRadius: 12,
+          background: "#fff",
+        }}
+      >
         <h4 style={{ margin: "0 0 6px" }}>رابط الإعلان</h4>
         <div style={{ color: "#888", fontSize: 12, marginBottom: 10 }}>
-          عند إضافة رابط، الضغط على صورة الإعلان سيفتح هذا الرابط. اتركه فارغًا إذا كنت لا تريد الصورة قابلة للضغط.
+          عند إضافة رابط، الضغط على صورة الإعلان سيفتح هذا الرابط. اتركه فارغًا
+          إذا كنت لا تريد الصورة قابلة للضغط.
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
           <input
             style={{ ...A.input, flex: "1 1 320px", marginBottom: 0 }}
             value={link}
@@ -287,13 +357,23 @@ export default function AdsPanel({ api }: { api: Api }) {
             placeholder="https://example.com أو /book-now"
             dir="ltr"
           />
-          <button style={{ ...A.btn, opacity: linkBusy ? 0.6 : 1 }} disabled={linkBusy} onClick={saveLink}>
+          <button
+            style={{ ...A.btn, opacity: linkBusy ? 0.6 : 1 }}
+            disabled={linkBusy}
+            onClick={saveLink}
+          >
             {linkBusy ? "جاري الحفظ…" : "حفظ الرابط"}
           </button>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+          gap: 16,
+        }}
+      >
         <AdImageCard
           title="الإعلان العربي"
           subtitle="يظهر عندما تكون لغة الموقع العربية"

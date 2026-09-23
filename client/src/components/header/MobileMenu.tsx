@@ -18,12 +18,17 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps) {
+export function MobileMenu({
+  items,
+  isOpen,
+  onToggle,
+  onClose,
+}: MobileMenuProps) {
   const [location] = useLocation();
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return location === '/';
+    if (href === "/") {
+      return location === "/";
     }
     return location === href;
   };
@@ -48,8 +53,10 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
           <nav className="flex flex-col gap-4 px-4 sm:px-6 py-6">
             {items.map((item, index) => {
               const active = isActive(item.href);
-              const activeClasses = active ? "text-primary underline underline-offset-8 decoration-2" : "text-foreground hover:text-primary";
-              
+              const activeClasses = active
+                ? "text-primary underline underline-offset-8 decoration-2"
+                : "text-foreground hover:text-primary";
+
               if (item.standalone) {
                 return (
                   <span
@@ -61,11 +68,11 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
                   </span>
                 );
               }
-              
+
               return item.onClick ? (
                 <span
                   key={item.href}
-                  data-testid={`link-mobile-${item.href.replace('/', '').replace('#', '') || 'home'}`}
+                  data-testid={`link-mobile-${item.href.replace("/", "").replace("#", "") || "home"}`}
                   className={`${activeClasses} transition-colors font-medium py-2 cursor-pointer block`}
                   onClick={() => {
                     item.onClick?.();
@@ -77,7 +84,7 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
               ) : (
                 <Link key={item.href} href={item.href}>
                   <span
-                    data-testid={`link-mobile-${item.href.replace('/', '') || 'home'}`}
+                    data-testid={`link-mobile-${item.href.replace("/", "") || "home"}`}
                     className={`${activeClasses} transition-colors font-medium py-2 cursor-pointer block`}
                     onClick={onClose}
                   >
@@ -86,10 +93,10 @@ export function MobileMenu({ items, isOpen, onToggle, onClose }: MobileMenuProps
                 </Link>
               );
             })}
-            <LanguageToggle 
-              variant="outline" 
-              className="w-full mt-2" 
-              testId="button-mobile-language-toggle" 
+            <LanguageToggle
+              variant="outline"
+              className="w-full mt-2"
+              testId="button-mobile-language-toggle"
             />
             <a href="tel:920011626" className="block">
               <Button

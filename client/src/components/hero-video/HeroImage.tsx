@@ -18,11 +18,14 @@ export function HeroImage({ image, title, alt }: HeroImageProps) {
       />
 
       <HeroOverlay />
-      
+
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <AnimatedContent variant="fadeInUpSoft">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white" data-testid="text-about-hero-title">
+            <h1
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-white"
+              data-testid="text-about-hero-title"
+            >
               {title}
             </h1>
           </AnimatedContent>

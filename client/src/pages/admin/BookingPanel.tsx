@@ -22,8 +22,11 @@ export default function BookingPanel({ api }: { api: Api }) {
     (async () => {
       try {
         const rows = await api("/api/content");
-        const get = (k: string) => rows.find((x: any) => x.key === k)?.valueAr ?? "";
-        setMode(get("settings.bookingMode") === "external" ? "external" : "internal");
+        const get = (k: string) =>
+          rows.find((x: any) => x.key === k)?.valueAr ?? "";
+        setMode(
+          get("settings.bookingMode") === "external" ? "external" : "internal",
+        );
         setEmbed(get("settings.bookingEmbed"));
       } finally {
         setLoading(false);
@@ -35,12 +38,20 @@ export default function BookingPanel({ api }: { api: Api }) {
     api(`/api/admin/content/${encodeURIComponent(key)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ valueAr: value, valueEn: value, type: "text", section: "settings" }),
+      body: JSON.stringify({
+        valueAr: value,
+        valueEn: value,
+        type: "text",
+        section: "settings",
+      }),
     });
 
   const save = async () => {
     if (mode === "external" && !embed.trim()) {
-      toast("⚠️ اخترت «كود خارجي» لكن حقل الكود فارغ — أدخل الكود أو ارجع للفورم الداخلي", "err");
+      toast(
+        "⚠️ اخترت «كود خارجي» لكن حقل الكود فارغ — أدخل الكود أو ارجع للفورم الداخلي",
+        "err",
+      );
       return;
     }
     setSaving(true);
@@ -61,37 +72,85 @@ export default function BookingPanel({ api }: { api: Api }) {
     <div style={A.card}>
       <h3>إعدادات نموذج الحجز (صفحة Book Now)</h3>
       <p style={{ color: "#888", fontSize: 13 }}>
-        تحكّم في طريقة عرض الحجز: الفورم الداخلي الحالي يبقى كما هو ولا يُحذف — يمكنك التبديل بينه وبين كود Embed خارجي في أي وقت.
+        تحكّم في طريقة عرض الحجز: الفورم الداخلي الحالي يبقى كما هو ولا يُحذف —
+        يمكنك التبديل بينه وبين كود Embed خارجي في أي وقت.
       </p>
 
-      <div style={{ margin: "16px 0 8px", fontWeight: 700, color: "#6650a0" }}>طريقة عرض الحجز</div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 0", cursor: "pointer" }}>
-        <input type="radio" name="bookingMode" checked={mode === "internal"} onChange={() => setMode("internal")} />
-        <span>الفورم الداخلي الحالي <span style={{ color: "#1a7f37", fontSize: 12 }}>(الافتراضي)</span></span>
+      <div style={{ margin: "16px 0 8px", fontWeight: 700, color: "#6650a0" }}>
+        طريقة عرض الحجز
+      </div>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "10px 0",
+          cursor: "pointer",
+        }}
+      >
+        <input
+          type="radio"
+          name="bookingMode"
+          checked={mode === "internal"}
+          onChange={() => setMode("internal")}
+        />
+        <span>
+          الفورم الداخلي الحالي{" "}
+          <span style={{ color: "#1a7f37", fontSize: 12 }}>(الافتراضي)</span>
+        </span>
       </label>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 0", cursor: "pointer" }}>
-        <input type="radio" name="bookingMode" checked={mode === "external"} onChange={() => setMode("external")} />
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "10px 0",
+          cursor: "pointer",
+        }}
+      >
+        <input
+          type="radio"
+          name="bookingMode"
+          checked={mode === "external"}
+          onChange={() => setMode("external")}
+        />
         <span>كود Embed خارجي (iframe أو ودجت حجز)</span>
       </label>
 
-      <div style={{ margin: "16px 0 8px", fontWeight: 700, color: "#6650a0" }}>كود الـ Embed الخارجي</div>
+      <div style={{ margin: "16px 0 8px", fontWeight: 700, color: "#6650a0" }}>
+        كود الـ Embed الخارجي
+      </div>
       <textarea
-        style={{ ...A.input, minHeight: 140, fontFamily: "monospace", direction: "ltr", textAlign: "left", fontSize: 13 }}
+        style={{
+          ...A.input,
+          minHeight: 140,
+          fontFamily: "monospace",
+          direction: "ltr",
+          textAlign: "left",
+          fontSize: 13,
+        }}
         placeholder={'<iframe src="https://example.com/booking"></iframe>'}
         value={embed}
         onChange={(e) => setEmbed(e.target.value)}
         data-testid="input-booking-embed"
       />
       <p style={{ color: "#999", fontSize: 12 }}>
-        ملاحظات أمان: يُسمح فقط بـ iframe وروابط سكربت https — تُزال أي أكواد JavaScript مضمّنة أو عناصر قد تغيّر محتوى الموقع تلقائيًا.
+        ملاحظات أمان: يُسمح فقط بـ iframe وروابط سكربت https — تُزال أي أكواد
+        JavaScript مضمّنة أو عناصر قد تغيّر محتوى الموقع تلقائيًا.
         {mode === "external" && !embed.trim() && (
           <span style={{ display: "block", color: "#b26a00", marginTop: 6 }}>
-            ⚠️ الوضع الحالي «كود خارجي» والحقل فارغ — صفحة الحجز ستستمر بعرض الفورم الداخلي حتى تُدخل الكود.
+            ⚠️ الوضع الحالي «كود خارجي» والحقل فارغ — صفحة الحجز ستستمر بعرض
+            الفورم الداخلي حتى تُدخل الكود.
           </span>
         )}
       </p>
 
-      <button style={A.btn} onClick={save} disabled={saving} data-testid="button-save-booking-settings">
+      <button
+        style={A.btn}
+        onClick={save}
+        disabled={saving}
+        data-testid="button-save-booking-settings"
+      >
         {saving ? "جارٍ الحفظ…" : "حفظ الإعدادات"}
       </button>
     </div>

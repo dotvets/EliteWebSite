@@ -25,19 +25,34 @@ export function isProtectedBrand(brand: string | null | undefined): boolean {
  * Throws if a Category A config references a protected asset. Called by the
  * config store BEFORE any write — adapter-level defense is layered on top.
  */
-export function assertNoProtectedAsset(providerKey: string, scopeType: string, scopeId: string, config: Record<string, unknown>): void {
+export function assertNoProtectedAsset(
+  providerKey: string,
+  scopeType: string,
+  scopeId: string,
+  config: Record<string, unknown>,
+): void {
   if (isProtectedBrand(scopeType === "brand" ? scopeId : null)) {
-    throw Object.assign(new Error("protected_asset: drpaws is isolated in V1"), { code: "protected_asset" });
+    throw Object.assign(
+      new Error("protected_asset: drpaws is isolated in V1"),
+      { code: "protected_asset" },
+    );
   }
   if (providerKey === "bevatel") {
     const inbox = String(config.inbox_id ?? "");
-    if ((PROTECTED_ASSETS.bevatelInboxIds as readonly string[]).includes(inbox)) {
-      throw Object.assign(new Error("protected_asset: bevatel inbox 810"), { code: "protected_asset" });
+    if (
+      (PROTECTED_ASSETS.bevatelInboxIds as readonly string[]).includes(inbox)
+    ) {
+      throw Object.assign(new Error("protected_asset: bevatel inbox 810"), {
+        code: "protected_asset",
+      });
     }
     const tm = (config.template_map ?? {}) as Record<string, string>;
     for (const v of Object.values(tm)) {
       if (PROTECTED_ASSETS.bevatelPhones.some((p) => String(v).includes(p))) {
-        throw Object.assign(new Error("protected_asset: drpaws phone reference"), { code: "protected_asset" });
+        throw Object.assign(
+          new Error("protected_asset: drpaws phone reference"),
+          { code: "protected_asset" },
+        );
       }
     }
   }

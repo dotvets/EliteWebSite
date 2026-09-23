@@ -2,7 +2,7 @@ import { pool } from "./db";
 import { resolveDigitailConfig, digitailConnectionId } from "./digitailConfig";
 
 // Bootstrap tables on startup (idempotent) — avoids external migration access.
-const DDL = `
+export const DDL = `
 CREATE TABLE IF NOT EXISTS users (
   id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
   username text NOT NULL UNIQUE,
@@ -379,17 +379,31 @@ CREATE TABLE IF NOT EXISTS hub_slot_claims (
 
 export async function ensureSchema() {
   if (!process.env.DATABASE_URL) {
-    console.log("[db] DATABASE_URL not set — admin/booking APIs will be inactive");
+    console.log(
+      "[db] DATABASE_URL not set — admin/booking APIs will be inactive",
+    );
     return false;
   }
   try {
     await pool.query(DDL);
-    for (const t of ["team_members", "testimonials", "offers", "blog_posts", "branches"]) {
-      await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`);
+    for (const t of [
+      "team_members",
+      "testimonials",
+      "offers",
+      "blog_posts",
+      "branches",
+    ]) {
+      await pool.query(
+        `ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS publish_at text`,
+      );
     }
     // Phase 4+ / G3: dynamic deposit columns (additive, idempotent).
-    await pool.query(`ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_effective varchar`);
-    await pool.query(`ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_override varchar`);
+    await pool.query(
+      `ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_effective varchar`,
+    );
+    await pool.query(
+      `ALTER TABLE hub_bookings ADD COLUMN IF NOT EXISTS payment_mode_override varchar`,
+    );
     // Phase 0: migrate the legacy single 'default' Digitail connection into
     // digitail_connections_v2 under the current "{env}:{scope}" identity.
     // Tokens stay encrypted exactly as they were — copied byte-for-byte, never re-encrypted.
@@ -405,7 +419,10 @@ export async function ensureSchema() {
         [id, id.split(":")[0], id.split(":").slice(1).join(":")],
       );
     } catch (e: any) {
-      console.error("[db] digitail_connections_v2 migration skipped:", e?.message);
+      console.error(
+        "[db] digitail_connections_v2 migration skipped:",
+        e?.message,
+      );
     }
     // Phase 1: seed brand config (idempotent). booking_enabled stays FALSE —
     // the hub ships dark until UX sign-off (master document Part 5.2).

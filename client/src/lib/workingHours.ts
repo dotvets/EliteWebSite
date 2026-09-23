@@ -16,7 +16,15 @@ import { useEffect, useState } from "react";
 export type DaySchedule = { open: boolean; from: string; to: string }; // from/to: "HH:MM" 24h
 
 export const DAY_NAMES: Record<string, string[]> = {
-  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  en: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
   ar: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
 };
 
@@ -69,13 +77,17 @@ export function useWorkingHours(): DaySchedule[] {
     const fn = () => setTick((t) => t + 1);
     listeners.add(fn);
     if (!cache) fetchSchedule();
-    return () => { listeners.delete(fn); };
+    return () => {
+      listeners.delete(fn);
+    };
   }, []);
   return cache || DEFAULT_SCHEDULE;
 }
 
 /** Force a refetch (e.g. right after saving from the dashboard). */
-export function refreshWorkingHours() { fetchSchedule(); }
+export function refreshWorkingHours() {
+  fetchSchedule();
+}
 
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 const toArDigits = (s: string) => s.replace(/\d/g, (d) => AR_DIGITS[+d]);
@@ -93,13 +105,21 @@ function formatTime(hhmm: string, lang: string): string {
 export type HoursGroup = { time: string; days: string };
 
 /** Group consecutive open days with identical hours; closed days are omitted. */
-export function groupSchedule(schedule: DaySchedule[], lang: "en" | "ar" | string): HoursGroup[] {
+export function groupSchedule(
+  schedule: DaySchedule[],
+  lang: "en" | "ar" | string,
+): HoursGroup[] {
   const names = DAY_NAMES[lang === "ar" ? "ar" : "en"];
   const groups: { days: number[]; from: string; to: string }[] = [];
   schedule.forEach((d, i) => {
     if (!d.open) return;
     const last = groups[groups.length - 1];
-    if (last && last.from === d.from && last.to === d.to && last.days[last.days.length - 1] === i - 1) {
+    if (
+      last &&
+      last.from === d.from &&
+      last.to === d.to &&
+      last.days[last.days.length - 1] === i - 1
+    ) {
       last.days.push(i);
     } else {
       groups.push({ days: [i], from: d.from, to: d.to });
@@ -110,7 +130,15 @@ export function groupSchedule(schedule: DaySchedule[], lang: "en" | "ar" | strin
   return groups.map((g) => {
     const first = names[g.days[0]];
     const last = names[g.days[g.days.length - 1]];
-    const days = g.days.length === 1 ? first : g.days.length === 2 ? `${first}${and}${last}` : `${first}${sep}${last}`;
-    return { time: `${formatTime(g.from, lang)}${sep}${formatTime(g.to, lang)}`, days };
+    const days =
+      g.days.length === 1
+        ? first
+        : g.days.length === 2
+          ? `${first}${and}${last}`
+          : `${first}${sep}${last}`;
+    return {
+      time: `${formatTime(g.from, lang)}${sep}${formatTime(g.to, lang)}`,
+      days,
+    };
   });
 }

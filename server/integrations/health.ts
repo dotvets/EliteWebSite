@@ -8,7 +8,12 @@ import { pool } from "../db";
 
 export type TestOutcome = "ok" | "degraded" | "failed" | "blocked";
 
-export async function recordTestResult(providerKey: string, scopeId: string | null, outcome: TestOutcome, errorClass?: string): Promise<void> {
+export async function recordTestResult(
+  providerKey: string,
+  scopeId: string | null,
+  outcome: TestOutcome,
+  errorClass?: string,
+): Promise<void> {
   const ok = outcome === "ok";
   await pool.query(
     `INSERT INTO hub_integrations_health (provider_key, scope_id, last_test_at, last_test_result, last_success_at, last_failure_at, last_error_class, consecutive_failures, circuit_opened_at)
@@ -28,7 +33,10 @@ export async function recordTestResult(providerKey: string, scopeId: string | nu
   );
 }
 
-export async function recordWebhookEvent(providerKey: string, scopeId: string | null): Promise<void> {
+export async function recordWebhookEvent(
+  providerKey: string,
+  scopeId: string | null,
+): Promise<void> {
   await pool
     .query(
       `INSERT INTO hub_integrations_health (provider_key, scope_id, webhook_last_event_at)
@@ -48,7 +56,13 @@ export function classifyError(e: any): string {
   if (status >= 500) return "upstream_5xx";
   if (status >= 400) return "upstream_4xx";
   const code = String(e?.code || "");
-  if (code === "ENOTFOUND" || code === "ECONNREFUSED" || code === "ETIMEDOUT" || code === "ECONNRESET") return "network_unreachable";
+  if (
+    code === "ENOTFOUND" ||
+    code === "ECONNREFUSED" ||
+    code === "ETIMEDOUT" ||
+    code === "ECONNRESET"
+  )
+    return "network_unreachable";
   if (/timeout/i.test(String(e?.message || ""))) return "timeout";
   return "unknown";
 }

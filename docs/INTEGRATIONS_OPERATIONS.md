@@ -13,6 +13,7 @@
   sender mix-ups are release-blocking.
 
 ## WhatsApp route (Recommendation #3)
+
 1. FIRST: verify whether Bevatel provides WhatsApp Business API access (BSP/Meta partner or
    upstream BSP) — onboarding model, templates, sending, inbound webhooks, delivery callbacks,
    interactive messages. **VERIFY EARLY — this answer decides the WhatsApp route and G9.**
@@ -21,11 +22,13 @@
 4. Either way: `WHATSAPP_ENABLED=false` until the route is verified and approved.
 
 ## Digitail
+
 - Endpoints/config: `docs/DIGITAIL_OAUTH.md` (single source of truth).
 - Rate limit: 200 req/min per account — hub budget soft-caps at 120/min (see `hubCache.ts`).
 - No webhooks — pull-based polling only (documented upstream constraint).
 
 ## MyFatoorah (Phase 3)
+
 - **Purpose:** optional/deposit card payment for Group Booking Hub bookings. MyFatoorah is the
   payment-status authority; `hub_payments` is the local reconciled operational record.
 - **Owner/contact:** Elite Vet KSA + ONX Marketing payments owner (MyFatoorah merchant portal
@@ -56,6 +59,7 @@
   verify one `purchase` conversion per paid booking; only then set brand/clinic `payment_mode`.
 
 ## Emergency path (Phase 4 / G4)
+
 - **Purpose:** urgent-care entry point inside the booking hub that bypasses booking, payment, and OTP friction.
 - **Feature flags:** `EMERGENCY_PATH_ENABLED=false` by default, plus per-brand config
   `hub_brands.config_json.emergency.enabled=true`. Both are required.
@@ -78,6 +82,7 @@
   brand config, submit a test emergency, verify delivery under 60 seconds, then check the admin log.
 
 ## District pages attribution (Phase 4+ / G8)
+
 - **Purpose:** connect the 18 existing Riyadh district landing pages to the Group Booking Hub with
   per-district analytics attribution while keeping booking availability controlled by the existing
   hub booking gate.
@@ -105,6 +110,7 @@
   sandbox booking and verify `source_json.district` plus click IDs.
 
 ## Dynamic deposit policy (Phase 4+ / G3)
+
 - **Purpose:** decide the deposit requirement per customer from `hub_bookings` history — customers
   with enough `no_show` bookings inside the configured window get `required_deposit`; clean-record
   customers keep the brand/clinic base payment mode (optional/free booking).

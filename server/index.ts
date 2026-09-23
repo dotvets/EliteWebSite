@@ -8,27 +8,31 @@ import { redactSecrets } from "./redact";
 
 const app = express();
 
-declare module 'http' {
+declare module "http" {
   interface IncomingMessage {
-    rawBody: unknown
+    rawBody: unknown;
   }
 }
-app.use(express.json({
-  limit: "12mb", // media uploads arrive as base64 JSON payloads (server caps at ~1.8MB per file after optimization)
-  verify: (req, _res, buf) => {
-    req.rawBody = buf;
-  }
-}));
+app.use(
+  express.json({
+    limit: "12mb", // media uploads arrive as base64 JSON payloads (server caps at ~1.8MB per file after optimization)
+    verify: (req, _res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: false }));
 
 const MemoryStore = createMemoryStore(session);
-app.use(session({
-  store: new MemoryStore({ checkPeriod: 86400000 }),
-  secret: process.env.SESSION_SECRET || "elite-onx-change-me",
-  resave: false,
-  saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 3600 * 1000 },
-}));
+app.use(
+  session({
+    store: new MemoryStore({ checkPeriod: 86400000 }),
+    secret: process.env.SESSION_SECRET || "elite-onx-change-me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 3600 * 1000 },
+  }),
+);
 
 // Canonical host enforcement: any *.onrender.com subdomain permanently
 // redirects to the official domain so staging/exposed copies can never
@@ -80,7 +84,9 @@ app.use((req, res, next) => {
   // the server accepts any traffic.
   try {
     const digitailConfig = assertDigitailBootConfig();
-    log(`[digitail] config validated: env=${digitailConfig.env} scope=${digitailConfig.connectionScope}`);
+    log(
+      `[digitail] config validated: env=${digitailConfig.env} scope=${digitailConfig.connectionScope}`,
+    );
   } catch (err: any) {
     console.error(redactSecrets(err?.message || String(err)));
     process.exit(1);
@@ -109,12 +115,15 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const port = parseInt(process.env.PORT || "5000", 10);
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      log(`serving on port ${port}`);
+    },
+  );
 })();

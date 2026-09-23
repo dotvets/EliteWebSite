@@ -36,7 +36,7 @@ export default function ECGAnimation() {
               />
             </pattern>
           </defs>
-          
+
           <rect
             x="-400"
             y="0"
@@ -46,7 +46,7 @@ export default function ECGAnimation() {
           />
         </svg>
       </div>
-      
+
       <style>{`
         @media (min-width: 768px) {
           .ecg-path {

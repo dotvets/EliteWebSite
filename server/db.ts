@@ -7,7 +7,8 @@ import * as schema from "@shared/schema";
 export const dbEnabled = !!process.env.DATABASE_URL;
 
 export const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL || "postgres://localhost:5432/placeholder",
+  connectionString:
+    process.env.DATABASE_URL || "postgres://localhost:5432/placeholder",
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : undefined,
 });
 
