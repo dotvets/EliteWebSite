@@ -202,10 +202,15 @@ export class BevatelWhatsAppProvider implements MessagingProvider {
   private inboxId =
     process.env.BEVATEL_INBOX_ID || process.env.BEVATEL_INDEX_ID || "";
 
-  async sendSms(): Promise<{ providerMessageId: string }> {
-    throw new Error(
-      "Bevatel WhatsApp provider does not send SMS — SMS is a separate capability (bevatel_sms)",
-    );
+  async sendSms(
+    to: string,
+    body: string,
+    senderId?: string,
+  ): Promise<{ providerMessageId: string }> {
+    // This provider is WhatsApp-only. SMS must keep its exact current
+    // production behavior (stub) until the Bevatel SMS sender ID is
+    // approved upstream — so delegate to StubProvider instead of throwing.
+    return new StubProvider().sendSms(to, body, senderId);
   }
 
   async sendWhatsApp(
