@@ -360,6 +360,21 @@ CREATE TABLE IF NOT EXISTS hub_messaging_routes (
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (brand_id, purpose, environment)
 );
+
+-- Slot-level concurrency guard for the confirm pipeline (2026-09-23).
+-- One row per (clinic, service, slot start). Claims are atomic
+-- INSERT .. ON CONFLICT and self-expire via expires_at (TTL) so a crashed
+-- confirm can never deadlock the slot — the next attempt takes over an
+-- expired claim. Claims are released explicitly after the pipeline finishes.
+CREATE TABLE IF NOT EXISTS hub_slot_claims (
+  clinic_id varchar NOT NULL,
+  service_id varchar NOT NULL,
+  slot_start timestamptz NOT NULL,
+  booking_id varchar NOT NULL,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (clinic_id, service_id, slot_start)
+);
 `;
 
 export async function ensureSchema() {
