@@ -158,10 +158,131 @@ export class BevatelSmsProvider implements MessagingProvider {
   }
 }
 
+// Bevatel WhatsApp provider — SEPARATE capability from SMS (owner decision
+// 2026-09-23). Implements ONLY the official Business Chat Developer API
+// contract (Postman collection "Bevatel Business Chat Developer API",
+// https://documenter.getpostman.com/view/27285397/2s9Xxwwa4r), verified live
+// 2026-09-23:
+//   POST https://chat.bevatel.com/developer/api/v1/messages
+//   Headers: api_account_id, api_access_token (token is shown at the bottom of
+//     the Business Chat profile page; NOT the Meta WhatsApp Cloud token).
+//   Body: { inbox_id, contact: { phone_number | contact_id },
+//           message: { template: { name, language, parameters? } } }
+//   Success: 201 { "message": "Message created successfully" } (no message id
+//     returned by the documented contract).
+//   Rate limit (documented): 10 req/sec on /developer/api/v1/messages.
+// Fixed host (SSRF barrier). Credentials are read from env ONLY — never from
+// DB, never logged (redact.ts covers BEVATEL_ACCESS_TOKEN).
+// NOT the production default: MESSAGING_PROVIDER stays "stub" and
+// WHATSAPP_ENABLED stays "false" until the owner explicitly enables them.
+const BEVATEL_CHAT_SEND_URL =
+  "https://chat.bevatel.com/developer/api/v1/messages";
+
+// templateKey -> approved template mapping is config-driven; the adapter
+// never guesses a template name. Configure per key:
+//   BEVATEL_WA_TEMPLATE_CONFIRM="elite_booking_confirmation"
+//   BEVATEL_WA_TEMPLATE_CONFIRM_LANG="en"   (default "en")
+// Positional body parameters are taken from numeric param keys ("1","2",…).
+function resolveWhatsAppTemplate(templateKey: string): {
+  name: string;
+  language: string;
+} {
+  const envKey = `BEVATEL_WA_TEMPLATE_${templateKey.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+  const name = process.env[envKey] || "";
+  if (!name)
+    throw new Error(
+      `Bevatel WhatsApp template not mapped for key "${templateKey}" (${envKey} missing) — refusing to guess a template name`,
+    );
+  return { name, language: process.env[`${envKey}_LANG`] || "en" };
+}
+
+export class BevatelWhatsAppProvider implements MessagingProvider {
+  private accountId = process.env.BEVATEL_ACCOUNT_ID || "";
+  private accessToken = process.env.BEVATEL_ACCESS_TOKEN || "";
+  private inboxId =
+    process.env.BEVATEL_INBOX_ID || process.env.BEVATEL_INDEX_ID || "";
+
+  async sendSms(): Promise<{ providerMessageId: string }> {
+    throw new Error(
+      "Bevatel WhatsApp provider does not send SMS — SMS is a separate capability (bevatel_sms)",
+    );
+  }
+
+  async sendWhatsApp(
+    to: string,
+    templateKey: string,
+    params: Record<string, string>,
+  ): Promise<{ providerMessageId: string }> {
+    if (!this.accountId || !this.accessToken || !this.inboxId)
+      throw new Error(
+        "Bevatel WhatsApp not configured (BEVATEL_ACCOUNT_ID/BEVATEL_ACCESS_TOKEN/BEVATEL_INBOX_ID missing)",
+      );
+    // Hard guard: the protected Dr Paws inbox 810 must never be used here.
+    if (this.inboxId === "810")
+      throw new Error("protected_asset: bevatel inbox 810");
+    const template = resolveWhatsAppTemplate(templateKey);
+    const bodyParams = Object.keys(params)
+      .filter((k) => /^\d+$/.test(k))
+      .sort((a, b) => Number(a) - Number(b))
+      .map((k) => String(params[k]));
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    let response: globalThis.Response;
+    try {
+      response = await fetch(BEVATEL_CHAT_SEND_URL, {
+        method: "POST",
+        headers: {
+          api_account_id: this.accountId,
+          api_access_token: this.accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inbox_id: Number(this.inboxId),
+          contact: { phone_number: to },
+          message: {
+            template: {
+              name: template.name,
+              language: template.language,
+              ...(bodyParams.length
+                ? { parameters: { body: bodyParams } }
+                : {}),
+            },
+          },
+        }),
+        signal: controller.signal,
+      });
+    } catch (cause: any) {
+      clearTimeout(timer);
+      throw new Error(
+        `Bevatel WhatsApp request failed: ${cause?.name === "AbortError" ? "timeout" : "network error"}`,
+        { cause },
+      );
+    }
+    clearTimeout(timer);
+    const data: any = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      // Documented failure shapes: 401 {error:"Invalid Access Token"},
+      // 404 {error:"Inbox not found. ... whatsapp inboxes only"}.
+      // Never echo upstream bodies beyond a short redacted error string.
+      const msg =
+        typeof data?.error === "string" ? data.error.slice(0, 120) : "unknown";
+      const err = new Error(
+        `Bevatel WhatsApp rejected send (${response.status}): ${msg}`,
+      );
+      (err as any).status = response.status;
+      throw err;
+    }
+    // The documented 201 response carries no message id; synthesize a local
+    // reference so audit/notification rows stay traceable.
+    return { providerMessageId: `bevatel-wa-${Date.now()}` };
+  }
+}
+
 export function getMessagingProvider(): MessagingProvider {
   const kind = (process.env.MESSAGING_PROVIDER || "stub").toLowerCase();
   if (kind === "bevatel") return new BevatelProvider();
   if (kind === "bevatel_sms") return new BevatelSmsProvider();
+  if (kind === "bevatel_chat") return new BevatelWhatsAppProvider();
   return new StubProvider();
 }
 
