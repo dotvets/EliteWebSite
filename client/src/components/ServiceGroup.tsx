@@ -14,7 +14,7 @@ export default function ServiceGroup({
   services,
   expandedCards,
   toggleCard,
-  t
+  t,
 }: ServiceGroupProps) {
   return (
     <div className="max-w-7xl mx-auto overflow-x-hidden">

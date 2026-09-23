@@ -9,12 +9,15 @@ type TeamMemberCardProps = {
   testId?: string;
 };
 
-export function TeamMemberCard({ name, role, initials, image, testId }: TeamMemberCardProps) {
+export function TeamMemberCard({
+  name,
+  role: _role,
+  initials,
+  image,
+  testId,
+}: TeamMemberCardProps) {
   return (
-    <Card
-      className="p-6 text-center hover-elevate h-full"
-      data-testid={testId}
-    >
+    <Card className="p-6 text-center hover-elevate h-full" data-testid={testId}>
       <Avatar className="w-40 h-40 mx-auto mb-4">
         <AvatarImage src={image} alt={name} />
         <AvatarFallback className="bg-primary/10 text-primary text-3xl">

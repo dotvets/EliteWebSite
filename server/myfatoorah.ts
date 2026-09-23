@@ -3,7 +3,7 @@
 // Saudi accounts must use the api-sa endpoint.
 const BASE = () =>
   process.env.MYFATOORAH_MODE === "live"
-    ? (process.env.MYFATOORAH_BASE_URL || "https://api-sa.myfatoorah.com")
+    ? process.env.MYFATOORAH_BASE_URL || "https://api-sa.myfatoorah.com"
     : "https://apitest.myfatoorah.com";
 
 function configured() {
@@ -54,7 +54,11 @@ export async function createInvoice(opts: {
         invoiceUrl: r.Data.InvoiceURL,
       };
     }
-    return { ok: false, reason: r?.Message || "myfatoorah_error", raw: r?.ValidationErrors };
+    return {
+      ok: false,
+      reason: r?.Message || "myfatoorah_error",
+      raw: r?.ValidationErrors,
+    };
   } catch (err: any) {
     return { ok: false, reason: err?.message };
   }

@@ -2,9 +2,17 @@ import { useEffect, useState } from "react";
 
 // Homepage section visibility/order config stored in site_content key "home.sections".
 // Format: { hidden: string[], order: string[], heroHidden: boolean }
-export type HomeSectionsConfig = { hidden: string[]; order: string[]; heroHidden: boolean };
+export type HomeSectionsConfig = {
+  hidden: string[];
+  order: string[];
+  heroHidden: boolean;
+};
 
-const DEFAULT_CFG: HomeSectionsConfig = { hidden: [], order: [], heroHidden: false };
+const DEFAULT_CFG: HomeSectionsConfig = {
+  hidden: [],
+  order: [],
+  heroHidden: false,
+};
 
 let cache: HomeSectionsConfig | null = null;
 let pending: Promise<HomeSectionsConfig> | null = null;
@@ -19,8 +27,14 @@ export function getHomeSectionsConfig(): Promise<HomeSectionsConfig> {
         if (!row?.valueAr) return DEFAULT_CFG;
         try {
           const parsed = JSON.parse(row.valueAr);
-          cache = { hidden: parsed.hidden || [], order: parsed.order || [], heroHidden: !!parsed.heroHidden };
-        } catch { cache = DEFAULT_CFG; }
+          cache = {
+            hidden: parsed.hidden || [],
+            order: parsed.order || [],
+            heroHidden: !!parsed.heroHidden,
+          };
+        } catch {
+          cache = DEFAULT_CFG;
+        }
         return cache!;
       })
       .catch(() => DEFAULT_CFG);
@@ -30,12 +44,17 @@ export function getHomeSectionsConfig(): Promise<HomeSectionsConfig> {
 
 export function useHomeSectionsConfig(): HomeSectionsConfig {
   const [cfg, setCfg] = useState<HomeSectionsConfig>(cache || DEFAULT_CFG);
-  useEffect(() => { getHomeSectionsConfig().then(setCfg); }, []);
+  useEffect(() => {
+    getHomeSectionsConfig().then(setCfg);
+  }, []);
   return cfg;
 }
 
 /** Apply hide/order config to the section list. */
-export function arrangeSections<T extends { key: string }>(sections: T[], cfg: HomeSectionsConfig): T[] {
+export function arrangeSections<T extends { key: string }>(
+  sections: T[],
+  cfg: HomeSectionsConfig,
+): T[] {
   const visible = sections.filter((s) => !cfg.hidden.includes(s.key));
   if (!cfg.order.length) return visible;
   const rank = (k: string) => {
@@ -60,7 +79,11 @@ export function getHomeTexts(): Promise<HomeTexts> {
       .then((rows: any[]) => {
         const row = rows.find((c) => c.key === "home.texts");
         if (!row?.valueAr) return {};
-        try { textsCache = JSON.parse(row.valueAr) || {}; } catch { textsCache = {}; }
+        try {
+          textsCache = JSON.parse(row.valueAr) || {};
+        } catch {
+          textsCache = {};
+        }
         return textsCache!;
       })
       .catch(() => ({}));
@@ -70,12 +93,18 @@ export function getHomeTexts(): Promise<HomeTexts> {
 
 export function useHomeTexts(): HomeTexts {
   const [texts, setTexts] = useState<HomeTexts>(textsCache || {});
-  useEffect(() => { getHomeTexts().then(setTexts); }, []);
+  useEffect(() => {
+    getHomeTexts().then(setTexts);
+  }, []);
   return texts;
 }
 
 /** Deep-set dotted paths from overrides for the active language (non-destructive). */
-export function applyTextOverrides<T>(t: T, texts: HomeTexts, lang: "ar" | "en"): T {
+export function applyTextOverrides<T>(
+  t: T,
+  texts: HomeTexts,
+  lang: "ar" | "en",
+): T {
   if (!texts || !Object.keys(texts).length) return t;
   const clone: any = JSON.parse(JSON.stringify(t));
   for (const [path, val] of Object.entries(texts)) {
@@ -84,7 +113,10 @@ export function applyTextOverrides<T>(t: T, texts: HomeTexts, lang: "ar" | "en")
     const parts = path.split(".");
     let node = clone;
     for (let i = 0; i < parts.length - 1; i++) {
-      if (node[parts[i]] == null || typeof node[parts[i]] !== "object") { node = null as any; break; }
+      if (node[parts[i]] == null || typeof node[parts[i]] !== "object") {
+        node = null as any;
+        break;
+      }
       node = node[parts[i]];
     }
     if (node) node[parts[parts.length - 1]] = v;

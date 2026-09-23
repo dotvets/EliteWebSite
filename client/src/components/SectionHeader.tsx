@@ -7,7 +7,12 @@ type SectionHeaderProps = {
   className?: string;
 };
 
-export function SectionHeader({ title, description, titleTestId, className = "" }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  description,
+  titleTestId,
+  className = "",
+}: SectionHeaderProps) {
   return (
     <AnimatedContent className={`text-center mb-12 ${className}`}>
       <h2

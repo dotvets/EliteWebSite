@@ -1,5 +1,14 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, Stethoscope as StethoscopeIcon, Wrench, Heart, Stethoscope, Syringe, Scissors } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  Stethoscope as StethoscopeIcon,
+  Wrench,
+  Heart,
+  Stethoscope,
+  Syringe,
+  Scissors,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { fadeInUp } from "@/animations";
@@ -20,10 +29,26 @@ const serviceIcons = [Stethoscope, Syringe, Heart, Scissors];
 const benefitIcons = [Clock, StethoscopeIcon, Wrench, Heart];
 
 const partnerLogos = [
-  { name: "VetsVan", image: siteImage("img.partners.vetsvan", vetsvanLogo), width: "w-56" },
-  { name: "Wadi Qortuba", image: siteImage("img.partners.wadiqortuba", wadiQortubaLogo), width: "w-48" },
-  { name: "Walaaa Plus", image: siteImage("img.partners.walaaaplus", walaaaPlusLogo), width: "w-56" },
-  { name: "Wazen", image: siteImage("img.partners.wazen", wazenLogo), width: "w-44" },
+  {
+    name: "VetsVan",
+    image: siteImage("img.partners.vetsvan", vetsvanLogo),
+    width: "w-56",
+  },
+  {
+    name: "Wadi Qortuba",
+    image: siteImage("img.partners.wadiqortuba", wadiQortubaLogo),
+    width: "w-48",
+  },
+  {
+    name: "Walaaa Plus",
+    image: siteImage("img.partners.walaaaplus", walaaaPlusLogo),
+    width: "w-56",
+  },
+  {
+    name: "Wazen",
+    image: siteImage("img.partners.wazen", wazenLogo),
+    width: "w-44",
+  },
 ];
 
 interface Translation {
@@ -88,7 +113,10 @@ export const createHomeSections = (t: Translation) => [
           </p>
         </AnimatedContent>
 
-        <AnimatedContent variant="staggerGrid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <AnimatedContent
+          variant="staggerGrid"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
+        >
           {t.services.items.map((service: any, index: number) => {
             const Icon = serviceIcons[index];
             return (
@@ -103,7 +131,9 @@ export const createHomeSections = (t: Translation) => [
                   <h3 className="text-xl font-semibold font-heading text-foreground mb-2">
                     {service.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm">{service.description}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {service.description}
+                  </p>
                 </Card>
               </motion.div>
             );
@@ -129,16 +159,28 @@ export const createHomeSections = (t: Translation) => [
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
         <div className="text-center mb-16">
-          <SectionHeader title={t.whyChoose.title} titleTestId="text-why-title" className="mb-8 sm:mb-12" />
+          <SectionHeader
+            title={t.whyChoose.title}
+            titleTestId="text-why-title"
+            className="mb-8 sm:mb-12"
+          />
 
           <div className="mb-12">
             <p className="text-lg text-muted-foreground mb-8 font-body">
               {t.whyChoose.intro}
             </p>
 
-            <AnimatedContent variant="staggerGrid" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
+            <AnimatedContent
+              variant="staggerGrid"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto"
+            >
               {t.whyChoose.statistics.map((stat: any, index: number) => (
-                <motion.div key={index} variants={fadeInUp} className="text-center" data-testid={`stat-item-${index}`}>
+                <motion.div
+                  key={index}
+                  variants={fadeInUp}
+                  className="text-center"
+                  data-testid={`stat-item-${index}`}
+                >
                   <CountingNumber target={stat.number} duration={3} />
                   <p className="text-base text-muted-foreground mt-3 font-body">
                     {stat.label}
@@ -168,10 +210,10 @@ export const createHomeSections = (t: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
-        <SectionHeader 
-          title={t.team.title} 
-          description={t.team.description} 
-          titleTestId="text-team-title" 
+        <SectionHeader
+          title={t.team.title}
+          description={t.team.description}
+          titleTestId="text-team-title"
         />
 
         <AnimatedContent variant="fadeInUp" className="mt-8">
@@ -185,7 +227,10 @@ export const createHomeSections = (t: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <div className="max-w-7xl mx-auto overflow-x-hidden">
-        <SectionHeader title={t.partners.title} titleTestId="text-partners-title" />
+        <SectionHeader
+          title={t.partners.title}
+          titleTestId="text-partners-title"
+        />
 
         <div className="mt-12">
           <PartnerCarousel partners={partnerLogos} />
@@ -198,10 +243,10 @@ export const createHomeSections = (t: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="max-w-2xl mx-auto overflow-x-hidden">
-        <SectionHeader 
-          title={t.contact.title} 
-          description={t.contact.description} 
-          titleTestId="text-contact-title" 
+        <SectionHeader
+          title={t.contact.title}
+          description={t.contact.description}
+          titleTestId="text-contact-title"
         />
 
         <AnimatedContent variant="fadeInUp">

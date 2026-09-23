@@ -15,20 +15,21 @@ export function CountingNumber({ target, duration = 3 }: CountingNumberProps) {
   useEffect(() => {
     if (isInView) {
       setCount(0);
-      
+
       const startTime = Date.now();
       const endTime = startTime + duration * 1000;
 
       const updateCount = () => {
         const now = Date.now();
         const progress = Math.min((now - startTime) / (duration * 1000), 1);
-        
-        const easeInOutCubic = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-        
+
+        const easeInOutCubic =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
         const currentCount = Math.floor(easeInOutCubic * target);
-        
+
         setCount(currentCount);
 
         if (now < endTime) {
@@ -49,7 +50,10 @@ export function CountingNumber({ target, duration = 3 }: CountingNumberProps) {
   }, [isInView, target, duration]);
 
   return (
-    <div ref={ref} className="text-4xl lg:text-5xl font-bold font-heading text-primary">
+    <div
+      ref={ref}
+      className="text-4xl lg:text-5xl font-bold font-heading text-primary"
+    >
       {count.toLocaleString()}
     </div>
   );

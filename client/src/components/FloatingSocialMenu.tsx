@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
-import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaSnapchat } from "react-icons/fa6";
+import {
+  FaWhatsapp,
+  FaFacebook,
+  FaInstagram,
+  FaTiktok,
+  FaSnapchat,
+} from "react-icons/fa6";
 import { Share2, X } from "lucide-react";
 
 export default function FloatingSocialMenu() {
@@ -8,53 +14,61 @@ export default function FloatingSocialMenu() {
   const dragControls = useDragControls();
 
   const socialLinks = [
-    { 
-      name: "WhatsApp", 
-      icon: FaWhatsapp, 
+    {
+      name: "WhatsApp",
+      icon: FaWhatsapp,
       url: "https://wa.me/920011626",
-      color: "#25D366"
+      color: "#25D366",
     },
-    { 
-      name: "Facebook", 
-      icon: FaFacebook, 
+    {
+      name: "Facebook",
+      icon: FaFacebook,
       url: "https://www.facebook.com/EliteVetKsa/",
-      color: "#1877F2"
+      color: "#1877F2",
     },
-    { 
-      name: "Instagram", 
-      icon: FaInstagram, 
+    {
+      name: "Instagram",
+      icon: FaInstagram,
       url: "https://www.instagram.com/elitevetksa/",
-      color: "#E4405F"
+      color: "#E4405F",
     },
-    { 
-      name: "TikTok", 
-      icon: FaTiktok, 
+    {
+      name: "TikTok",
+      icon: FaTiktok,
       url: "https://www.tiktok.com/@elitevetksa?_t=8bOy5ryM69C&_r=1",
-      color: "#000000"
+      color: "#000000",
     },
-    { 
-      name: "Snapchat", 
-      icon: FaSnapchat, 
+    {
+      name: "Snapchat",
+      icon: FaSnapchat,
       url: "https://www.snapchat.com/add/elitevetksa",
-      color: "#FFFC00"
+      color: "#FFFC00",
     },
   ];
 
   // Subtle sound effect for opening menu (upward swoosh)
   const playOpenSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (
+      window.AudioContext || (window as any).webkitAudioContext
+    )();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    oscillator.type = 'sine';
+    oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      800,
+      audioContext.currentTime + 0.15,
+    );
 
     gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioContext.currentTime + 0.15,
+    );
 
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.15);
@@ -62,19 +76,27 @@ export default function FloatingSocialMenu() {
 
   // Subtle sound effect for closing menu (downward swoosh)
   const playCloseSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (
+      window.AudioContext || (window as any).webkitAudioContext
+    )();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    oscillator.type = 'sine';
+    oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.12);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      300,
+      audioContext.currentTime + 0.12,
+    );
 
     gainNode.gain.setValueAtTime(0.18, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.12);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioContext.currentTime + 0.12,
+    );
 
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.12);
@@ -99,7 +121,10 @@ export default function FloatingSocialMenu() {
   };
 
   return (
-    <div className="fixed right-4 sm:right-6 bottom-4 sm:bottom-6 z-[150]" data-testid="container-floating-social">
+    <div
+      className="fixed right-4 sm:right-6 bottom-4 sm:bottom-6 z-[150]"
+      data-testid="container-floating-social"
+    >
       {/* Toggle Button */}
       <motion.button
         onClick={toggleMenu}
@@ -160,7 +185,7 @@ export default function FloatingSocialMenu() {
             {socialLinks.map((social, index) => {
               const position = getIconPosition(index);
               const Icon = social.icon;
-              
+
               return (
                 <motion.a
                   key={social.name}
@@ -173,28 +198,28 @@ export default function FloatingSocialMenu() {
                     right: 0,
                     boxShadow: "0 2px 12px rgba(119, 96, 168, 0.3)",
                   }}
-                  initial={{ 
-                    x: 0, 
+                  initial={{
+                    x: 0,
                     y: 0,
                     opacity: 0,
-                    scale: 0
+                    scale: 0,
                   }}
-                  animate={{ 
-                    x: position.x, 
+                  animate={{
+                    x: position.x,
                     y: position.y,
                     opacity: 1,
-                    scale: 1
+                    scale: 1,
                   }}
-                  exit={{ 
-                    x: 0, 
+                  exit={{
+                    x: 0,
                     y: 0,
                     opacity: 0,
-                    scale: 0
+                    scale: 0,
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 0.4,
                     delay: index * 0.08,
-                    ease: "easeOut"
+                    ease: "easeOut",
                   }}
                   aria-label={social.name}
                   data-testid={`link-floating-${social.name.toLowerCase()}`}
@@ -202,10 +227,7 @@ export default function FloatingSocialMenu() {
                     e.stopPropagation();
                   }}
                 >
-                  <Icon 
-                    className="w-6 h-6" 
-                    style={{ color: social.color }}
-                  />
+                  <Icon className="w-6 h-6" style={{ color: social.color }} />
                 </motion.a>
               );
             })}

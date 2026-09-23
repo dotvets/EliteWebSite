@@ -9,17 +9,17 @@ interface VideoControlsProps {
   isVisible: boolean;
 }
 
-export function VideoControls({ 
-  isPlaying, 
-  isMuted, 
-  onPlayPause, 
+export function VideoControls({
+  isPlaying,
+  isMuted,
+  onPlayPause,
   onMuteToggle,
-  isVisible 
+  isVisible,
 }: VideoControlsProps) {
   return (
-    <div 
+    <div
       className={`absolute bottom-6 right-6 z-30 flex gap-2 transition-opacity duration-300 ${
-        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
       <Button
@@ -29,9 +29,13 @@ export function VideoControls({
         className="bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 hover:text-white"
         data-testid="button-video-play-pause"
       >
-        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        {isPlaying ? (
+          <Pause className="h-4 w-4" />
+        ) : (
+          <Play className="h-4 w-4" />
+        )}
       </Button>
-      
+
       <Button
         size="icon"
         variant="ghost"
@@ -39,7 +43,11 @@ export function VideoControls({
         className="bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 hover:text-white"
         data-testid="button-video-mute-toggle"
       >
-        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        {isMuted ? (
+          <VolumeX className="h-4 w-4" />
+        ) : (
+          <Volume2 className="h-4 w-4" />
+        )}
       </Button>
     </div>
   );

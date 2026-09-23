@@ -6,9 +6,9 @@ export const staggerContainer: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.15,
-      delayChildren: 0.1
-    }
-  }
+      delayChildren: 0.1,
+    },
+  },
 };
 
 export const staggerList: Variants = {
@@ -17,9 +17,9 @@ export const staggerList: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.05
-    }
-  }
+      delayChildren: 0.05,
+    },
+  },
 };
 
 export const staggerGrid: Variants = {
@@ -28,7 +28,7 @@ export const staggerGrid: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.12,
-      delayChildren: 0.08
-    }
-  }
+      delayChildren: 0.08,
+    },
+  },
 };

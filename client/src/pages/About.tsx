@@ -16,8 +16,8 @@ export default function About() {
 
   return (
     <PageLayout dataTestId="page-about">
-      <HeroImage 
-        image={siteImage("img.about.hero", heroImage)} 
+      <HeroImage
+        image={siteImage("img.about.hero", heroImage)}
         title={t.hero.title}
         alt={t.hero.title}
       />

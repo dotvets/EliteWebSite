@@ -45,7 +45,9 @@ type BrandRow = {
 };
 
 function emergencyFeatureEnabled(): boolean {
-  return (process.env.EMERGENCY_PATH_ENABLED || "false").toLowerCase() === "true";
+  return (
+    (process.env.EMERGENCY_PATH_ENABLED || "false").toLowerCase() === "true"
+  );
 }
 
 function clientIp(req: Request): string {
@@ -66,14 +68,23 @@ function emergencyRateLimit(req: Request, res: Response): boolean {
   }
   bucket.count += 1;
   if (bucket.count > EMERGENCY_IP_LIMIT) {
-    res.status(429).json({ error: "rate_limited", retry_after_seconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) });
+    res.status(429).json({
+      error: "rate_limited",
+      retry_after_seconds: Math.max(
+        1,
+        Math.ceil((bucket.resetAt - now) / 1000),
+      ),
+    });
     return false;
   }
   return true;
 }
 
 async function getBrand(brand: string): Promise<BrandRow | null> {
-  const r = await pool.query(`SELECT brand, display_name_ar, display_name_en, config_json FROM hub_brands WHERE brand = $1 LIMIT 1`, [brand]);
+  const r = await pool.query(
+    `SELECT brand, display_name_ar, display_name_en, config_json FROM hub_brands WHERE brand = $1 LIMIT 1`,
+    [brand],
+  );
   return r.rows[0] || null;
 }
 
@@ -81,7 +92,10 @@ function emergencyConfig(brand: BrandRow) {
   const root = brand.config_json || {};
   const cfg = root.emergency || {};
   const enabled = emergencyFeatureEnabled() && cfg.enabled === true;
-  const webhookUrl = typeof cfg.webhook_url === "string" && cfg.webhook_url.trim() ? cfg.webhook_url.trim() : null;
+  const webhookUrl =
+    typeof cfg.webhook_url === "string" && cfg.webhook_url.trim()
+      ? cfg.webhook_url.trim()
+      : null;
   const email = cfg.email === true;
   const channel = webhookUrl ? "webhook" : email ? "email" : null;
   return {
@@ -101,7 +115,12 @@ function validWebhookUrl(raw: string): URL | null {
     if (url.protocol !== "https:") return null;
     if (url.username || url.password) return null;
     const host = url.hostname.toLowerCase();
-    if (host === "localhost" || host.endsWith(".local") || /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host)) return null;
+    if (
+      host === "localhost" ||
+      host.endsWith(".local") ||
+      /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(host)
+    )
+      return null;
     return url;
   } catch {
     return null;
@@ -109,10 +128,20 @@ function validWebhookUrl(raw: string): URL | null {
 }
 
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>'"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[ch] || ch);
+  return value.replace(
+    /[&<>'"]/g,
+    (ch) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        ch
+      ] || ch,
+  );
 }
 
-async function deliverEmergency(request: any, brand: BrandRow, channel: string): Promise<{ ok: boolean; channel: string; reason?: string }> {
+async function deliverEmergency(
+  request: any,
+  brand: BrandRow,
+  channel: string,
+): Promise<{ ok: boolean; channel: string; reason?: string }> {
   const cfg = (brand.config_json || {}).emergency || {};
   if (channel === "webhook") {
     const url = validWebhookUrl(String(cfg.webhook_url || ""));
@@ -135,17 +164,24 @@ async function deliverEmergency(request: any, brand: BrandRow, channel: string):
         }),
         signal: controller.signal,
       });
-      if (!resp.ok) return { ok: false, channel, reason: `webhook_http_${resp.status}` };
+      if (!resp.ok)
+        return { ok: false, channel, reason: `webhook_http_${resp.status}` };
       return { ok: true, channel };
     } catch (error: any) {
-      return { ok: false, channel, reason: error?.name === "AbortError" ? "webhook_timeout" : "webhook_failed" };
+      return {
+        ok: false,
+        channel,
+        reason:
+          error?.name === "AbortError" ? "webhook_timeout" : "webhook_failed",
+      };
     } finally {
       clearTimeout(timer);
     }
   }
 
   if (channel === "email") {
-    const brandName = brand.display_name_ar || brand.display_name_en || brand.brand;
+    const brandName =
+      brand.display_name_ar || brand.display_name_en || brand.brand;
     const html = `<div dir="rtl" style="font-family:sans-serif">
       <h2>حالة طارئة — ${escapeHtml(brandName)}</h2>
       <table cellpadding="6" style="border-collapse:collapse">
@@ -156,10 +192,16 @@ async function deliverEmergency(request: any, brand: BrandRow, channel: string):
       </table>
     </div>`;
     const result = await sendNotification(`حالة طارئة — ${brandName}`, html);
-    return result.sent ? { ok: true, channel } : { ok: false, channel, reason: result.reason || "email_failed" };
+    return result.sent
+      ? { ok: true, channel }
+      : { ok: false, channel, reason: result.reason || "email_failed" };
   }
 
-  return { ok: false, channel: "none", reason: "emergency_channel_unconfigured" };
+  return {
+    ok: false,
+    channel: "none",
+    reason: "emergency_channel_unconfigured",
+  };
 }
 
 export function registerHubEmergencyRoutes(app: Express) {
@@ -170,7 +212,8 @@ export function registerHubEmergencyRoutes(app: Express) {
   app.get("/api/hub/:brand/emergency-config", async (req, res) => {
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
       const brand = await getBrand(brandParam);
       if (!brand) return res.status(404).json({ error: "unknown_brand" });
       const cfg = emergencyConfig(brand);
@@ -181,7 +224,13 @@ export function registerHubEmergencyRoutes(app: Express) {
         fallback: cfg.fallback,
       });
     } catch (error: any) {
-      console.error(JSON.stringify({ level: "error", msg: "emergency_config_failed", error: redactErrorMessage(error) }));
+      console.error(
+        JSON.stringify({
+          level: "error",
+          msg: "emergency_config_failed",
+          error: redactErrorMessage(error),
+        }),
+      );
       res.status(500).json({ error: "emergency_config_failed" });
     }
   });
@@ -191,62 +240,135 @@ export function registerHubEmergencyRoutes(app: Express) {
     if (!emergencyRateLimit(req, res)) return;
     try {
       const brandParam = String(req.params.brand || "");
-      if (!BRAND_RE.test(brandParam)) return res.status(400).json({ error: "invalid_brand" });
+      if (!BRAND_RE.test(brandParam))
+        return res.status(400).json({ error: "invalid_brand" });
       const brand = await getBrand(brandParam);
       if (!brand) return res.status(404).json({ error: "unknown_brand" });
       const cfg = emergencyConfig(brand);
-      if (!cfg.enabled) return res.status(404).json({ error: "emergency_unavailable" });
+      if (!cfg.enabled)
+        return res.status(404).json({ error: "emergency_unavailable" });
 
       const parsed = emergencySchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "invalid_input", fields: parsed.error.issues.map((i) => i.path.join(".")).slice(0, 10) });
-      if (parsed.data.website) return res.status(400).json({ error: "invalid_input" });
+      if (!parsed.success)
+        return res.status(400).json({
+          error: "invalid_input",
+          fields: parsed.error.issues.map((i) => i.path.join(".")).slice(0, 10),
+        });
+      if (parsed.data.website)
+        return res.status(400).json({ error: "invalid_input" });
 
       const id = crypto.randomUUID();
       const inserted = await pool.query(
         `INSERT INTO hub_emergency_requests (id, brand, species, symptoms, eta, locale, channel, status, source_json)
          VALUES ($1,$2,$3,$4,$5,$6,$7,'pending',$8)
          RETURNING id, brand, species, symptoms, eta, locale, channel, status, source_json, created_at`,
-        [id, brand.brand, parsed.data.species, parsed.data.symptoms, parsed.data.eta, parsed.data.locale, cfg.channel, JSON.stringify(parsed.data.source || {})],
+        [
+          id,
+          brand.brand,
+          parsed.data.species,
+          parsed.data.symptoms,
+          parsed.data.eta,
+          parsed.data.locale,
+          cfg.channel,
+          JSON.stringify(parsed.data.source || {}),
+        ],
       );
       const request = inserted.rows[0];
 
       if (!cfg.channel) {
-        await pool.query(`UPDATE hub_emergency_requests SET status = 'failed' WHERE id = $1`, [id]);
-        await audit("system", "emergency.channel_unconfigured", "hub_emergency_requests", id, { brand: brand.brand });
-        return res.status(503).json({ error: "emergency_channel_unconfigured", fallback: cfg.fallback });
+        await pool.query(
+          `UPDATE hub_emergency_requests SET status = 'failed' WHERE id = $1`,
+          [id],
+        );
+        await audit(
+          "system",
+          "emergency.channel_unconfigured",
+          "hub_emergency_requests",
+          id,
+          { brand: brand.brand },
+        );
+        return res.status(503).json({
+          error: "emergency_channel_unconfigured",
+          fallback: cfg.fallback,
+        });
       }
 
       const delivered = await deliverEmergency(request, brand, cfg.channel);
       if (!delivered.ok) {
-        await pool.query(`UPDATE hub_emergency_requests SET status = 'failed' WHERE id = $1`, [id]);
-        await audit("system", "emergency.delivery_failed", "hub_emergency_requests", id, { brand: brand.brand, channel: delivered.channel, reason: delivered.reason || "unknown" });
-        return res.status(502).json({ error: "emergency_delivery_failed", fallback: cfg.fallback });
+        await pool.query(
+          `UPDATE hub_emergency_requests SET status = 'failed' WHERE id = $1`,
+          [id],
+        );
+        await audit(
+          "system",
+          "emergency.delivery_failed",
+          "hub_emergency_requests",
+          id,
+          {
+            brand: brand.brand,
+            channel: delivered.channel,
+            reason: delivered.reason || "unknown",
+          },
+        );
+        return res
+          .status(502)
+          .json({ error: "emergency_delivery_failed", fallback: cfg.fallback });
       }
 
-      await pool.query(`UPDATE hub_emergency_requests SET status = 'sent' WHERE id = $1`, [id]);
-      await audit("public:emergency", "emergency.submitted", "hub_emergency_requests", id, { brand: brand.brand, channel: delivered.channel, species: request.species });
+      await pool.query(
+        `UPDATE hub_emergency_requests SET status = 'sent' WHERE id = $1`,
+        [id],
+      );
+      await audit(
+        "public:emergency",
+        "emergency.submitted",
+        "hub_emergency_requests",
+        id,
+        {
+          brand: brand.brand,
+          channel: delivered.channel,
+          species: request.species,
+        },
+      );
       res.json({ received: true, requestId: id, channel: delivered.channel });
     } catch (error: any) {
-      console.error(JSON.stringify({ level: "error", msg: "emergency_submit_failed", error: redactErrorMessage(error) }));
+      console.error(
+        JSON.stringify({
+          level: "error",
+          msg: "emergency_submit_failed",
+          error: redactErrorMessage(error),
+        }),
+      );
       res.status(500).json({ error: "emergency_submit_failed" });
     }
   });
 
   // Admin operational log. No phone numbers are collected by this feature.
-  app.get("/api/hub/admin/emergency-requests", requireAdmin, async (req, res) => {
-    try {
-      const brand = typeof req.query.brand === "string" ? req.query.brand : null;
-      const rows = await pool.query(
-        `SELECT id, brand, species, symptoms, eta, channel, status, source_json, created_at
+  app.get(
+    "/api/hub/admin/emergency-requests",
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const brand =
+          typeof req.query.brand === "string" ? req.query.brand : null;
+        const rows = await pool.query(
+          `SELECT id, brand, species, symptoms, eta, channel, status, source_json, created_at
          FROM hub_emergency_requests
          WHERE ($1::varchar IS NULL OR brand = $1)
          ORDER BY created_at DESC LIMIT 100`,
-        [brand],
-      );
-      res.json({ requests: rows.rows });
-    } catch (error: any) {
-      console.error(JSON.stringify({ level: "error", msg: "emergency_admin_list_failed", error: redactErrorMessage(error) }));
-      res.status(500).json({ error: "emergency_admin_list_failed" });
-    }
-  });
+          [brand],
+        );
+        res.json({ requests: rows.rows });
+      } catch (error: any) {
+        console.error(
+          JSON.stringify({
+            level: "error",
+            msg: "emergency_admin_list_failed",
+            error: redactErrorMessage(error),
+          }),
+        );
+        res.status(500).json({ error: "emergency_admin_list_failed" });
+      }
+    },
+  );
 }

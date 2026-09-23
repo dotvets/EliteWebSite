@@ -18,7 +18,7 @@ interface Translation {
   [key: string]: any;
 }
 
-export const createAboutSections = (t: Translation, partners: Translation) => [
+export const createAboutSections = (t: Translation, _partners: Translation) => [
   {
     key: "who-we-are",
     image: siteImage("img.about.reception", clinicReception),
@@ -28,10 +28,16 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <AnimatedContent className="space-y-6 text-center lg:text-start">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary" data-testid="text-who-we-are-title">
+        <h2
+          className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary"
+          data-testid="text-who-we-are-title"
+        >
           {t.whoWeAre.title}
         </h2>
-        <p className="text-lg text-foreground/80 leading-relaxed" data-testid="text-who-we-are-description">
+        <p
+          className="text-lg text-foreground/80 leading-relaxed"
+          data-testid="text-who-we-are-description"
+        >
           {t.whoWeAre.description}
         </p>
       </AnimatedContent>
@@ -45,7 +51,10 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     reverse: true,
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
-      <AnimatedContent variant="staggerGrid" className="grid md:grid-cols-2 gap-8">
+      <AnimatedContent
+        variant="staggerGrid"
+        className="grid md:grid-cols-2 gap-8"
+      >
         <motion.div variants={fadeInUp}>
           <IconCard
             icon={Target}
@@ -74,13 +83,22 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <AnimatedContent className="text-center lg:text-start">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-why-choose-title">
+        <h2
+          className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4"
+          data-testid="text-why-choose-title"
+        >
           {t.whyChoose.title}
         </h2>
-        <p className="text-xl font-semibold text-foreground mb-6" data-testid="text-why-choose-subtitle">
+        <p
+          className="text-xl font-semibold text-foreground mb-6"
+          data-testid="text-why-choose-subtitle"
+        >
           {t.whyChoose.subtitle}
         </p>
-        <p className="text-lg text-foreground/80" data-testid="text-why-choose-description">
+        <p
+          className="text-lg text-foreground/80"
+          data-testid="text-why-choose-description"
+        >
           {t.whyChoose.description}
         </p>
       </AnimatedContent>
@@ -117,10 +135,16 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     content: (
       <div className="space-y-8 text-center lg:text-start">
         <AnimatedContent>
-          <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-csr-title">
+          <h2
+            className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6"
+            data-testid="text-csr-title"
+          >
             {t.csr.title}
           </h2>
-          <p className="text-lg text-foreground/80 mb-8" data-testid="text-csr-description">
+          <p
+            className="text-lg text-foreground/80 mb-8"
+            data-testid="text-csr-description"
+          >
             {t.csr.description}
           </p>
         </AnimatedContent>
@@ -150,15 +174,24 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
     content: (
       <div className="space-y-6 text-center lg:text-start">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6" data-testid="text-doctors-title">
+        <h2
+          className="text-2xl md:text-3xl font-bold font-heading text-primary mb-6"
+          data-testid="text-doctors-title"
+        >
           {t.ourDoctors.title}
         </h2>
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <p className="text-lg text-foreground/80 leading-relaxed mb-4" data-testid="text-doctors-description">
+            <p
+              className="text-lg text-foreground/80 leading-relaxed mb-4"
+              data-testid="text-doctors-description"
+            >
               {t.ourDoctors.description}
             </p>
-            <p className="text-lg text-foreground/80 leading-relaxed" data-testid="text-doctors-surgeons">
+            <p
+              className="text-lg text-foreground/80 leading-relaxed"
+              data-testid="text-doctors-surgeons"
+            >
               {t.ourDoctors.surgeons}
             </p>
           </CardContent>
@@ -175,13 +208,22 @@ export const createAboutSections = (t: Translation, partners: Translation) => [
     className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-background",
     content: (
       <AnimatedContent className="space-y-6 text-center lg:text-start">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4" data-testid="text-careers-title">
+        <h2
+          className="text-2xl md:text-3xl font-bold font-heading text-primary mb-4"
+          data-testid="text-careers-title"
+        >
           {t.careers.title}
         </h2>
-        <h3 className="text-2xl font-semibold font-heading mb-6" data-testid="text-careers-subtitle">
+        <h3
+          className="text-2xl font-semibold font-heading mb-6"
+          data-testid="text-careers-subtitle"
+        >
           {t.careers.subtitle}
         </h3>
-        <p className="text-lg text-foreground/80" data-testid="text-careers-description">
+        <p
+          className="text-lg text-foreground/80"
+          data-testid="text-careers-description"
+        >
           {t.careers.description}
         </p>
       </AnimatedContent>

@@ -9,15 +9,15 @@ interface FeatureCardProps {
   variant?: "default" | "compact";
 }
 
-export function FeatureCard({ 
-  title, 
-  description, 
-  icon = "bullet", 
+export function FeatureCard({
+  title,
+  description,
+  icon = "bullet",
   testId,
-  variant = "default" 
+  variant = "default",
 }: FeatureCardProps) {
   const Icon = icon === "bullet" ? null : icon;
-  
+
   if (variant === "compact") {
     return (
       <Card className="hover-elevate h-full flex flex-col" data-testid={testId}>
@@ -48,12 +48,8 @@ export function FeatureCard({
             <Icon className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
           ) : null}
           <div>
-            <h3 className="text-xl font-semibold font-heading mb-2">
-              {title}
-            </h3>
-            <p className="text-foreground/70 leading-relaxed">
-              {description}
-            </p>
+            <h3 className="text-xl font-semibold font-heading mb-2">{title}</h3>
+            <p className="text-foreground/70 leading-relaxed">{description}</p>
           </div>
         </div>
       </CardContent>

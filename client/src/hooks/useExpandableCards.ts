@@ -1,12 +1,14 @@
 import { useState } from "react";
 
 export function useExpandableCards() {
-  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const toggleCard = (key: string) => {
-    setExpandedCards(prev => ({
+    setExpandedCards((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
@@ -15,6 +17,6 @@ export function useExpandableCards() {
   return {
     expandedCards,
     toggleCard,
-    isExpanded
+    isExpanded,
   };
 }

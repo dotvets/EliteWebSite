@@ -7,21 +7,21 @@ Server-side Digitail OAuth 2.0 Authorization Code + PKCE flow, configuration-dri
 
 Resolution order: **(1) explicit env override → (2) environment default.** Never guess endpoints.
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `DIGITAIL_ENV` | `sandbox` or `production` | `sandbox` |
-| `DIGITAIL_AUTHORIZE_URL` | optional override | per env (below) |
-| `DIGITAIL_TOKEN_URL` | optional override | per env (below) |
-| `DIGITAIL_API_BASE_URL` | optional override | per env (below) |
-| `DIGITAIL_CONNECTION_SCOPE` | OAuth connection scope (`elite`, `group`, …) — **not** a brand | `elite` |
+| Variable                    | Purpose                                                        | Default         |
+| --------------------------- | -------------------------------------------------------------- | --------------- |
+| `DIGITAIL_ENV`              | `sandbox` or `production`                                      | `sandbox`       |
+| `DIGITAIL_AUTHORIZE_URL`    | optional override                                              | per env (below) |
+| `DIGITAIL_TOKEN_URL`        | optional override                                              | per env (below) |
+| `DIGITAIL_API_BASE_URL`     | optional override                                              | per env (below) |
+| `DIGITAIL_CONNECTION_SCOPE` | OAuth connection scope (`elite`, `group`, …) — **not** a brand | `elite`         |
 
 Environment defaults:
 
-| | sandbox | production |
-|---|---|---|
-| authorize | `https://developer.digitail.io/oauth/authorize` ✅ confirmed | `https://vet.digitail.io/oauth/authorize` ✅ |
-| token | `https://developer.digitail.io/oauth/token` ✅ confirmed (same URL for both grants) | `https://vet.digitail.io/oauth/token` ✅ |
-| API base | `https://developer.digitail.io/api/v1` ✅ | `https://vet.digitail.io/api/v1` ✅ |
+|           | sandbox                                                                             | production                                   |
+| --------- | ----------------------------------------------------------------------------------- | -------------------------------------------- |
+| authorize | `https://developer.digitail.io/oauth/authorize` ✅ confirmed                        | `https://vet.digitail.io/oauth/authorize` ✅ |
+| token     | `https://developer.digitail.io/oauth/token` ✅ confirmed (same URL for both grants) | `https://vet.digitail.io/oauth/token` ✅     |
+| API base  | `https://developer.digitail.io/api/v1` ✅                                           | `https://vet.digitail.io/api/v1` ✅          |
 
 On boot the server validates `DIGITAIL_ENV` and the required variables and **fails fast**
 on an unknown environment or missing values.
@@ -44,6 +44,7 @@ screen-share meeting (week of 2026-09-21).
 - Rate limit: 200 requests/minute.
 
 ### Resolved OPEN-Q
+
 - **Sandbox token endpoint** ✅ RESOLVED 2026-09-21 (George, Slack): `POST https://developer.digitail.io/oauth/token`
   — same URL covers both grants (`authorization_code` with code/redirect_uri/client_id/client_secret/code_verifier;
   `refresh_token` with refresh_token/client_id/client_secret). Production uses the same two paths on the production host.

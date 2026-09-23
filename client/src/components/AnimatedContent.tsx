@@ -35,32 +35,37 @@ interface AnimatedContentProps {
   viewport?: "default" | "stagger" | { once: boolean; amount: number };
 }
 
-export function AnimatedContent({ 
-  children, 
-  className = "", 
+export function AnimatedContent({
+  children,
+  className = "",
   variant = "fadeInUp",
   customVariants,
-  viewport = "default"
+  viewport = "default",
 }: AnimatedContentProps) {
   let variants: Variants;
-  
+
   if (variant === "custom" && customVariants) {
     variants = customVariants;
   } else if (variant === "custom" && !customVariants) {
-    console.warn(`AnimatedContent: variant="custom" requires customVariants prop. Falling back to fadeInUp.`);
+    console.warn(
+      `AnimatedContent: variant="custom" requires customVariants prop. Falling back to fadeInUp.`,
+    );
     variants = animations.fadeInUp;
   } else if (variantMap[variant]) {
     variants = variantMap[variant];
   } else {
-    console.warn(`AnimatedContent: Unknown variant "${variant}". Falling back to fadeInUp. Available variants: ${Object.keys(variantMap).join(", ")}`);
+    console.warn(
+      `AnimatedContent: Unknown variant "${variant}". Falling back to fadeInUp. Available variants: ${Object.keys(variantMap).join(", ")}`,
+    );
     variants = animations.fadeInUp;
   }
-  
-  const viewportConfig = typeof viewport === "object" 
-    ? viewport 
-    : viewport === "stagger" 
-      ? VIEWPORT_CONFIG_STAGGER 
-      : VIEWPORT_CONFIG_DEFAULT;
+
+  const viewportConfig =
+    typeof viewport === "object"
+      ? viewport
+      : viewport === "stagger"
+        ? VIEWPORT_CONFIG_STAGGER
+        : VIEWPORT_CONFIG_DEFAULT;
 
   return (
     <motion.div

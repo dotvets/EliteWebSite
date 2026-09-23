@@ -4,7 +4,11 @@ interface SliderIndicatorsProps {
   onSelect: (index: number) => void;
 }
 
-export function SliderIndicators({ count, selectedIndex, onSelect }: SliderIndicatorsProps) {
+export function SliderIndicators({
+  count,
+  selectedIndex,
+  onSelect,
+}: SliderIndicatorsProps) {
   return (
     <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
       {Array.from({ length: count }).map((_, index) => (

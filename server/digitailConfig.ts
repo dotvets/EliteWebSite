@@ -42,7 +42,8 @@ const ENV_DEFAULTS: Record<
   },
 };
 
-export const DEFAULT_REDIRECT_URI = "https://www.elitevetksa.com/api/digitail/callback";
+export const DEFAULT_REDIRECT_URI =
+  "https://www.elitevetksa.com/api/digitail/callback";
 
 function parseEnv(value: string | undefined): DigitailEnv {
   const env = (value || "sandbox").trim().toLowerCase();
@@ -71,9 +72,11 @@ export function resolveDigitailConfig(): DigitailConfig {
   const env = parseEnv(process.env.DIGITAIL_ENV);
   const defaults = ENV_DEFAULTS[env];
 
-  const authorizeUrl = process.env.DIGITAIL_AUTHORIZE_URL?.trim() || defaults.authorizeUrl;
+  const authorizeUrl =
+    process.env.DIGITAIL_AUTHORIZE_URL?.trim() || defaults.authorizeUrl;
   const tokenUrl = process.env.DIGITAIL_TOKEN_URL?.trim() || defaults.tokenUrl;
-  const apiBaseUrl = process.env.DIGITAIL_API_BASE_URL?.trim() || defaults.apiBaseUrl;
+  const apiBaseUrl =
+    process.env.DIGITAIL_API_BASE_URL?.trim() || defaults.apiBaseUrl;
 
   assertHttpsUrl("DIGITAIL authorize URL", authorizeUrl);
   if (tokenUrl) assertHttpsUrl("DIGITAIL token URL", tokenUrl);
@@ -84,7 +87,8 @@ export function resolveDigitailConfig(): DigitailConfig {
     authorizeUrl,
     tokenUrl,
     apiBaseUrl,
-    redirectUri: process.env.DIGITAIL_REDIRECT_URI?.trim() || DEFAULT_REDIRECT_URI,
+    redirectUri:
+      process.env.DIGITAIL_REDIRECT_URI?.trim() || DEFAULT_REDIRECT_URI,
     connectionScope: process.env.DIGITAIL_CONNECTION_SCOPE?.trim() || "elite",
     overrides: {
       authorizeUrl: !!process.env.DIGITAIL_AUTHORIZE_URL?.trim(),
@@ -98,11 +102,15 @@ export function resolveDigitailConfig(): DigitailConfig {
 // DIGITAIL_ENV or missing required variables — before the server accepts traffic.
 export function assertDigitailBootConfig(): DigitailConfig {
   const config = resolveDigitailConfig(); // throws on invalid env / malformed URLs
-  const missing = ["DIGITAIL_CLIENT_ID", "DIGITAIL_CLIENT_SECRET", "DIGITAIL_TOKEN_ENCRYPTION_KEY"].filter(
-    (name) => !process.env[name],
-  );
+  const missing = [
+    "DIGITAIL_CLIENT_ID",
+    "DIGITAIL_CLIENT_SECRET",
+    "DIGITAIL_TOKEN_ENCRYPTION_KEY",
+  ].filter((name) => !process.env[name]);
   if (missing.length > 0) {
-    throw new Error(`[digitail] Missing required environment variables: ${missing.join(", ")}`);
+    throw new Error(
+      `[digitail] Missing required environment variables: ${missing.join(", ")}`,
+    );
   }
   return config;
 }

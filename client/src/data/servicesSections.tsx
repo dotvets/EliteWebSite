@@ -239,7 +239,8 @@ export const createServicesSections = (
   return [
     {
       key: "hero",
-      className: "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
+      className:
+        "relative py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden",
       content: (
         <>
           <div
@@ -277,7 +278,8 @@ export const createServicesSections = (
     },
     {
       key: "service-group-1",
-      className: "pt-20 sm:pt-24 md:pt-28 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
+      className:
+        "pt-20 sm:pt-24 md:pt-28 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 bg-muted/30",
       content: (
         <ServiceGroup
           services={serviceGroups[0]}
@@ -367,7 +369,8 @@ export const createServicesSections = (
     },
     {
       key: "service-group-5",
-      className: "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 md:pb-20 bg-background",
+      className:
+        "py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 md:pb-20 bg-background",
       content: (
         <ServiceGroup
           services={serviceGroups[4]}

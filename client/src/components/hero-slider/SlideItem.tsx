@@ -10,15 +10,17 @@ interface SlideItemProps {
   index: number;
 }
 
-export function SlideItem({ image, title, subtitle, ctaText, index }: SlideItemProps) {
+export function SlideItem({
+  image,
+  title,
+  subtitle,
+  ctaText,
+  index,
+}: SlideItemProps) {
   return (
     <div className="flex-[0_0_100%] min-w-0 relative">
       <SlideOverlay />
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-full object-cover"
-      />
+      <img src={image} alt={title} className="w-full h-full object-cover" />
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h1

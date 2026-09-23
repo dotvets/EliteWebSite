@@ -25,7 +25,9 @@ export function PartnerCarousel({ partners }: PartnerCarouselProps) {
   }, [partners.length]);
 
   const goToPrevious = () => {
-    setActiveIndex((current) => (current - 1 + partners.length) % partners.length);
+    setActiveIndex(
+      (current) => (current - 1 + partners.length) % partners.length,
+    );
   };
 
   const goToNext = () => {
@@ -52,7 +54,7 @@ export function PartnerCarousel({ partners }: PartnerCarouselProps) {
               src={partners[activeIndex].image}
               alt={partners[activeIndex].name}
               className={`${partners[activeIndex].width} h-auto object-contain`}
-              data-testid={`img-partner-active-${partners[activeIndex].name.toLowerCase().replace(/\s+/g, '-')}`}
+              data-testid={`img-partner-active-${partners[activeIndex].name.toLowerCase().replace(/\s+/g, "-")}`}
             />
           </motion.div>
         </AnimatePresence>
@@ -75,7 +77,9 @@ export function PartnerCarousel({ partners }: PartnerCarouselProps) {
               key={index}
               onClick={() => goToSlide(index)}
               className={`transition-all duration-300 ${
-                index === activeIndex ? "opacity-100 scale-100" : "opacity-40 scale-90 hover:opacity-60"
+                index === activeIndex
+                  ? "opacity-100 scale-100"
+                  : "opacity-40 scale-90 hover:opacity-60"
               }`}
               data-testid={`button-partner-indicator-${index}`}
             >

@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { A, useToast } from "./ui";
-import { DAY_NAMES, DEFAULT_SCHEDULE, refreshWorkingHours, type DaySchedule } from "@/lib/workingHours";
+import {
+  DAY_NAMES,
+  DEFAULT_SCHEDULE,
+  refreshWorkingHours,
+  type DaySchedule,
+} from "@/lib/workingHours";
 
 type Api = (url: string, opts?: any) => Promise<any>;
 
@@ -23,12 +28,17 @@ export default function HoursPanel({ api }: { api: Api }) {
         if (row?.valueAr) {
           try {
             const arr = JSON.parse(row.valueAr);
-            if (Array.isArray(arr) && arr.length === 7) setDays(arr.map((d: any, i: number) => ({
-              open: d?.open !== false,
-              from: d?.from || DEFAULT_SCHEDULE[i].from,
-              to: d?.to || DEFAULT_SCHEDULE[i].to,
-            })));
-          } catch { /* keep defaults */ }
+            if (Array.isArray(arr) && arr.length === 7)
+              setDays(
+                arr.map((d: any, i: number) => ({
+                  open: d?.open !== false,
+                  from: d?.from || DEFAULT_SCHEDULE[i].from,
+                  to: d?.to || DEFAULT_SCHEDULE[i].to,
+                })),
+              );
+          } catch {
+            /* keep defaults */
+          }
         }
       } finally {
         setLoading(false);
@@ -43,11 +53,19 @@ export default function HoursPanel({ api }: { api: Api }) {
     setSaving(true);
     try {
       const json = JSON.stringify(days);
-      await api(`/api/admin/content/${encodeURIComponent("settings.workingHours")}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ valueAr: json, valueEn: json, type: "text", section: "settings" }),
-      });
+      await api(
+        `/api/admin/content/${encodeURIComponent("settings.workingHours")}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            valueAr: json,
+            valueEn: json,
+            type: "text",
+            section: "settings",
+          }),
+        },
+      );
       refreshWorkingHours();
       toast("✅ Working hours updated successfully");
     } catch {
@@ -63,31 +81,87 @@ export default function HoursPanel({ api }: { api: Api }) {
     <div style={A.card}>
       <h3>مواعيد العمل (Working Hours)</h3>
       <p style={{ color: "#888", fontSize: 13 }}>
-        هذه المواعيد تظهر في قسم Working Hours في فوتر الموقع كله. الأيام المتتالية بنفس الموعد تُجمَّع تلقائيًا في سطر واحد، وأي يوم «مغلق» لا تُعرض له ساعات.
+        هذه المواعيد تظهر في قسم Working Hours في فوتر الموقع كله. الأيام
+        المتتالية بنفس الموعد تُجمَّع تلقائيًا في سطر واحد، وأي يوم «مغلق» لا
+        تُعرض له ساعات.
       </p>
 
       <div style={{ marginTop: 16 }}>
         {DAY_NAMES.ar.map((nameAr, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #f0f0f0", flexWrap: "wrap" }}>
-            <div style={{ width: 110, fontWeight: 700, color: "#6650a0", fontSize: 14 }}>
-              {nameAr} <span style={{ color: "#aaa", fontWeight: 400, fontSize: 12 }}>{DAY_NAMES.en[i]}</span>
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "10px 0",
+              borderBottom: "1px solid #f0f0f0",
+              flexWrap: "wrap",
+            }}
+          >
+            <div
+              style={{
+                width: 110,
+                fontWeight: 700,
+                color: "#6650a0",
+                fontSize: 14,
+              }}
+            >
+              {nameAr}{" "}
+              <span style={{ color: "#aaa", fontWeight: 400, fontSize: 12 }}>
+                {DAY_NAMES.en[i]}
+              </span>
             </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 13 }}>
-              <input type="checkbox" checked={days[i].open} onChange={(e) => update(i, { open: e.target.checked })} />
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={days[i].open}
+                onChange={(e) => update(i, { open: e.target.checked })}
+              />
               {days[i].open ? "مفتوح" : "مغلق"}
             </label>
             {days[i].open && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, direction: "ltr" }}>
-                <input type="time" style={{ ...A.input, width: 130, marginBottom: 0 }} value={days[i].from} onChange={(e) => update(i, { from: e.target.value })} />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  direction: "ltr",
+                }}
+              >
+                <input
+                  type="time"
+                  style={{ ...A.input, width: 130, marginBottom: 0 }}
+                  value={days[i].from}
+                  onChange={(e) => update(i, { from: e.target.value })}
+                />
                 <span style={{ color: "#888" }}>→</span>
-                <input type="time" style={{ ...A.input, width: 130, marginBottom: 0 }} value={days[i].to} onChange={(e) => update(i, { to: e.target.value })} />
+                <input
+                  type="time"
+                  style={{ ...A.input, width: 130, marginBottom: 0 }}
+                  value={days[i].to}
+                  onChange={(e) => update(i, { to: e.target.value })}
+                />
               </div>
             )}
           </div>
         ))}
       </div>
 
-      <button style={{ ...A.btn, marginTop: 16 }} onClick={save} disabled={saving} data-testid="button-save-working-hours">
+      <button
+        style={{ ...A.btn, marginTop: 16 }}
+        onClick={save}
+        disabled={saving}
+        data-testid="button-save-working-hours"
+      >
         {saving ? "جارٍ الحفظ…" : "Save Changes"}
       </button>
     </div>

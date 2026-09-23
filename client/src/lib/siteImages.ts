@@ -14,8 +14,14 @@ async function fetchOverrides(): Promise<void> {
     const rows: any[] = await fetch("/api/content").then((r) => r.json());
     overrides = Object.fromEntries(
       rows
-        .filter((r) => r.type === "image" && typeof r.key === "string" && r.key.startsWith("img.") && r.valueAr)
-        .map((r) => [r.key, r.valueAr])
+        .filter(
+          (r) =>
+            r.type === "image" &&
+            typeof r.key === "string" &&
+            r.key.startsWith("img.") &&
+            r.valueAr,
+        )
+        .map((r) => [r.key, r.valueAr]),
     );
   } catch {
     // keep bundled defaults on any failure
@@ -67,24 +73,60 @@ export const SITE_IMAGES: SiteImageEntry[] = [
   { key: "img.hero.slide2", section: "hero", label: "سلايدر الواجهة 2" },
   { key: "img.hero.slide3", section: "hero", label: "سلايدر الواجهة 3" },
   { key: "img.home.intro", section: "home", label: "صورة المقدمة (الرئيسية)" },
-  { key: "img.partners.vetsvan", section: "partners", label: "شعار شريك VetsVan" },
-  { key: "img.partners.wadiqortuba", section: "partners", label: "شعار شريك Wadi Qortuba" },
-  { key: "img.partners.walaaaplus", section: "partners", label: "شعار شريك Walaaa Plus" },
+  {
+    key: "img.partners.vetsvan",
+    section: "partners",
+    label: "شعار شريك VetsVan",
+  },
+  {
+    key: "img.partners.wadiqortuba",
+    section: "partners",
+    label: "شعار شريك Wadi Qortuba",
+  },
+  {
+    key: "img.partners.walaaaplus",
+    section: "partners",
+    label: "شعار شريك Walaaa Plus",
+  },
   { key: "img.partners.wazen", section: "partners", label: "شعار شريك Wazen" },
   { key: "img.about.hero", section: "about", label: "واجهة صفحة من نحن" },
   { key: "img.about.reception", section: "about", label: "استقبال العيادة" },
-  { key: "img.about.vetwithdog", section: "about", label: "طبيب مع كلب (Mission)" },
+  {
+    key: "img.about.vetwithdog",
+    section: "about",
+    label: "طبيب مع كلب (Mission)",
+  },
   { key: "img.about.vetteam", section: "about", label: "فريق الأطباء" },
   { key: "img.about.community", section: "about", label: "خدمة المجتمع" },
   { key: "img.about.surgical", section: "about", label: "الفريق الجراحي" },
   { key: "img.about.career", section: "about", label: "التطوير المهني" },
-  { key: "img.services.herobg", section: "services", label: "خلفية صفحة الخدمات" },
-  { key: "img.services.medical", section: "services", label: "التخصصات الطبية" },
+  {
+    key: "img.services.herobg",
+    section: "services",
+    label: "خلفية صفحة الخدمات",
+  },
+  {
+    key: "img.services.medical",
+    section: "services",
+    label: "التخصصات الطبية",
+  },
   { key: "img.services.surgery", section: "services", label: "الجراحة" },
-  { key: "img.services.diagnostic", section: "services", label: "التشخيص والمختبر" },
-  { key: "img.doctors.drkhaled", section: "doctors", label: "د. خالد أبو الناصر" },
+  {
+    key: "img.services.diagnostic",
+    section: "services",
+    label: "التشخيص والمختبر",
+  },
+  {
+    key: "img.doctors.drkhaled",
+    section: "doctors",
+    label: "د. خالد أبو الناصر",
+  },
   { key: "img.doctors.dranas", section: "doctors", label: "د. أنس الشوبكي" },
-  { key: "img.doctors.drahmedmounir", section: "doctors", label: "د. أحمد منير" },
+  {
+    key: "img.doctors.drahmedmounir",
+    section: "doctors",
+    label: "د. أحمد منير",
+  },
   { key: "img.doctors.drshoaib", section: "doctors", label: "د. شعيب حسنين" },
   { key: "img.doctors.dressam", section: "doctors", label: "د. عصام المنشاوي" },
   { key: "img.blog.photo1", section: "blog", label: "صورة المدونة 1" },

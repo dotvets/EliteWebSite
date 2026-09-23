@@ -24,7 +24,8 @@ async function fetchBookingSource() {
     const rows: any[] = await r.json();
     const get = (k: string) => rows.find((x) => x.key === k)?.valueAr ?? "";
     cache = {
-      mode: get("settings.bookingMode") === "external" ? "external" : "internal",
+      mode:
+        get("settings.bookingMode") === "external" ? "external" : "internal",
       embed: get("settings.bookingEmbed"),
     };
   } catch {
@@ -39,9 +40,15 @@ export function useBookingSource(): BookingSource {
     const fn = () => setTick((t) => t + 1);
     listeners.add(fn);
     if (!cache) fetchBookingSource();
-    return () => { listeners.delete(fn); };
+    return () => {
+      listeners.delete(fn);
+    };
   }, []);
-  return { mode: cache?.mode ?? "internal", embed: cache?.embed ?? "", loaded: !!cache };
+  return {
+    mode: cache?.mode ?? "internal",
+    embed: cache?.embed ?? "",
+    loaded: !!cache,
+  };
 }
 
 /**
@@ -54,7 +61,10 @@ export function useBookingSource(): BookingSource {
  *  - drops everything else that can auto-redirect or take over the page
  *    (<meta http-equiv=refresh>, <form>, <object>, <embed>, <base>, <link>)
  */
-export function sanitizeEmbed(html: string): { markup: string; scripts: { src: string; attrs: Record<string, string> }[] } {
+export function sanitizeEmbed(html: string): {
+  markup: string;
+  scripts: { src: string; attrs: Record<string, string> }[];
+} {
   const doc = new DOMParser().parseFromString(html, "text/html");
   const scripts: { src: string; attrs: Record<string, string> }[] = [];
 
@@ -71,23 +81,36 @@ export function sanitizeEmbed(html: string): { markup: string; scripts: { src: s
     el.remove();
   });
 
-  doc.querySelectorAll("meta,form,object,embed,base,link,audio,video").forEach((el) => el.remove());
+  doc
+    .querySelectorAll("meta,form,object,embed,base,link,audio,video")
+    .forEach((el) => el.remove());
 
   doc.querySelectorAll("*").forEach((el) => {
     for (const a of Array.from(el.attributes)) {
       if (/^on/i.test(a.name)) el.removeAttribute(a.name);
-      if ((a.name === "href" || a.name === "src") && /^\s*javascript:/i.test(a.value)) el.removeAttribute(a.name);
+      if (
+        (a.name === "href" || a.name === "src") &&
+        /^\s*javascript:/i.test(a.value)
+      )
+        el.removeAttribute(a.name);
     }
   });
 
   doc.querySelectorAll("iframe").forEach((el) => {
     const src = el.getAttribute("src") || "";
-    if (!/^https:\/\//i.test(src)) { el.remove(); return; }
-    el.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups");
+    if (!/^https:\/\//i.test(src)) {
+      el.remove();
+      return;
+    }
+    el.setAttribute(
+      "sandbox",
+      "allow-scripts allow-same-origin allow-forms allow-popups",
+    );
     el.setAttribute("loading", "lazy");
     el.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
     if (!el.getAttribute("width")) el.style.width = "100%";
-    if (!el.getAttribute("height") && !el.style.height) el.style.height = "600px";
+    if (!el.getAttribute("height") && !el.style.height)
+      el.style.height = "600px";
     el.style.maxWidth = "100%";
     el.style.border = el.style.border || "0";
   });
@@ -111,7 +134,9 @@ export default function BookingEmbed({ code }: { code: string }) {
         el.async = true;
         host.appendChild(el);
       }
-      return () => { host.innerHTML = ""; };
+      return () => {
+        host.innerHTML = "";
+      };
     } catch {
       setError(true);
     }
@@ -122,7 +147,12 @@ export default function BookingEmbed({ code }: { code: string }) {
     <div
       ref={hostRef}
       data-testid="external-booking-embed"
-      style={{ width: "100%", maxWidth: "100%", overflow: "hidden", minHeight: 200 }}
+      style={{
+        width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+        minHeight: 200,
+      }}
     />
   );
 }

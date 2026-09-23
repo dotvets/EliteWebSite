@@ -4,28 +4,61 @@ import assert from "node:assert";
 
 const results: { name: string; pass: boolean; err?: string }[] = [];
 async function check(name: string, fn: () => unknown | Promise<unknown>) {
-  try { await fn(); results.push({ name, pass: true }); }
-  catch (e: any) { results.push({ name, pass: false, err: e?.message }); }
+  try {
+    await fn();
+    results.push({ name, pass: true });
+  } catch (e: any) {
+    results.push({ name, pass: false, err: e?.message });
+  }
 }
 
 // ---------------------------------------------------------------------------
 // 1) Registry: strict schema validation + secret scanner
 // ---------------------------------------------------------------------------
-const { PROVIDERS, getProvider, validateCategoryA, findSecretLeak, CATEGORY_C_DISPLAY } = await import("../server/integrations/registry");
+const {
+  PROVIDERS,
+  getProvider,
+  validateCategoryA,
+  findSecretLeak,
+  CATEGORY_C_DISPLAY,
+} = await import("../server/integrations/registry");
 
 await check("registry: 7 providers registered", () => {
   assert.equal(PROVIDERS.length, 7);
-  for (const k of ["digitail", "myfatoorah", "google_ads", "m365", "bevatel", "bevatel_sms", "meta_whatsapp"]) assert.ok(getProvider(k));
+  for (const k of [
+    "digitail",
+    "myfatoorah",
+    "google_ads",
+    "m365",
+    "bevatel",
+    "bevatel_sms",
+    "meta_whatsapp",
+  ])
+    assert.ok(getProvider(k));
 });
 
-await check("registry: bevatel_sms is separate from bevatel (own secret ref)", () => {
-  const sms = getProvider("bevatel_sms")!;
-  assert.equal(sms.category, "messaging");
-  assert.deepEqual(sms.secretRefs.map((s) => s.envName), ["BEVATEL_SMS_API_TOKEN"]);
-  const wa = getProvider("bevatel")!;
-  for (const ref of wa.secretRefs) assert.notEqual(ref.envName, "BEVATEL_SMS_API_TOKEN");
-  for (const ref of sms.secretRefs) assert.ok(!["BEVATEL_ACCESS_TOKEN", "BEVATEL_API_KEY", "BEVATEL_WEBHOOK_VERIFY_TOKEN"].includes(ref.envName));
-});
+await check(
+  "registry: bevatel_sms is separate from bevatel (own secret ref)",
+  () => {
+    const sms = getProvider("bevatel_sms")!;
+    assert.equal(sms.category, "messaging");
+    assert.deepEqual(
+      sms.secretRefs.map((s) => s.envName),
+      ["BEVATEL_SMS_API_TOKEN"],
+    );
+    const wa = getProvider("bevatel")!;
+    for (const ref of wa.secretRefs)
+      assert.notEqual(ref.envName, "BEVATEL_SMS_API_TOKEN");
+    for (const ref of sms.secretRefs)
+      assert.ok(
+        ![
+          "BEVATEL_ACCESS_TOKEN",
+          "BEVATEL_API_KEY",
+          "BEVATEL_WEBHOOK_VERIFY_TOKEN",
+        ].includes(ref.envName),
+      );
+  },
+);
 
 await check("schema: bevatel_sms sender_id pattern enforced", () => {
   const p = getProvider("bevatel_sms")!;
@@ -37,12 +70,21 @@ await check("schema: bevatel_sms sender_id pattern enforced", () => {
 
 await check("schema: valid bevatel Category A config passes", () => {
   const p = getProvider("bevatel")!;
-  const r = validateCategoryA(p, { account_id: "120", inbox_id: "272", channel_id: "272", template_map: { otp: "1069317625858703" } });
+  const r = validateCategoryA(p, {
+    account_id: "120",
+    inbox_id: "272",
+    channel_id: "272",
+    template_map: { otp: "1069317625858703" },
+  });
   assert.ok(r.ok, (r as any).error);
 });
 
 await check("schema: unknown field rejected (strict)", () => {
-  const r = validateCategoryA(getProvider("bevatel")!, { account_id: "120", inbox_id: "272", evil_url: "https://x.com" });
+  const r = validateCategoryA(getProvider("bevatel")!, {
+    account_id: "120",
+    inbox_id: "272",
+    evil_url: "https://x.com",
+  });
   assert.ok(!r.ok && r.error.startsWith("unknown_field"));
 });
 
@@ -52,52 +94,104 @@ await check("schema: required field missing rejected", () => {
 });
 
 await check("schema: secret-looking KEY rejected", () => {
-  const r = validateCategoryA(getProvider("m365")!, { sender_mailbox: "a@b.co", mode: "smtp", access_token: "x" });
+  const r = validateCategoryA(getProvider("m365")!, {
+    sender_mailbox: "a@b.co",
+    mode: "smtp",
+    access_token: "x",
+  });
   assert.ok(!r.ok);
 });
 
 await check("scanner: private key material rejected", () => {
-  assert.ok(findSecretLeak({ cfg: "-----BEGIN PRIVATE KEY-----\nABC" }));
-  assert.ok(findSecretLeak({ nested: { client_secret: "abc" } }));
+  assert.ok(findSecretLeak({ cfg: "-----BEGIN PRIVATE KEY-----\nABC" })); // secret-scan:allow — synthetic scanner fixture, not a real key
+  assert.ok(findSecretLeak({ nested: { client_secret: "abc" } })); // secret-scan:allow — synthetic scanner fixture
   assert.ok(findSecretLeak({ h: "Bearer abcdefghijklmnop" }));
   assert.equal(findSecretLeak({ account_id: "120" }), null);
 });
 
 await check("schema: enum validation (m365 mode)", () => {
-  assert.ok(!validateCategoryA(getProvider("m365")!, { sender_mailbox: "a@b.co", mode: "smtp2" }).ok);
-  assert.ok(validateCategoryA(getProvider("m365")!, { sender_mailbox: "a@b.co", mode: "smtp" }).ok);
+  assert.ok(
+    !validateCategoryA(getProvider("m365")!, {
+      sender_mailbox: "a@b.co",
+      mode: "smtp2",
+    }).ok,
+  );
+  assert.ok(
+    validateCategoryA(getProvider("m365")!, {
+      sender_mailbox: "a@b.co",
+      mode: "smtp",
+    }).ok,
+  );
 });
 
 await check("schema: invalid email rejected", () => {
-  assert.ok(!validateCategoryA(getProvider("m365")!, { sender_mailbox: "not-an-email", mode: "smtp" }).ok);
+  assert.ok(
+    !validateCategoryA(getProvider("m365")!, {
+      sender_mailbox: "not-an-email",
+      mode: "smtp",
+    }).ok,
+  );
 });
 
 await check("category C: production flags are display-only inventory", () => {
   const flags = CATEGORY_C_DISPLAY.map((c) => c.key);
-  for (const f of ["MYFATOORAH_MODE", "DYNAMIC_DEPOSIT_ENABLED", "EMERGENCY_PATH_ENABLED", "INTEGRATIONS_MANAGER"]) assert.ok(flags.includes(f));
+  for (const f of [
+    "MYFATOORAH_MODE",
+    "DYNAMIC_DEPOSIT_ENABLED",
+    "EMERGENCY_PATH_ENABLED",
+    "INTEGRATIONS_MANAGER",
+  ])
+    assert.ok(flags.includes(f));
 });
 
 // ---------------------------------------------------------------------------
 // 2) Dr Paws hard isolation
 // ---------------------------------------------------------------------------
-const { assertNoProtectedAsset, isProtectedBrand, visibleScope, PROTECTED_ASSETS } = await import("../server/integrations/protectedAssets");
+const {
+  assertNoProtectedAsset,
+  isProtectedBrand,
+  visibleScope,
+  PROTECTED_ASSETS,
+} = await import("../server/integrations/protectedAssets");
 
 await check("isolation: drpaws brand blocked from config writes", () => {
   assert.ok(isProtectedBrand("drpaws"));
   assert.ok(!visibleScope("brand", "drpaws"));
-  assert.throws(() => assertNoProtectedAsset("bevatel", "brand", "drpaws", {}), /protected_asset/);
+  assert.throws(
+    () => assertNoProtectedAsset("bevatel", "brand", "drpaws", {}),
+    /protected_asset/,
+  );
 });
 
-await check("isolation: protected inbox 810 rejected even for elite scope", () => {
-  assert.throws(() => assertNoProtectedAsset("bevatel", "brand", "elite", { inbox_id: "810" }), /protected_asset/);
-});
+await check(
+  "isolation: protected inbox 810 rejected even for elite scope",
+  () => {
+    assert.throws(
+      () =>
+        assertNoProtectedAsset("bevatel", "brand", "elite", {
+          inbox_id: "810",
+        }),
+      /protected_asset/,
+    );
+  },
+);
 
 await check("isolation: protected phone in template_map rejected", () => {
-  assert.throws(() => assertNoProtectedAsset("bevatel", "brand", "elite", { inbox_id: "272", template_map: { otp: "966920003045" } }), /protected_asset/);
+  assert.throws(
+    () =>
+      assertNoProtectedAsset("bevatel", "brand", "elite", {
+        inbox_id: "272",
+        template_map: { otp: "966920003045" },
+      }),
+    /protected_asset/,
+  );
 });
 
 await check("isolation: legitimate elite config passes", () => {
-  assertNoProtectedAsset("bevatel", "brand", "elite", { inbox_id: "272", template_map: { otp: "1069317625858703" } });
+  assertNoProtectedAsset("bevatel", "brand", "elite", {
+    inbox_id: "272",
+    template_map: { otp: "1069317625858703" },
+  });
   assert.deepEqual(PROTECTED_ASSETS.bevatelInboxIds, ["810"]);
 });
 
@@ -127,33 +221,65 @@ delete process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
 
 const store = await import("../server/integrations/configStore");
 
-await check("store: externally configured detection (bevatel env present)", () => {
-  const p = getProvider("bevatel")!;
-  assert.ok(store.externallyConfigured(p));
-  assert.ok(!store.externallyConfigured(getProvider("meta_whatsapp")!));
-});
+await check(
+  "store: externally configured detection (bevatel env present)",
+  () => {
+    const p = getProvider("bevatel")!;
+    assert.ok(store.externallyConfigured(p));
+    assert.ok(!store.externallyConfigured(getProvider("meta_whatsapp")!));
+  },
+);
 
 await check("store: valid write persists + audited", async () => {
-  const r = await store.upsertConfig({ providerKey: "bevatel", scopeType: "brand", scopeId: "elite", environment: "production", config: { account_id: "120", inbox_id: "272" }, actor: "test" });
+  const r = await store.upsertConfig({
+    providerKey: "bevatel",
+    scopeType: "brand",
+    scopeId: "elite",
+    environment: "production",
+    config: { account_id: "120", inbox_id: "272" },
+    actor: "test",
+  });
   assert.ok(r.ok, (r as any).error);
-  const ev = await memPool.query(`SELECT * FROM hub_integrations_events WHERE action = 'config.create'`);
+  const ev = await memPool.query(
+    `SELECT * FROM hub_integrations_events WHERE action = 'config.create'`,
+  );
   assert.equal(ev.rows.length, 1);
 });
 
 await check("store: no secret values anywhere in DB row", async () => {
-  const r = await memPool.query(`SELECT * FROM hub_integrations_configs WHERE provider_key='bevatel'`);
+  const r = await memPool.query(
+    `SELECT * FROM hub_integrations_configs WHERE provider_key='bevatel'`,
+  );
   const raw = JSON.stringify(r.rows[0]);
-  assert.ok(!raw.includes("x-test-token") && !raw.includes("x-test-key") && !raw.includes("x-test-verify"));
+  assert.ok(
+    !raw.includes("x-test-token") &&
+      !raw.includes("x-test-key") &&
+      !raw.includes("x-test-verify"),
+  );
   assert.ok(raw.includes("render_env"));
 });
 
 await check("store: drpaws write rejected", async () => {
-  const r = await store.upsertConfig({ providerKey: "bevatel", scopeType: "brand", scopeId: "drpaws", environment: "production", config: { account_id: "1", inbox_id: "1" }, actor: "test" });
+  const r = await store.upsertConfig({
+    providerKey: "bevatel",
+    scopeType: "brand",
+    scopeId: "drpaws",
+    environment: "production",
+    config: { account_id: "1", inbox_id: "1" },
+    actor: "test",
+  });
   assert.ok(!r.ok && r.error === "protected_asset");
 });
 
 await check("store: invalid scope rejected", async () => {
-  const r = await store.upsertConfig({ providerKey: "digitail", scopeType: "brand", scopeId: "elite", environment: "sandbox", config: { connection_scope: "elite" }, actor: "test" });
+  const r = await store.upsertConfig({
+    providerKey: "digitail",
+    scopeType: "brand",
+    scopeId: "elite",
+    environment: "sandbox",
+    config: { connection_scope: "elite" },
+    actor: "test",
+  });
   assert.ok(!r.ok && r.error === "invalid_scope");
 });
 
@@ -166,12 +292,15 @@ await check("store: view computes status + hides secrets", async () => {
   assert.ok(v!.secrets.every((s) => s.state === "configured"));
 });
 
-await check("store: google_ads configured_externally (no developer-token concept in V1)", async () => {
-  process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "{}"; // presence only
-  const v = await store.getIntegrationView("google_ads");
-  assert.equal(v!.status, "configured_externally");
-  assert.equal(v!.blockedReason, null);
-});
+await check(
+  "store: google_ads configured_externally (no developer-token concept in V1)",
+  async () => {
+    process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "{}"; // presence only
+    const v = await store.getIntegrationView("google_ads");
+    assert.equal(v!.status, "configured_externally");
+    assert.equal(v!.blockedReason, null);
+  },
+);
 
 await check("store: meta_whatsapp not_configured", async () => {
   delete process.env.META_WHATSAPP_ACCESS_TOKEN;
@@ -185,7 +314,9 @@ await check("store: enable/disable audited", async () => {
   const v = await store.getIntegrationView("bevatel");
   assert.equal(v!.enabled, true);
   assert.ok(["configured", "ready", "needs_attention"].includes(v!.status));
-  const ev = await memPool.query(`SELECT * FROM hub_integrations_events WHERE action='provider.enable'`);
+  const ev = await memPool.query(
+    `SELECT * FROM hub_integrations_events WHERE action='provider.enable'`,
+  );
   assert.equal(ev.rows.length, 1);
 });
 
@@ -193,30 +324,62 @@ await check("store: enable/disable audited", async () => {
 // 4) Routing
 // ---------------------------------------------------------------------------
 await check("routing: set route for elite otp → bevatel", async () => {
-  const r = await store.setRoute({ brandId: "elite", purpose: "otp", providerKey: "bevatel", environment: "production", actor: "test" });
+  const r = await store.setRoute({
+    brandId: "elite",
+    purpose: "otp",
+    providerKey: "bevatel",
+    environment: "production",
+    actor: "test",
+  });
   assert.ok(r.ok, r.error);
   const got = await store.resolveRouteProvider("elite", "otp", "production");
   assert.equal(got, "bevatel");
 });
 
 await check("routing: drpaws route rejected + never resolves", async () => {
-  const r = await store.setRoute({ brandId: "drpaws", purpose: "otp", providerKey: "bevatel", environment: "production", actor: "test" });
+  const r = await store.setRoute({
+    brandId: "drpaws",
+    purpose: "otp",
+    providerKey: "bevatel",
+    environment: "production",
+    actor: "test",
+  });
   assert.ok(!r.ok && r.error === "protected_asset");
-  assert.equal(await store.resolveRouteProvider("drpaws", "otp", "production"), null);
+  assert.equal(
+    await store.resolveRouteProvider("drpaws", "otp", "production"),
+    null,
+  );
 });
 
-await check("routing: meta_whatsapp unavailable until configured (owner decision #4)", async () => {
-  const r = await store.setRoute({ brandId: "elite", purpose: "booking_confirmation", providerKey: "meta_whatsapp", environment: "production", actor: "test" });
-  assert.ok(!r.ok && r.error === "provider_not_ready");
-});
+await check(
+  "routing: meta_whatsapp unavailable until configured (owner decision #4)",
+  async () => {
+    const r = await store.setRoute({
+      brandId: "elite",
+      purpose: "booking_confirmation",
+      providerKey: "meta_whatsapp",
+      environment: "production",
+      actor: "test",
+    });
+    assert.ok(!r.ok && r.error === "provider_not_ready");
+  },
+);
 
 await check("routing: non-messaging provider rejected", async () => {
-  const r = await store.setRoute({ brandId: "elite", purpose: "otp", providerKey: "myfatoorah", environment: "production", actor: "test" });
+  const r = await store.setRoute({
+    brandId: "elite",
+    purpose: "otp",
+    providerKey: "myfatoorah",
+    environment: "production",
+    actor: "test",
+  });
   assert.ok(!r.ok && r.error === "invalid_provider");
 });
 
 await check("routing: routes list hides drpaws", async () => {
-  await memPool.query(`INSERT INTO hub_messaging_routes (id, brand_id, purpose, provider_key, environment) VALUES ('x', 'drpaws', 'otp', 'bevatel', 'production')`);
+  await memPool.query(
+    `INSERT INTO hub_messaging_routes (id, brand_id, purpose, provider_key, environment) VALUES ('x', 'drpaws', 'otp', 'bevatel', 'production')`,
+  );
   const routes = await store.listRoutes();
   assert.ok(routes.every((r: any) => r.brand_id !== "drpaws"));
 });
@@ -224,15 +387,27 @@ await check("routing: routes list hides drpaws", async () => {
 // ---------------------------------------------------------------------------
 // 5) Health model + circuit breaker
 // ---------------------------------------------------------------------------
-const { recordTestResult, classifyError } = await import("../server/integrations/health");
+const { recordTestResult, classifyError } =
+  await import("../server/integrations/health");
 
 await check("health: ok then 5 failures open circuit", async () => {
-  process.env.M365_CLIENT_ID = "x"; process.env.M365_CLIENT_SECRET = "x"; process.env.M365_TENANT_ID = "x";
+  process.env.M365_CLIENT_ID = "x";
+  process.env.M365_CLIENT_SECRET = "x";
+  process.env.M365_TENANT_ID = "x";
   await recordTestResult("m365", "*", "ok");
-  let h = (await memPool.query(`SELECT * FROM hub_integrations_health WHERE provider_key='m365'`)).rows[0];
+  let h = (
+    await memPool.query(
+      `SELECT * FROM hub_integrations_health WHERE provider_key='m365'`,
+    )
+  ).rows[0];
   assert.equal(h.consecutive_failures, 0);
-  for (let i = 0; i < 5; i++) await recordTestResult("m365", "*", "failed", "auth_denied");
-  h = (await memPool.query(`SELECT * FROM hub_integrations_health WHERE provider_key='m365'`)).rows[0];
+  for (let i = 0; i < 5; i++)
+    await recordTestResult("m365", "*", "failed", "auth_denied");
+  h = (
+    await memPool.query(
+      `SELECT * FROM hub_integrations_health WHERE provider_key='m365'`,
+    )
+  ).rows[0];
   assert.equal(h.consecutive_failures, 5);
   assert.ok(h.circuit_opened_at);
   const v = await store.getIntegrationView("m365");
@@ -241,7 +416,10 @@ await check("health: ok then 5 failures open circuit", async () => {
 });
 
 await check("health: error classifier leaks nothing", () => {
-  assert.equal(classifyError({ status: 401, message: "secret=x-test-token" }), "auth_denied");
+  assert.equal(
+    classifyError({ status: 401, message: "secret=x-test-token" }),
+    "auth_denied",
+  );
   assert.equal(classifyError({ code: "ETIMEDOUT" }), "network_unreachable");
   assert.equal(classifyError(new Error("connect timeout")), "timeout");
 });
@@ -249,7 +427,8 @@ await check("health: error classifier leaks nothing", () => {
 // ---------------------------------------------------------------------------
 // 6) Flag gate + adapters shape
 // ---------------------------------------------------------------------------
-const { integrationsManagerEnabled } = await import("../server/adminIntegrations");
+const { integrationsManagerEnabled } =
+  await import("../server/adminIntegrations");
 await check("flag: INTEGRATIONS_MANAGER gates the manager", () => {
   delete process.env.INTEGRATIONS_MANAGER;
   assert.equal(integrationsManagerEnabled(), false);
@@ -259,52 +438,81 @@ await check("flag: INTEGRATIONS_MANAGER gates the manager", () => {
 });
 
 const { runSafeTest } = await import("../server/integrations/adapters");
-await check("adapters: google_ads never reports developer_token_missing", async () => {
-  process.env.GOOGLE_ADS_CUSTOMER_ID = "1972596431";
-  process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID = "4371731752";
-  const r = await runSafeTest("google_ads");
-  assert.ok("result" in r);
-  if ("result" in r) {
-    assert.notEqual(r.note, "developer_token_missing");
-    assert.notEqual(r.errorClass, "developer_token_missing");
-  }
-});
+await check(
+  "adapters: google_ads never reports developer_token_missing",
+  async () => {
+    process.env.GOOGLE_ADS_CUSTOMER_ID = "1972596431";
+    process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID = "4371731752";
+    const r = await runSafeTest("google_ads");
+    assert.ok("result" in r);
+    if ("result" in r) {
+      assert.notEqual(r.note, "developer_token_missing");
+      assert.notEqual(r.errorClass, "developer_token_missing");
+    }
+  },
+);
 
-await check("adapters: google_ads rejects corrupt SA JSON cleanly", async () => {
-  const prev = process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON;
-  process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "not-json";
-  const r = await runSafeTest("google_ads");
-  assert.ok("result" in r && r.result === "failed" && r.errorClass === "invalid_service_account_json");
-  if (prev) process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = prev;
-});
+await check(
+  "adapters: google_ads rejects corrupt SA JSON cleanly",
+  async () => {
+    const prev = process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON;
+    process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = "not-json";
+    const r = await runSafeTest("google_ads");
+    assert.ok(
+      "result" in r &&
+        r.result === "failed" &&
+        r.errorClass === "invalid_service_account_json",
+    );
+    if (prev) process.env.GOOGLE_ADS_SERVICE_ACCOUNT_JSON = prev;
+  },
+);
 
 await check("adapters: meta missing secrets fails cleanly", async () => {
   const r = await runSafeTest("meta_whatsapp");
-  assert.ok("result" in r && r.result === "failed" && r.errorClass === "missing_secret_ref");
+  assert.ok(
+    "result" in r &&
+      r.result === "failed" &&
+      r.errorClass === "missing_secret_ref",
+  );
 });
 
-await check("adapters: bevatel_sms missing secret fails cleanly (no send attempted)", async () => {
-  const prev = process.env.BEVATEL_SMS_API_TOKEN;
-  delete process.env.BEVATEL_SMS_API_TOKEN;
-  const r = await runSafeTest("bevatel_sms");
-  assert.ok("result" in r && r.result === "failed" && r.errorClass === "missing_secret_ref");
-  if (prev) process.env.BEVATEL_SMS_API_TOKEN = prev;
-});
+await check(
+  "adapters: bevatel_sms missing secret fails cleanly (no send attempted)",
+  async () => {
+    const prev = process.env.BEVATEL_SMS_API_TOKEN;
+    delete process.env.BEVATEL_SMS_API_TOKEN;
+    const r = await runSafeTest("bevatel_sms");
+    assert.ok(
+      "result" in r &&
+        r.result === "failed" &&
+        r.errorClass === "missing_secret_ref",
+    );
+    if (prev) process.env.BEVATEL_SMS_API_TOKEN = prev;
+  },
+);
 
-await check("messaging: bevatel_sms provider is opt-in and fails closed", async () => {
-  const { getMessagingProvider, BevatelSmsProvider } = await import("../server/messaging");
-  const prevTok = process.env.BEVATEL_SMS_API_TOKEN;
-  const prevKind = process.env.MESSAGING_PROVIDER;
-  delete process.env.BEVATEL_SMS_API_TOKEN;
-  process.env.MESSAGING_PROVIDER = "bevatel_sms";
-  const p = getMessagingProvider();
-  assert.ok(p instanceof BevatelSmsProvider);
-  await assert.rejects(() => p.sendSms("966502229040", "x", "EliteVet"), /BEVATEL_SMS_API_TOKEN missing/);
-  process.env.MESSAGING_PROVIDER = "stub";
-  assert.ok(!(getMessagingProvider() instanceof BevatelSmsProvider));
-  if (prevTok) process.env.BEVATEL_SMS_API_TOKEN = prevTok;
-  if (prevKind) process.env.MESSAGING_PROVIDER = prevKind; else delete process.env.MESSAGING_PROVIDER;
-});
+await check(
+  "messaging: bevatel_sms provider is opt-in and fails closed",
+  async () => {
+    const { getMessagingProvider, BevatelSmsProvider } =
+      await import("../server/messaging");
+    const prevTok = process.env.BEVATEL_SMS_API_TOKEN;
+    const prevKind = process.env.MESSAGING_PROVIDER;
+    delete process.env.BEVATEL_SMS_API_TOKEN;
+    process.env.MESSAGING_PROVIDER = "bevatel_sms";
+    const p = getMessagingProvider();
+    assert.ok(p instanceof BevatelSmsProvider);
+    await assert.rejects(
+      () => p.sendSms("966502229040", "x", "EliteVet"),
+      /BEVATEL_SMS_API_TOKEN missing/,
+    );
+    process.env.MESSAGING_PROVIDER = "stub";
+    assert.ok(!(getMessagingProvider() instanceof BevatelSmsProvider));
+    if (prevTok) process.env.BEVATEL_SMS_API_TOKEN = prevTok;
+    if (prevKind) process.env.MESSAGING_PROVIDER = prevKind;
+    else delete process.env.MESSAGING_PROVIDER;
+  },
+);
 
 await check("adapters: unknown provider rejected", async () => {
   const r = await runSafeTest("evil");
@@ -314,5 +522,6 @@ await check("adapters: unknown provider rejected", async () => {
 // ---------------------------------------------------------------------------
 const passed = results.filter((r) => r.pass).length;
 console.log(`\n${passed}/${results.length} PASS`);
-for (const r of results.filter((r) => !r.pass)) console.log(`FAIL: ${r.name} — ${r.err}`);
+for (const r of results.filter((r) => !r.pass))
+  console.log(`FAIL: ${r.name} — ${r.err}`);
 process.exit(passed === results.length ? 0 : 1);

@@ -59,12 +59,16 @@ export function ContactForm({ translations: t }: ContactFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const contactSchema = useMemo(() => z.object({
-    name: z.string().min(2, t.validation.nameMin),
-    phone: z.string().min(8, t.validation.phoneMin),
-    email: z.string().email(t.validation.emailInvalid),
-    message: z.string().min(10, t.validation.messageMin),
-  }), [t.validation]);
+  const contactSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(2, t.validation.nameMin),
+        phone: z.string().min(8, t.validation.phoneMin),
+        email: z.string().email(t.validation.emailInvalid),
+        message: z.string().min(10, t.validation.messageMin),
+      }),
+    [t.validation],
+  );
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
@@ -90,11 +94,17 @@ export function ContactForm({ translations: t }: ContactFormProps) {
       formData.append("phone", data.phone);
       formData.append("email", data.email);
       formData.append("message", data.message);
-      const payload = { ...Object.fromEntries(formData.entries()), access_key: WEB3FORMS_ACCESS_KEY };
+      const payload = {
+        ...Object.fromEntries(formData.entries()),
+        access_key: WEB3FORMS_ACCESS_KEY,
+      };
 
       const response = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
       const result = await response.json();

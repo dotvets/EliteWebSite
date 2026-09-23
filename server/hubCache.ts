@@ -28,7 +28,11 @@ export function upstreamBudgetAllow(): boolean {
 }
 
 export function upstreamStats() {
-  return { usedThisMinute: windowCount, softCapPerMinute: UPSTREAM_SOFT_CAP_PER_MIN, windowStartedAt: new Date(windowStart).toISOString() };
+  return {
+    usedThisMinute: windowCount,
+    softCapPerMinute: UPSTREAM_SOFT_CAP_PER_MIN,
+    windowStartedAt: new Date(windowStart).toISOString(),
+  };
 }
 
 export class UpstreamBusyError extends Error {
@@ -38,9 +42,16 @@ export class UpstreamBusyError extends Error {
   }
 }
 
-export type CacheResult<T> = { value: T; source: "memory" | "live" | "stale-fallback" };
+export type CacheResult<T> = {
+  value: T;
+  source: "memory" | "live" | "stale-fallback";
+};
 
-export async function cached<T>(key: string, ttlSeconds: number, loader: () => Promise<T>): Promise<CacheResult<T>> {
+export async function cached<T>(
+  key: string,
+  ttlSeconds: number,
+  loader: () => Promise<T>,
+): Promise<CacheResult<T>> {
   const hit = memory.get(key);
   if (hit && hit.expiresAt > Date.now()) {
     return { value: hit.value as T, source: "memory" };
@@ -69,10 +80,14 @@ export async function cached<T>(key: string, ttlSeconds: number, loader: () => P
       // Provider-failure degradation (Part 9.3): serve the last good DB snapshot
       // within a generous grace window (24x TTL) rather than failing the widget.
       try {
-        const r = await pool.query(`SELECT payload_json, fetched_at, ttl_seconds FROM hub_read_cache WHERE cache_key = $1`, [key]);
+        const r = await pool.query(
+          `SELECT payload_json, fetched_at, ttl_seconds FROM hub_read_cache WHERE cache_key = $1`,
+          [key],
+        );
         const row = r.rows[0];
         if (row) {
-          const ageSeconds = (Date.now() - new Date(row.fetched_at).getTime()) / 1000;
+          const ageSeconds =
+            (Date.now() - new Date(row.fetched_at).getTime()) / 1000;
           if (ageSeconds < Number(row.ttl_seconds) * 24) {
             const value = row.payload_json as T;
             memory.set(key, { value, expiresAt: Date.now() + 30_000 });

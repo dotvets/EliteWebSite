@@ -4,7 +4,6 @@ import { translations } from "@/translations";
 import PageLayout from "@/components/PageLayout";
 import BookingForm from "@/components/BookingForm";
 import BookingEmbed, { useBookingSource } from "@/components/BookingEmbed";
-import { SectionHeader } from "@/components/SectionHeader";
 import { AnimatedContent } from "@/components/AnimatedContent";
 import { Card } from "@/components/ui/card";
 import { Phone, MessageCircle, Smartphone } from "lucide-react";
@@ -13,8 +12,6 @@ import { fadeInUp } from "@/animations";
 
 const PHONE_NUMBER = "920011626";
 const WHATSAPP_NUMBER = "966920011626";
-const MOBILE_APP_URL = "https://vet.digitail.io/clinics/elite-vet-qourtobah-tel-920011626";
-
 export default function BookNow() {
   const { language } = useLanguage();
   const t = translations[language].bookNowPage;
@@ -92,7 +89,10 @@ export default function BookNow() {
             </p>
           </AnimatedContent>
 
-          <AnimatedContent variant="staggerGrid" className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <AnimatedContent
+            variant="staggerGrid"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
+          >
             {bookingOptions.map((option, index) => {
               const Icon = option.icon;
               return (
@@ -102,7 +102,12 @@ export default function BookNow() {
                     onClick={(e) => {
                       if (option.href.startsWith("#")) {
                         e.preventDefault();
-                        document.getElementById(option.href.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        document
+                          .getElementById(option.href.slice(1))
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
                       }
                     }}
                     data-testid={option.testId}
@@ -128,7 +133,9 @@ export default function BookNow() {
             })}
           </AnimatedContent>
         </div>
-      <div id="booking-section" style={{marginTop:40}}>{showExternal ? <BookingEmbed code={embed} /> : <BookingForm />}</div>
+        <div id="booking-section" style={{ marginTop: 40 }}>
+          {showExternal ? <BookingEmbed code={embed} /> : <BookingForm />}
+        </div>
       </section>
     </PageLayout>
   );

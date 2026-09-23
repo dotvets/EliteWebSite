@@ -10,7 +10,10 @@ export function getBootstrap(): Promise<any> {
   if (!pending) {
     pending = fetch("/api/public/bootstrap")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { cache = d; return d; })
+      .then((d) => {
+        cache = d;
+        return d;
+      })
       .catch(() => null);
   }
   return pending;
@@ -18,12 +21,19 @@ export function getBootstrap(): Promise<any> {
 
 export function useBootstrap() {
   const [data, setData] = useState<any>(cache);
-  useEffect(() => { getBootstrap().then(setData); }, []);
+  useEffect(() => {
+    getBootstrap().then(setData);
+  }, []);
   return data;
 }
 
 /** Bilingual setting value with fallback. */
-export function bsVal(data: any, key: string, lang: string, fallback: string): string {
+export function bsVal(
+  data: any,
+  key: string,
+  lang: string,
+  fallback: string,
+): string {
   const v = data?.settings?.[key];
   if (!v) return fallback;
   return (lang === "ar" ? v.ar : v.en) || v.ar || v.en || fallback;

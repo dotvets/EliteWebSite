@@ -24,16 +24,85 @@ export default function AdminLogin() {
   };
 
   return (
-    <div dir="rtl" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f3fa", fontFamily: "sans-serif" }}>
-      <form onSubmit={submit} style={{ background: "#fff", padding: 40, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,.08)", width: 360 }}>
-        <h1 style={{ color: "#6650a0", textAlign: "center", marginBottom: 8 }}>لوحة إدارة النخبة</h1>
-        <p style={{ textAlign: "center", color: "#888", marginBottom: 24, fontSize: 14 }}>ONX Marketing — إدارة الموقع</p>
-        <input placeholder="اسم المستخدم" value={username} onChange={(e) => setUsername(e.target.value)}
-          style={{ width: "100%", padding: 12, marginBottom: 12, borderRadius: 8, border: "1px solid #ddd", boxSizing: "border-box" }} />
-        <input type="password" placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", padding: 12, marginBottom: 16, borderRadius: 8, border: "1px solid #ddd", boxSizing: "border-box" }} />
-        {error && <p style={{ color: "#c00", fontSize: 13, marginBottom: 12 }}>{error}</p>}
-        <button disabled={loading} style={{ width: "100%", padding: 12, background: "#6650a0", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" }}>
+    <div
+      dir="rtl"
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f5f3fa",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <form
+        onSubmit={submit}
+        style={{
+          background: "#fff",
+          padding: 40,
+          borderRadius: 16,
+          boxShadow: "0 4px 24px rgba(0,0,0,.08)",
+          width: 360,
+        }}
+      >
+        <h1 style={{ color: "#6650a0", textAlign: "center", marginBottom: 8 }}>
+          لوحة إدارة النخبة
+        </h1>
+        <p
+          style={{
+            textAlign: "center",
+            color: "#888",
+            marginBottom: 24,
+            fontSize: 14,
+          }}
+        >
+          ONX Marketing — إدارة الموقع
+        </p>
+        <input
+          placeholder="اسم المستخدم"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 12,
+            marginBottom: 12,
+            borderRadius: 8,
+            border: "1px solid #ddd",
+            boxSizing: "border-box",
+          }}
+        />
+        <input
+          type="password"
+          placeholder="كلمة المرور"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 12,
+            marginBottom: 16,
+            borderRadius: 8,
+            border: "1px solid #ddd",
+            boxSizing: "border-box",
+          }}
+        />
+        {error && (
+          <p style={{ color: "#c00", fontSize: 13, marginBottom: 12 }}>
+            {error}
+          </p>
+        )}
+        <button
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: 12,
+            background: "#6650a0",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 16,
+            cursor: "pointer",
+          }}
+        >
           {loading ? "جارٍ الدخول…" : "دخول"}
         </button>
       </form>

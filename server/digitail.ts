@@ -27,24 +27,38 @@ function required(name: string): string {
 function encryptionKey(): Buffer {
   const raw = required("DIGITAIL_TOKEN_ENCRYPTION_KEY");
   const key = Buffer.from(raw, "hex");
-  if (key.length !== 32) throw new Error("DIGITAIL_TOKEN_ENCRYPTION_KEY must be a 64-character hex string (32 bytes)");
+  if (key.length !== 32)
+    throw new Error(
+      "DIGITAIL_TOKEN_ENCRYPTION_KEY must be a 64-character hex string (32 bytes)",
+    );
   return key;
 }
 
 function encrypt(value: string): string {
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv(TOKEN_ALGORITHM, encryptionKey(), iv);
-  const encrypted = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(value, "utf8"),
+    cipher.final(),
+  ]);
   const tag = cipher.getAuthTag();
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
 }
 
 function decrypt(value: string): string {
   const [ivPart, tagPart, dataPart] = value.split(".");
-  if (!ivPart || !tagPart || !dataPart) throw new Error("Invalid encrypted Digitail token");
-  const decipher = crypto.createDecipheriv(TOKEN_ALGORITHM, encryptionKey(), Buffer.from(ivPart, "base64url"));
+  if (!ivPart || !tagPart || !dataPart)
+    throw new Error("Invalid encrypted Digitail token");
+  const decipher = crypto.createDecipheriv(
+    TOKEN_ALGORITHM,
+    encryptionKey(),
+    Buffer.from(ivPart, "base64url"),
+  );
   decipher.setAuthTag(Buffer.from(tagPart, "base64url"));
-  return Buffer.concat([decipher.update(Buffer.from(dataPart, "base64url")), decipher.final()]).toString("utf8");
+  return Buffer.concat([
+    decipher.update(Buffer.from(dataPart, "base64url")),
+    decipher.final(),
+  ]).toString("utf8");
 }
 
 function randomString(bytes = 32): string {
@@ -81,7 +95,10 @@ interface TokenSet {
   token_type: string;
 }
 
-async function postTokenRequest(body: URLSearchParams, operation: string): Promise<TokenSet> {
+async function postTokenRequest(
+  body: URLSearchParams,
+  operation: string,
+): Promise<TokenSet> {
   const tokenUrl = requireTokenUrl(config);
   let response: globalThis.Response;
   try {
@@ -91,16 +108,24 @@ async function postTokenRequest(body: URLSearchParams, operation: string): Promi
       body: body.toString(),
     });
   } catch (cause: any) {
-    throw new Error(`Digitail ${operation} failed: network error contacting token endpoint`, { cause });
+    throw new Error(
+      `Digitail ${operation} failed: network error contacting token endpoint`,
+      { cause },
+    );
   }
   let data: any;
   try {
     data = await response.json();
   } catch (cause: any) {
-    throw new Error(`Digitail ${operation} failed: non-JSON response (HTTP ${response.status})`, { cause });
+    throw new Error(
+      `Digitail ${operation} failed: non-JSON response (HTTP ${response.status})`,
+      { cause },
+    );
   }
   if (!response.ok || !data.access_token || !data.refresh_token) {
-    throw new Error(`Digitail ${operation} failed: ${oauthErrorMessage(response.status, data)}`);
+    throw new Error(
+      `Digitail ${operation} failed: ${oauthErrorMessage(response.status, data)}`,
+    );
   }
   return data as TokenSet;
 }
@@ -143,7 +168,14 @@ async function saveTokens(tokens: TokenSet) {
        refresh_token_enc = EXCLUDED.refresh_token_enc,
        access_token_expires_at = EXCLUDED.access_token_expires_at,
        updated_at = NOW()`,
-    [CONNECTION_ID, config.env, config.connectionScope, encrypt(tokens.access_token), encrypt(tokens.refresh_token), tokens.expires_in],
+    [
+      CONNECTION_ID,
+      config.env,
+      config.connectionScope,
+      encrypt(tokens.access_token),
+      encrypt(tokens.refresh_token),
+      tokens.expires_in,
+    ],
   );
 }
 
@@ -171,7 +203,8 @@ async function getValidAccessToken(): Promise<string> {
   if (!connection) throw new Error("Digitail is not connected");
 
   const expiresAt = new Date(connection.access_token_expires_at).getTime();
-  if (expiresAt > Date.now() + 60_000) return decrypt(connection.access_token_enc);
+  if (expiresAt > Date.now() + 60_000)
+    return decrypt(connection.access_token_enc);
 
   const tokens = await refreshTokens(decrypt(connection.refresh_token_enc));
   await saveTokens(tokens); // refresh-token rotation: always store the newly returned pair
@@ -198,7 +231,9 @@ export class DigitailCircuitOpenError extends Error {
 }
 
 export function digitailCircuitState() {
-  const open = cbConsecutiveFailures >= CB_FAILURE_THRESHOLD && Date.now() - cbOpenedAt < CB_OPEN_MS;
+  const open =
+    cbConsecutiveFailures >= CB_FAILURE_THRESHOLD &&
+    Date.now() - cbOpenedAt < CB_OPEN_MS;
   return { open, consecutiveFailures: cbConsecutiveFailures };
 }
 
@@ -211,14 +246,25 @@ function cbFailure() {
 }
 
 function cbGuard() {
-  if (cbConsecutiveFailures >= CB_FAILURE_THRESHOLD && Date.now() - cbOpenedAt < CB_OPEN_MS) {
+  if (
+    cbConsecutiveFailures >= CB_FAILURE_THRESHOLD &&
+    Date.now() - cbOpenedAt < CB_OPEN_MS
+  ) {
     throw new DigitailCircuitOpenError();
   }
 }
 
-export async function digitailRequest(method: "GET" | "POST", path: string, body?: any, clinicId?: string) {
+export async function digitailRequest(
+  method: "GET" | "POST",
+  path: string,
+  body?: any,
+  clinicId?: string,
+) {
   const token = await getValidAccessToken();
-  const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
+  };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (clinicId) headers["X-ClinicId"] = clinicId;
 
@@ -239,13 +285,20 @@ export async function digitailRequest(method: "GET" | "POST", path: string, body
     } catch (cause: any) {
       clearTimeout(timer);
       cbFailure();
-      lastError = new Error(`Digitail API request failed: ${cause?.name === "AbortError" ? "timeout" : "network error"}`, { cause });
+      lastError = new Error(
+        `Digitail API request failed: ${cause?.name === "AbortError" ? "timeout" : "network error"}`,
+        { cause },
+      );
       continue; // retry (GET only; loop exits after 1 attempt for POST)
     }
     clearTimeout(timer);
     const text = await response.text();
     let data: any;
-    try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 2000) }; }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text.slice(0, 2000) };
+    }
     if (!response.ok) {
       // 5xx counts toward the circuit breaker; 4xx is a caller error, not upstream health.
       if (response.status >= 500) {
@@ -253,7 +306,9 @@ export async function digitailRequest(method: "GET" | "POST", path: string, body
       } else {
         cbSuccess();
       }
-      const error = new Error(`Digitail API request failed (${response.status})`);
+      const error = new Error(
+        `Digitail API request failed (${response.status})`,
+      );
       (error as any).status = response.status;
       (error as any).details = data;
       lastError = error;
@@ -284,7 +339,10 @@ export function registerDigitailRoutes(app: Express) {
         // Discover or create the clinic's visit-type category (required field).
         let category: any = null;
         try {
-          const cats = await digitailRequest("GET", `/visit-type-categories?filter%5Bclinic_id%5D=${clinicId}`);
+          const cats = await digitailRequest(
+            "GET",
+            `/visit-type-categories?filter%5Bclinic_id%5D=${clinicId}`,
+          );
           const first = (cats?.data || [])[0];
           category = first?.id ?? first?.name ?? null;
         } catch {}
@@ -302,55 +360,90 @@ export function registerDigitailRoutes(app: Express) {
           color: "#6650a0",
           ...(category !== null ? { category } : {}),
         });
-        results.push({ clinicId, ok: true, id: created?.data?.id, categoryUsed: category });
+        results.push({
+          clinicId,
+          ok: true,
+          id: created?.data?.id,
+          categoryUsed: category,
+        });
       } catch (e: any) {
-        results.push({ clinicId, ok: false, status: e?.status, details: JSON.stringify(e?.details || e?.message).slice(0, 400) });
+        results.push({
+          clinicId,
+          ok: false,
+          status: e?.status,
+          details: JSON.stringify(e?.details || e?.message).slice(0, 400),
+        });
       }
     }
     res.json({ results });
   });
 
-  app.get("/api/digitail/connect", requireAdmin, (req: Request, res: Response) => {
-    try {
-      const verifier = randomString(48);
-      const state = randomString(32);
-      const challenge = createCodeChallenge(verifier);
-      const session = req.session as any;
-      session.digitailOAuth = { verifier, state, createdAt: Date.now() };
+  app.get(
+    "/api/digitail/connect",
+    requireAdmin,
+    (req: Request, res: Response) => {
+      try {
+        const verifier = randomString(48);
+        const state = randomString(32);
+        const challenge = createCodeChallenge(verifier);
+        const session = req.session as any;
+        session.digitailOAuth = { verifier, state, createdAt: Date.now() };
 
-      const url = new URL(config.authorizeUrl);
-      url.searchParams.set("response_type", "code");
-      url.searchParams.set("client_id", required("DIGITAIL_CLIENT_ID"));
-      // client_secret is deliberately NOT sent on the authorize GET (Digitail/George, 2026-09-21:
-      // "With PKCE the authorize step never needs it... Send it only on the token POST." — supersedes
-      // the earlier instruction; we send it on both token grants).
-      url.searchParams.set("redirect_uri", config.redirectUri);
-      url.searchParams.set("state", state);
-      url.searchParams.set("code_challenge", challenge);
-      url.searchParams.set("code_challenge_method", "S256");
-      res.redirect(url.toString());
-    } catch (error: any) {
-      res.status(500).json({ error: "digitail_config_error", message: redactErrorMessage(error) });
-    }
-  });
+        const url = new URL(config.authorizeUrl);
+        url.searchParams.set("response_type", "code");
+        url.searchParams.set("client_id", required("DIGITAIL_CLIENT_ID"));
+        // client_secret is deliberately NOT sent on the authorize GET (Digitail/George, 2026-09-21:
+        // "With PKCE the authorize step never needs it... Send it only on the token POST." — supersedes
+        // the earlier instruction; we send it on both token grants).
+        url.searchParams.set("redirect_uri", config.redirectUri);
+        url.searchParams.set("state", state);
+        url.searchParams.set("code_challenge", challenge);
+        url.searchParams.set("code_challenge_method", "S256");
+        res.redirect(url.toString());
+      } catch (error: any) {
+        res.status(500).json({
+          error: "digitail_config_error",
+          message: redactErrorMessage(error),
+        });
+      }
+    },
+  );
 
-  app.get("/api/digitail/callback", requireAdmin, async (req: Request, res: Response) => {
-    try {
-      const code = typeof req.query.code === "string" ? req.query.code : "";
-      const state = typeof req.query.state === "string" ? req.query.state : "";
-      const oauth = (req.session as any).digitailOAuth;
-      if (!code || !state || !oauth) return res.status(400).json({ error: "invalid_oauth_callback" });
-      if (oauth.state !== state) return res.status(400).json({ error: "invalid_oauth_state" });
-      if (Date.now() - oauth.createdAt > 10 * 60 * 1000) return res.status(400).json({ error: "oauth_state_expired" });
-      delete (req.session as any).digitailOAuth;
-      const tokens = await exchangeCode(code, oauth.verifier);
-      await saveTokens(tokens);
-      res.status(200).send("<!doctype html><html><head><meta charset='utf-8'><title>Digitail Connected</title></head><body style='font-family:sans-serif;text-align:center;padding:60px'><h1>Digitail connected successfully</h1><p>You can close this window.</p></body></html>");
-    } catch (error: any) {
-      console.error("[digitail] OAuth callback failed:", redactErrorMessage(error));
-      res.status(500).json({ error: "digitail_oauth_failed", message: redactErrorMessage(error) });
-    }
-  });
+  app.get(
+    "/api/digitail/callback",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+      try {
+        const code = typeof req.query.code === "string" ? req.query.code : "";
+        const state =
+          typeof req.query.state === "string" ? req.query.state : "";
+        const oauth = (req.session as any).digitailOAuth;
+        if (!code || !state || !oauth)
+          return res.status(400).json({ error: "invalid_oauth_callback" });
+        if (oauth.state !== state)
+          return res.status(400).json({ error: "invalid_oauth_state" });
+        if (Date.now() - oauth.createdAt > 10 * 60 * 1000)
+          return res.status(400).json({ error: "oauth_state_expired" });
+        delete (req.session as any).digitailOAuth;
+        const tokens = await exchangeCode(code, oauth.verifier);
+        await saveTokens(tokens);
+        res
+          .status(200)
+          .send(
+            "<!doctype html><html><head><meta charset='utf-8'><title>Digitail Connected</title></head><body style='font-family:sans-serif;text-align:center;padding:60px'><h1>Digitail connected successfully</h1><p>You can close this window.</p></body></html>",
+          );
+      } catch (error: any) {
+        console.error(
+          "[digitail] OAuth callback failed:",
+          redactErrorMessage(error),
+        );
+        res.status(500).json({
+          error: "digitail_oauth_failed",
+          message: redactErrorMessage(error),
+        });
+      }
+    },
+  );
 
   app.get("/api/digitail/status", requireAdmin, async (_req, res) => {
     try {
@@ -361,7 +454,10 @@ export function registerDigitailRoutes(app: Express) {
         ...publicDigitailConfig(config),
       });
     } catch (error: any) {
-      res.status(500).json({ error: "digitail_status_failed", message: redactErrorMessage(error) });
+      res.status(500).json({
+        error: "digitail_status_failed",
+        message: redactErrorMessage(error),
+      });
     }
   });
 
@@ -384,7 +480,8 @@ export function registerDigitailRoutes(app: Express) {
         env: row.env,
         connectionScope: row.connection_scope,
         tokenExpiresAt: row.access_token_expires_at,
-        tokenExpired: new Date(row.access_token_expires_at).getTime() <= Date.now(),
+        tokenExpired:
+          new Date(row.access_token_expires_at).getTime() <= Date.now(),
         updatedAt: row.updated_at,
       }));
       res.json(health);
@@ -398,13 +495,20 @@ export function registerDigitailRoutes(app: Express) {
   app.post("/api/digitail/refresh", requireAdmin, async (_req, res) => {
     try {
       const connection = await loadConnection();
-      if (!connection) return res.status(404).json({ error: "digitail_not_connected" });
+      if (!connection)
+        return res.status(404).json({ error: "digitail_not_connected" });
       const tokens = await refreshTokens(decrypt(connection.refresh_token_enc));
       await saveTokens(tokens);
       res.json({ refreshed: true, expiresIn: tokens.expires_in });
     } catch (error: any) {
-      console.error("[digitail] token refresh failed:", redactErrorMessage(error));
-      res.status(502).json({ error: "digitail_refresh_failed", message: redactErrorMessage(error) });
+      console.error(
+        "[digitail] token refresh failed:",
+        redactErrorMessage(error),
+      );
+      res.status(502).json({
+        error: "digitail_refresh_failed",
+        message: redactErrorMessage(error),
+      });
     }
   });
 
@@ -415,8 +519,16 @@ export function registerDigitailRoutes(app: Express) {
       const data = await digitailApi("/auth/me?include=multipleClinic");
       res.json(data);
     } catch (error: any) {
-      console.error("[digitail] clinic discovery failed:", redactErrorMessage(error));
-      res.status(error?.status || 502).json({ error: "digitail_clinic_discovery_failed", details: redactSecrets(JSON.stringify(error?.details || error?.message || String(error))) });
+      console.error(
+        "[digitail] clinic discovery failed:",
+        redactErrorMessage(error),
+      );
+      res.status(error?.status || 502).json({
+        error: "digitail_clinic_discovery_failed",
+        details: redactSecrets(
+          JSON.stringify(error?.details || error?.message || String(error)),
+        ),
+      });
     }
   });
 
@@ -425,17 +537,31 @@ export function registerDigitailRoutes(app: Express) {
   const sandboxTestPath = "/appointments";
   app.get("/api/digitail/test", requireAdmin, async (req, res) => {
     try {
-      const clinicId = typeof req.query.clinicId === "string" ? req.query.clinicId.trim() : "";
-      if (!sandboxClinicIds.has(clinicId)) return res.status(400).json({ error: "invalid_sandbox_clinic_id" });
+      const clinicId =
+        typeof req.query.clinicId === "string" ? req.query.clinicId.trim() : "";
+      if (!sandboxClinicIds.has(clinicId))
+        return res.status(400).json({ error: "invalid_sandbox_clinic_id" });
 
-      const requestedPath = typeof req.query.path === "string" ? req.query.path.trim() : sandboxTestPath;
-      if (requestedPath !== sandboxTestPath) return res.status(400).json({ error: "unsupported_test_endpoint" });
+      const requestedPath =
+        typeof req.query.path === "string"
+          ? req.query.path.trim()
+          : sandboxTestPath;
+      if (requestedPath !== sandboxTestPath)
+        return res.status(400).json({ error: "unsupported_test_endpoint" });
 
-      const data = await digitailApi(`${sandboxTestPath}?filter%5Bclinic_id%5D=${encodeURIComponent(clinicId)}`, clinicId);
+      const data = await digitailApi(
+        `${sandboxTestPath}?filter%5Bclinic_id%5D=${encodeURIComponent(clinicId)}`,
+        clinicId,
+      );
       res.json({ clinicId, path: sandboxTestPath, data });
     } catch (error: any) {
       console.error("[digitail] API test failed:", redactErrorMessage(error));
-      res.status(error?.status || 502).json({ error: "digitail_api_test_failed", details: redactSecrets(JSON.stringify(error?.details || error?.message || String(error))) });
+      res.status(error?.status || 502).json({
+        error: "digitail_api_test_failed",
+        details: redactSecrets(
+          JSON.stringify(error?.details || error?.message || String(error)),
+        ),
+      });
     }
   });
 }

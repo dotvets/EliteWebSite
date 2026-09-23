@@ -10,24 +10,34 @@ import heroImage2 from "@assets/freepik__img1i-want-you-to-make-the-attached-ima
 import heroImage3 from "@assets/generated_images/Happy_pet_owner_with_cat_0ee67349.png";
 import { siteImage } from "@/lib/siteImages";
 
-const images = [siteImage("img.hero.slide1", heroImage1), siteImage("img.hero.slide2", heroImage2), siteImage("img.hero.slide3", heroImage3)];
+const images = [
+  siteImage("img.hero.slide1", heroImage1),
+  siteImage("img.hero.slide2", heroImage2),
+  siteImage("img.hero.slide3", heroImage3),
+];
 
 export default function HeroSlider() {
   const { language } = useLanguage();
   const t = translations[language].hero;
-  
-  const { emblaRef, selectedIndex, scrollPrev, scrollNext, scrollTo } = useHeroSlider({ language });
 
-  const slides = t.slides.map((slide, index) => ({
-    ...slide,
-    image: images[index % images.length]
-  }));
+  const { emblaRef, selectedIndex, scrollPrev, scrollNext, scrollTo } =
+    useHeroSlider({ language });
+
+  const slides = t.slides.map(
+    (slide: (typeof t.slides)[number], index: number) => ({
+      ...slide,
+      image: images[index % images.length],
+    }),
+  );
 
   return (
-    <div className="relative min-h-[450px] h-[60vh] sm:h-[500px] md:h-[550px] lg:h-[700px] w-full" key={language}>
+    <div
+      className="relative min-h-[450px] h-[60vh] sm:h-[500px] md:h-[550px] lg:h-[700px] w-full"
+      key={language}
+    >
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
-          {slides.map((slide, index) => (
+          {slides.map((slide: (typeof slides)[number], index: number) => (
             <SlideItem
               key={index}
               image={slide.image}
@@ -41,11 +51,11 @@ export default function HeroSlider() {
       </div>
 
       <SliderNavigation onPrev={scrollPrev} onNext={scrollNext} />
-      
-      <SliderIndicators 
-        count={slides.length} 
-        selectedIndex={selectedIndex} 
-        onSelect={scrollTo} 
+
+      <SliderIndicators
+        count={slides.length}
+        selectedIndex={selectedIndex}
+        onSelect={scrollTo}
       />
     </div>
   );

@@ -20,9 +20,9 @@ export default function Header() {
   const phone = bsVal(bs, "phone", language, "920011626");
 
   const scrollToFooter = () => {
-    const footer = document.querySelector('footer');
+    const footer = document.querySelector("footer");
     if (footer) {
-      footer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      footer.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -52,7 +52,11 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-4">
             <LanguageToggle />
             <a href={`tel:${phone}`}>
-              <Button data-testid="button-book-appointment" size="default" className="font-mono text-lg">
+              <Button
+                data-testid="button-book-appointment"
+                size="default"
+                className="font-mono text-lg"
+              >
                 <AnimatedPhoneNumber number={phone} />
               </Button>
             </a>

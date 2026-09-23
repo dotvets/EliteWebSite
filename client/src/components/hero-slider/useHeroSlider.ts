@@ -8,11 +8,11 @@ interface UseHeroSliderProps {
 
 export function useHeroSlider({ language }: UseHeroSliderProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
+    {
       loop: true,
-      direction: language === 'ar' ? 'rtl' : 'ltr'
-    }, 
-    [Autoplay({ delay: 5000, stopOnInteraction: false })]
+      direction: language === "ar" ? "rtl" : "ltr",
+    },
+    [Autoplay({ delay: 5000, stopOnInteraction: false })],
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -28,7 +28,7 @@ export function useHeroSlider({ language }: UseHeroSliderProps) {
     (index: number) => {
       if (emblaApi) emblaApi.scrollTo(index);
     },
-    [emblaApi]
+    [emblaApi],
   );
 
   useEffect(() => {

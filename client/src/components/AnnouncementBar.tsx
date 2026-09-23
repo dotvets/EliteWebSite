@@ -11,7 +11,10 @@ export default function AnnouncementBar() {
   const text = bsVal(bs, "announcement", language, "");
   if (!text.trim() || dismissed) return null;
   return (
-    <div className="bg-primary text-primary-foreground text-sm py-2 px-4 flex items-center justify-center gap-3 relative z-50" data-testid="announcement-bar">
+    <div
+      className="bg-primary text-primary-foreground text-sm py-2 px-4 flex items-center justify-center gap-3 relative z-50"
+      data-testid="announcement-bar"
+    >
       <span className="text-center font-medium">{text}</span>
       <button
         onClick={() => setDismissed(true)}
