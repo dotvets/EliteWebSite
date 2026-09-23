@@ -839,6 +839,49 @@ export function registerHubBookingRoutes(app: Express) {
         b.id,
         {},
       );
+      // WhatsApp cancellation confirmation — sent ONLY after both the Digitail
+      // cancellation and the booking status update succeeded above.
+      // Idempotent: enqueueNotification dedups on (booking, kind, channel,
+      // template). A notification failure must never fail the cancellation
+      // itself, so it is isolated in its own try/catch.
+      try {
+        const clinicRow = await pool.query(
+          `SELECT * FROM hub_clinics WHERE id = $1 LIMIT 1`,
+          [b.clinic_id],
+        );
+        const clinic = clinicRow.rows[0];
+        const start = Number.isNaN(startMs) ? null : new Date(startMs);
+        const riyadh = { timeZone: "Asia/Riyadh" } as const;
+        await enqueueNotification({
+          bookingId: b.id,
+          kind: "cancel",
+          channel: "whatsapp",
+          toPhone: b.customer_phone,
+          templateKey: "cancel",
+          payload: {
+            locale: b.locale,
+            "1": referenceCode(b.brand, b.id),
+            "2": clinic
+              ? b.locale === "ar"
+                ? clinic.name_ar
+                : clinic.name_en
+              : "",
+            "3": start
+              ? start.toLocaleString("sv-SE", riyadh).slice(0, 10)
+              : "",
+            "4": start
+              ? start.toLocaleString("sv-SE", riyadh).slice(11, 16)
+              : "",
+          },
+          scheduledAt: new Date(),
+          respectQuietHours: false,
+        });
+      } catch (notifyErr: any) {
+        console.error(
+          "[hub] cancellation notification enqueue failed:",
+          notifyErr?.message || notifyErr,
+        );
+      }
       res.json({ cancelled: true });
     } catch (error: any) {
       safeErr(res, error, "booking_cancel_failed");

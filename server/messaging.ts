@@ -22,6 +22,7 @@ export interface MessagingProvider {
     to: string,
     templateKey: string,
     params: Record<string, string>,
+    opts?: { locale?: string },
   ): Promise<{ providerMessageId: string }>;
 }
 
@@ -50,6 +51,7 @@ class StubProvider implements MessagingProvider {
     to: string,
     templateKey: string,
     _params: Record<string, string>,
+    _opts?: { locale?: string },
   ) {
     const id = `stub-wa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     console.log(
@@ -179,21 +181,32 @@ const BEVATEL_CHAT_SEND_URL =
   "https://chat.bevatel.com/developer/api/v1/messages";
 
 // templateKey -> approved template mapping is config-driven; the adapter
-// never guesses a template name. Configure per key:
+// never guesses a template name. Template families are configured once per
+// key with the BASE name (no locale suffix); the adapter appends the booking
+// locale ("_ar" default, "_en" for English bookings):
 //   BEVATEL_WA_TEMPLATE_CONFIRM="elite_booking_confirmation"
-//   BEVATEL_WA_TEMPLATE_CONFIRM_LANG="en"   (default "en")
+//     -> elite_booking_confirmation_ar / elite_booking_confirmation_en
+// Optional explicit per-language overrides (rarely needed):
+//   BEVATEL_WA_TEMPLATE_CONFIRM_AR / BEVATEL_WA_TEMPLATE_CONFIRM_EN
+// Locale comes from the persisted booking/customer record (hub_bookings.locale,
+// z.enum(["ar","en"]) at creation) — never guessed from phone or name.
 // Positional body parameters are taken from numeric param keys ("1","2",…).
-function resolveWhatsAppTemplate(templateKey: string): {
+function resolveWhatsAppTemplate(
+  templateKey: string,
+  locale?: string,
+): {
   name: string;
   language: string;
 } {
   const envKey = `BEVATEL_WA_TEMPLATE_${templateKey.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
-  const name = process.env[envKey] || "";
-  if (!name)
+  const base = process.env[envKey] || "";
+  if (!base)
     throw new Error(
       `Bevatel WhatsApp template not mapped for key "${templateKey}" (${envKey} missing) — refusing to guess a template name`,
     );
-  return { name, language: process.env[`${envKey}_LANG`] || "en" };
+  const lang = locale === "en" ? "en" : "ar";
+  const explicit = process.env[`${envKey}_${lang.toUpperCase()}`];
+  return { name: explicit || `${base}_${lang}`, language: lang };
 }
 
 export class BevatelWhatsAppProvider implements MessagingProvider {
@@ -217,6 +230,7 @@ export class BevatelWhatsAppProvider implements MessagingProvider {
     to: string,
     templateKey: string,
     params: Record<string, string>,
+    opts?: { locale?: string },
   ): Promise<{ providerMessageId: string }> {
     if (!this.accountId || !this.accessToken || !this.inboxId)
       throw new Error(
@@ -225,7 +239,7 @@ export class BevatelWhatsAppProvider implements MessagingProvider {
     // Hard guard: the protected Dr Paws inbox 810 must never be used here.
     if (this.inboxId === "810")
       throw new Error("protected_asset: bevatel inbox 810");
-    const template = resolveWhatsAppTemplate(templateKey);
+    const template = resolveWhatsAppTemplate(templateKey, opts?.locale);
     const bodyParams = Object.keys(params)
       .filter((k) => /^\d+$/.test(k))
       .sort((a, b) => Number(a) - Number(b))
@@ -466,6 +480,7 @@ export async function dispatchDueNotifications(): Promise<{
           n.to_phone,
           n.template_key,
           n.payload_json || {},
+          { locale: (n.payload_json || {}).locale },
         );
       } else {
         const senderId = (n.payload_json || {}).senderId;
