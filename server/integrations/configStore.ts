@@ -215,7 +215,7 @@ export async function listIntegrationViews(): Promise<IntegrationView[]> {
   }
   return out;
 }
-const PROVIDERS_KEYS = ["digitail", "myfatoorah", "google_ads", "m365", "bevatel", "meta_whatsapp"];
+const PROVIDERS_KEYS = ["digitail", "myfatoorah", "google_ads", "m365", "bevatel", "bevatel_sms", "meta_whatsapp"];
 
 export async function upsertConfig(opts: {
   providerKey: string;

@@ -13,9 +13,26 @@ async function check(name: string, fn: () => unknown | Promise<unknown>) {
 // ---------------------------------------------------------------------------
 const { PROVIDERS, getProvider, validateCategoryA, findSecretLeak, CATEGORY_C_DISPLAY } = await import("../server/integrations/registry");
 
-await check("registry: 6 providers registered", () => {
-  assert.equal(PROVIDERS.length, 6);
-  for (const k of ["digitail", "myfatoorah", "google_ads", "m365", "bevatel", "meta_whatsapp"]) assert.ok(getProvider(k));
+await check("registry: 7 providers registered", () => {
+  assert.equal(PROVIDERS.length, 7);
+  for (const k of ["digitail", "myfatoorah", "google_ads", "m365", "bevatel", "bevatel_sms", "meta_whatsapp"]) assert.ok(getProvider(k));
+});
+
+await check("registry: bevatel_sms is separate from bevatel (own secret ref)", () => {
+  const sms = getProvider("bevatel_sms")!;
+  assert.equal(sms.category, "messaging");
+  assert.deepEqual(sms.secretRefs.map((s) => s.envName), ["BEVATEL_SMS_API_TOKEN"]);
+  const wa = getProvider("bevatel")!;
+  for (const ref of wa.secretRefs) assert.notEqual(ref.envName, "BEVATEL_SMS_API_TOKEN");
+  for (const ref of sms.secretRefs) assert.ok(!["BEVATEL_ACCESS_TOKEN", "BEVATEL_API_KEY", "BEVATEL_WEBHOOK_VERIFY_TOKEN"].includes(ref.envName));
+});
+
+await check("schema: bevatel_sms sender_id pattern enforced", () => {
+  const p = getProvider("bevatel_sms")!;
+  assert.ok(validateCategoryA(p, { sender_id: "EliteVet" }).ok);
+  assert.ok(validateCategoryA(p, {}).ok); // optional until a sender is approved
+  const bad = validateCategoryA(p, { sender_id: "not allowed!!" });
+  assert.ok(!bad.ok);
 });
 
 await check("schema: valid bevatel Category A config passes", () => {
@@ -264,6 +281,29 @@ await check("adapters: google_ads rejects corrupt SA JSON cleanly", async () => 
 await check("adapters: meta missing secrets fails cleanly", async () => {
   const r = await runSafeTest("meta_whatsapp");
   assert.ok("result" in r && r.result === "failed" && r.errorClass === "missing_secret_ref");
+});
+
+await check("adapters: bevatel_sms missing secret fails cleanly (no send attempted)", async () => {
+  const prev = process.env.BEVATEL_SMS_API_TOKEN;
+  delete process.env.BEVATEL_SMS_API_TOKEN;
+  const r = await runSafeTest("bevatel_sms");
+  assert.ok("result" in r && r.result === "failed" && r.errorClass === "missing_secret_ref");
+  if (prev) process.env.BEVATEL_SMS_API_TOKEN = prev;
+});
+
+await check("messaging: bevatel_sms provider is opt-in and fails closed", async () => {
+  const { getMessagingProvider, BevatelSmsProvider } = await import("../server/messaging");
+  const prevTok = process.env.BEVATEL_SMS_API_TOKEN;
+  const prevKind = process.env.MESSAGING_PROVIDER;
+  delete process.env.BEVATEL_SMS_API_TOKEN;
+  process.env.MESSAGING_PROVIDER = "bevatel_sms";
+  const p = getMessagingProvider();
+  assert.ok(p instanceof BevatelSmsProvider);
+  await assert.rejects(() => p.sendSms("966502229040", "x", "EliteVet"), /BEVATEL_SMS_API_TOKEN missing/);
+  process.env.MESSAGING_PROVIDER = "stub";
+  assert.ok(!(getMessagingProvider() instanceof BevatelSmsProvider));
+  if (prevTok) process.env.BEVATEL_SMS_API_TOKEN = prevTok;
+  if (prevKind) process.env.MESSAGING_PROVIDER = prevKind; else delete process.env.MESSAGING_PROVIDER;
 });
 
 await check("adapters: unknown provider rejected", async () => {

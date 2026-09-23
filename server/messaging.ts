@@ -49,9 +49,55 @@ class BevatelProvider implements MessagingProvider {
   }
 }
 
+// Bevatel SMS provider — SEPARATE capability (owner decision 2026-09-23).
+// Implements ONLY the official documented contract (docsv1):
+//   POST https://sms-api.bevatel.com/msgs/sms   { src, dests[], body, msgClass, dlr }
+//   Authorization: Bearer <BEVATEL_SMS_API_TOKEN>
+// Fixed host (SSRF barrier). Token is read from env ONLY — never from DB,
+// never logged (redact.ts covers BEVATEL_SMS_API_TOKEN).
+// NOT the production default: MESSAGING_PROVIDER stays "stub" until the owner
+// explicitly enables it AND Bevatel approves a sender ID (upstream currently
+// rejects all src values with errorCode 6307 — verified 2026-09-23).
+export class BevatelSmsProvider implements MessagingProvider {
+  private token = process.env.BEVATEL_SMS_API_TOKEN || "";
+  private defaultSender = process.env.BEVATEL_SMS_SENDER_ID || "";
+  async sendSms(to: string, body: string, senderId?: string): Promise<{ providerMessageId: string }> {
+    if (!this.token) throw new Error("Bevatel SMS not configured (BEVATEL_SMS_API_TOKEN missing)");
+    const src = senderId || this.defaultSender;
+    if (!src) throw new Error("Bevatel SMS sender ID not approved yet (no registered src on the SMS account)");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    let response: globalThis.Response;
+    try {
+      response = await fetch("https://sms-api.bevatel.com/msgs/sms", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ src, dests: [to], body, msgClass: "transactional", dlr: true }),
+        signal: controller.signal,
+      });
+    } catch (cause: any) {
+      clearTimeout(timer);
+      throw new Error(`Bevatel SMS request failed: ${cause?.name === "AbortError" ? "timeout" : "network error"}`, { cause });
+    }
+    clearTimeout(timer);
+    const data: any = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      // Never echo upstream bodies into logs beyond the documented errorCode.
+      const code = data?.errorCode ?? data?.error?.code ?? "unknown";
+      const err = new Error(`Bevatel SMS rejected send (${response.status}, errorCode ${code})`);
+      (err as any).status = response.status;
+      (err as any).errorCode = code;
+      throw err;
+    }
+    const id = data?.data?.[0]?.msgId ?? data?.msgIds?.[0] ?? data?.jobId ?? data?.id ?? `bevatel-sms-${Date.now()}`;
+    return { providerMessageId: String(id) };
+  }
+}
+
 export function getMessagingProvider(): MessagingProvider {
   const kind = (process.env.MESSAGING_PROVIDER || "stub").toLowerCase();
   if (kind === "bevatel") return new BevatelProvider();
+  if (kind === "bevatel_sms") return new BevatelSmsProvider();
   return new StubProvider();
 }
 
@@ -151,9 +197,9 @@ async function resolveRoutedProvider(bookingId: string | null, kind: string): Pr
     if (!brand) return null;
     const routed = await resolveRouteProvider(brand, purpose as any, process.env.DIGITAIL_ENV || "sandbox");
     if (!routed) return null;
-    // V1: no messaging provider has a completed send adapter (Bevatel send path
-    // stays unverified until the official contract lands) — routing is recorded
-    // but never switches to an unimplemented adapter.
+    // V1: routing is recorded but NEVER auto-switches providers. Even though
+    // a documented BevatelSmsProvider now exists, switching requires explicit
+    // owner enablement (sender ID still unapproved upstream, 2026-09-23).
     await audit("system", "routing.unsupported_provider", "hub_notifications", bookingId, { routed, purpose });
     return null;
   } catch {

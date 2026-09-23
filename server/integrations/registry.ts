@@ -64,6 +64,8 @@ export interface ProviderSpec {
 // Field-pattern guards reused across providers.
 const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const NUM_ID_RE = /^\d{1,20}$/;
+// Alphanumeric SMS sender ID (per Bevatel SMS docs: src address).
+const SENDER_ID_RE = /^[A-Za-z0-9][A-Za-z0-9 .-]{0,19}$/;
 const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}$/;
 
 export const PROVIDERS: ProviderSpec[] = [
@@ -171,6 +173,32 @@ export const PROVIDERS: ProviderSpec[] = [
     categoryC: ["BEVATEL_API_BASE_URL"],
     testCapability: "readonly",
     webhookHealth: true,
+  },
+  {
+    key: "bevatel_sms",
+    displayNameAr: "بيفاتيل SMS (منفصل عن واتساب)",
+    displayNameEn: "Bevatel SMS",
+    // SMS is a SEPARATE capability from WhatsApp/Chat (owner decision
+    // 2026-09-23): different token, different host (sms-api.bevatel.com),
+    // different contract. It MUST NOT share or overwrite any Bevatel
+    // WhatsApp/Meta/Chat secret references.
+    category: "messaging",
+    allowedScopes: ["brand"],
+    allowedEnvironments: ["production"],
+    configFields: [
+      // Approved sender ID (src). Currently NONE registered upstream —
+      // sends return errorCode 6307 until Bevatel approves a sender name.
+      { key: "sender_id", kind: "string", pattern: SENDER_ID_RE, maxLength: 20 },
+    ],
+    secretRefs: [
+      { key: "api_token", envName: "BEVATEL_SMS_API_TOKEN", required: true },
+    ],
+    // Base URL is FIXED inside the adapter (SSRF prevention) — never editable.
+    categoryC: [],
+    testCapability: "readonly",
+    // No inbound webhook in V1: delivery receipts (DLRs) are polled via the
+    // documented GET /inbox/dlrs + POST /msgs/status read-only endpoints.
+    webhookHealth: false,
   },
   {
     key: "meta_whatsapp",
