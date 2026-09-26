@@ -87,8 +87,10 @@ export function createDigitailSimulator(state: SimState) {
       // simulate a hanging request aborted by caller's AbortController
       return new Promise<Response>(() => {});
     }
-    if (state.failMode === "429") return jsonResponse(429, { message: "Too Many Requests" });
-    if (state.failMode === "500") return jsonResponse(500, { message: "Server Error" });
+    if (state.failMode === "429")
+      return jsonResponse(429, { message: "Too Many Requests" });
+    if (state.failMode === "500")
+      return jsonResponse(500, { message: "Server Error" });
     if (state.failMode === "malformed") {
       return new Response("<html>not json</html>", {
         status: 200,
@@ -101,7 +103,11 @@ export function createDigitailSimulator(state: SimState) {
 
     if (!isTokenRoute) {
       const token = auth.replace(/^Bearer\s+/i, "");
-      if (!token || !state.tokens.has(token) || state.invalidatedTokens.has(token)) {
+      if (
+        !token ||
+        !state.tokens.has(token) ||
+        state.invalidatedTokens.has(token)
+      ) {
         return jsonResponse(401, { message: "Unauthenticated." });
       }
     }
@@ -158,24 +164,45 @@ export function createDigitailSimulator(state: SimState) {
     // --- vets-timeslots ---
     if (path.startsWith("/api/v1/vets-timeslots")) {
       const url = new URL(`https://sim.digitail.test${path}`);
-      if (!url.searchParams.get("visit_type_id") && !url.searchParams.get("duration")) {
-        return jsonResponse(422, { message: "visit_type_id or duration required" });
+      if (
+        !url.searchParams.get("visit_type_id") &&
+        !url.searchParams.get("duration")
+      ) {
+        return jsonResponse(422, {
+          message: "visit_type_id or duration required",
+        });
       }
       if (url.searchParams.get("clinic_id") === "9999") {
         return jsonResponse(404, { message: "Not Found" });
       }
       return jsonResponse(200, {
-        data: [{ vet_id: 1, start: "2026-10-01T09:00:00Z", end: "2026-10-01T09:30:00Z", simulated: true }],
+        data: [
+          {
+            vet_id: 1,
+            start: "2026-10-01T09:00:00Z",
+            end: "2026-10-01T09:30:00Z",
+            simulated: true,
+          },
+        ],
       });
     }
 
     // --- pets ---
     if (path === "/api/v1/pets" && method === "POST") {
       const body = (opts.body ?? {}) as Record<string, unknown>;
-      const required = ["species", "breed", "birthday", "gender", "hormonal_status"];
+      const required = [
+        "species",
+        "breed",
+        "birthday",
+        "gender",
+        "hormonal_status",
+      ];
       const missing = required.filter((k) => !body[k]);
       if (missing.length) {
-        return jsonResponse(422, { message: "missing fields", errors: missing });
+        return jsonResponse(422, {
+          message: "missing fields",
+          errors: missing,
+        });
       }
       const id = state.nextId++;
       state.pets.set(id, { id, clinicId: 1, simulated: true });
@@ -186,11 +213,15 @@ export function createDigitailSimulator(state: SimState) {
     if (path === "/api/v1/appointments" && method === "POST") {
       const body = (opts.body ?? {}) as Record<string, unknown>;
       if (body.reminder_notifications === undefined) {
-        return jsonResponse(422, { message: "reminder_notifications required" });
+        return jsonResponse(422, {
+          message: "reminder_notifications required",
+        });
       }
       const ref = String(body.client_reference ?? "");
       if (state.appointments.has(ref)) {
-        return jsonResponse(409, { message: "client_reference already exists" });
+        return jsonResponse(409, {
+          message: "client_reference already exists",
+        });
       }
       const id = state.nextId++;
       const appt: SimAppointment = {
@@ -211,7 +242,9 @@ export function createDigitailSimulator(state: SimState) {
       if (!url.searchParams.get("filter[clinic_id]")) {
         return jsonResponse(422, { message: "filter[clinic_id] required" });
       }
-      return jsonResponse(200, { data: [...new Set(state.appointments.values())] });
+      return jsonResponse(200, {
+        data: [...new Set(state.appointments.values())],
+      });
     }
 
     const cancelMatch = path.match(/^\/api\/v1\/appointments\/(\d+)\/cancel$/);
@@ -219,7 +252,9 @@ export function createDigitailSimulator(state: SimState) {
       const appt = state.appointments.get(cancelMatch[1]);
       if (!appt) return jsonResponse(404, { message: "Not Found" });
       appt.status = 7;
-      return jsonResponse(200, { data: { id: appt.id, status: 7, simulated: true } });
+      return jsonResponse(200, {
+        data: { id: appt.id, status: 7, simulated: true },
+      });
     }
 
     return jsonResponse(404, { message: "Not Found" });
