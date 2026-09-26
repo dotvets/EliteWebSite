@@ -11,7 +11,7 @@ Digitail production is NOT READY until George's confirmations arrive.
 | TypeScript baseline  | READY                   | 5 baseline errors fixed (#31); `tsc --noEmit` = 0 errors                                                                 |
 | CI pipeline          | READY (after #31 merge) | `.github/workflows/ci.yml`: install, format, lint, typecheck, build, tests, im-verify, secret-scan, migration validation |
 | Build                | READY                   | `npm run build` green                                                                                                    |
-| Test suites          | READY                   | `im-verify` 38/38; `run-tests` auto-discovers future suites                                                              |
+| Test suites          | READY                   | `im-verify` 38/38; `digitail-simulator` 42/42 (test-only, fail-closed in production); `run-tests` auto-discovers suites |
 | Secret scan          | READY                   | `scripts/secret-scan.mts` in CI; redact.ts covers all configured secrets                                                 |
 | Migration validation | READY                   | `scripts/migration-verify.mts` applies full DDL twice on real Postgres WASM                                              |
 
@@ -19,7 +19,7 @@ Digitail production is NOT READY until George's confirmations arrive.
 
 | Item                        | Status       | Evidence / note                                                                                                                                             |
 | --------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Feature flags               | READY        | All production-facing flags OFF: `INTEGRATIONS_MANAGER`, `WHATSAPP_ENABLED`, `DYNAMIC_DEPOSIT_ENABLED`, `EMERGENCY_PATH_ENABLED`, `MESSAGING_PROVIDER=stub` |
+| Feature flags               | READY        | Flags OFF: `DYNAMIC_DEPOSIT_ENABLED`, `EMERGENCY_PATH_ENABLED`, `INTEGRATIONS_MANAGER`; WhatsApp ON via `MESSAGING_PROVIDER=bevatel_chat` (SMS isolated to stub) |
 | Booking race protection     | READY        | Booking-level atomic claim (`status='confirming'`) + slot-level `hub_slot_claims` (TTL, no deadlock) — 20-way races verified live (#30)                     |
 | Payment replay protection   | READY        | Event keys `inv:status:tx`, HMAC-SHA256 webhook verification, 200-then-async, replay/duplicate verified live                                                |
 | Idempotency                 | READY        | Booking idempotency keys; confirm pipeline idempotent (`idempotent:true` evidence)                                                                          |
@@ -38,14 +38,14 @@ Digitail production is NOT READY until George's confirmations arrive.
 | Integration           | Status                   | Remaining blocker                                                                        |
 | --------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
 | Digitail (sandbox)    | READY                    | Contract fully verified incl. pet fields + slot guards                                   |
-| Digitail (production) | EXTERNAL PROVIDER ACTION | Waiting on George (production OAuth/whitelist/clinic access 3010/3011/3012/3381/3850)    |
+| Digitail (production) | EXTERNAL PROVIDER ACTION | Prod endpoints reachable (root 200, OAuth routes live); OAuth requires human consent + `DIGITAIL_ENV=production`; waiting on George (app, whitelist, clinics 3010/3011/3012/3381/3850); sandbox egress blocks stored-connection verification |
 | MyFatoorah (test)     | READY                    | Webhook signature verified live; replay/idempotency proven; payments OFF                 |
 | MyFatoorah (live)     | OWNER ACTION             | Go-live decision + `MYFATOORAH_MODE=live` at launch                                      |
-| M365 email            | READY                    | SMTP XOAUTH2 verified (235 + controlled send accepted)                                   |
+| M365 email            | READY                    | OAuth2 client-credentials transport on app path; 250 OK on controlled acceptance send    |
 | Google Ads            | BLOCKED (sandbox egress) | SA auth verified locally; live OAuth unreachable from sandbox — runs from Render runtime |
-| Bevatel WhatsApp      | EXTERNAL PROVIDER ACTION | Needs Developer API-module token for account 120                                         |
-| Bevatel SMS           | EXTERNAL PROVIDER ACTION | Needs approved Sender ID (upstream 6307); code ready, disabled                           |
-| Meta WhatsApp         | BLOCKED                  | Not configured externally                                                                |
+| Bevatel WhatsApp      | READY                    | Business Chat API verified live (account 120, inbox 272, 12 approved locale templates)   |
+| Bevatel SMS           | EXTERNAL PROVIDER ACTION | Needs approved Sender ID (upstream 6307); code ready, isolated to stub provider          |
+| Meta WhatsApp         | BLOCKED (not configured) | Adapter shell exists with env validation only; no Meta app/credentials — do not route    |
 
 ## Protected assets
 
