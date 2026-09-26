@@ -13,7 +13,6 @@ import {
   createSimulatedBreaker,
   createState,
   SANDBOX_CLINICS,
-  type SimState,
 } from "./digitail-simulator.mts";
 
 let passed = 0;
