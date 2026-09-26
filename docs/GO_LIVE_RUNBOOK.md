@@ -57,6 +57,18 @@ Every step lists: action → verification → rollback. Stop conditions in **bol
 3. Rollback conditions: any 5xx spike, payment webhook failure, double-booking evidence, or provider auth failure → revert the last flag (Render env, per-key) → redeploy.
 4. Rollback commands: Render Dashboard → service → Env (revert key) → Manual Deploy (or `POST /services/{id}/deploys` via API). Code rollback: revert merge commit on `main` → auto-deploy.
 
+## 5b. Flag-specific rollback (keep OFF until their step arrives)
+
+| Flag (Render env, per-key)          | Enable only when                              | Rollback                                  |
+| ----------------------------------- | --------------------------------------------- | ----------------------------------------- |
+| `DYNAMIC_DEPOSIT_ENABLED`           | Payments step complete + deposit policy set   | unset → redeploy (deposit path falls back) |
+| `EMERGENCY_PATH_ENABLED`            | Owner sign-off + staffing confirmed           | unset → redeploy (standard flow resumes)   |
+| `INTEGRATIONS_MANAGER`              | Launch stabilization, after messaging live    | unset → redeploy (IM UI hidden)            |
+| Locale templates (`*_AR` / `*_EN`)  | Before WhatsApp activation                    | per-key revert → redeploy                  |
+| `DIGITAIL_ENV=production`           | Section 1 only                                | back to `sandbox` → redeploy               |
+
+Rollback for migrations: all shipped migrations are additive-only; there is no destructive DDL to roll back. If a migration misbehaves, restore from Render PG backup (point-in-time) — confirm backup schedule before launch (see audit OWNER ACTION).
+
 ## 6. Post-launch
 
 - Watch `hub_audit_log` (payment._, booking._) and Integrations health for 24h.
